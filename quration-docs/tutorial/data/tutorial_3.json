@@ -1,0 +1,188 @@
+{
+    "name": "Tutorial3Module",
+    "circuit_list": [
+        {
+            "name": "Tutorial3Function",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Call",
+                            "callee": "Toffoli",
+                            "operate": [
+                                0,
+                                1,
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "RZ_0.1",
+                            "operate": [
+                                1
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "RZ_0.01",
+                            "operate": [
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "x": 3
+                },
+                "num_registers": 1,
+                "registers": {
+                    "r": 1
+                }
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "Toffoli",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "CCX",
+                            "q0": 0,
+                            "q1": 1,
+                            "q2": 2
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "x": 3
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "RZ_0.1",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "RZ",
+                            "q": 0,
+                            "theta": {
+                                "value": 0.2,
+                                "precision": 0.1
+                            }
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 1,
+                "qubits": {
+                    "x": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "RZ_0.01",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Call",
+                            "callee": "RZ_0.01_impl",
+                            "operate": [
+                                0
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 1,
+                "qubits": {
+                    "x": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "RZ_0.01_impl",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "RZ",
+                            "q": 0,
+                            "theta": {
+                                "value": 0.2,
+                                "precision": 0.01
+                            }
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 1,
+                "qubits": {
+                    "x": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        }
+    ]
+}

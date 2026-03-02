@@ -2,7 +2,6 @@
 
 Quration is a toolchain for exploring large design space of fault-tolerant quantum computer (FTQC) architectures and curate optimization strategies and co-design techniques to find a state-of-the-art system designs.  
 
-The project of Quration is managed by RIKEN and developed by RIKEN and fixstars.
 The development of Quration is in progress, and their backward compatibility might be broken in future updates.  
 
 ## License
@@ -13,7 +12,9 @@ The development of Quration is in progress, and their backward compatibility mig
 
 ## Features
 
-Quration consists of three repositories; `quration-algorithm`, `quration-core`, and `quration-visualizer`.
+Quration consists of three components; `quration-algorithm`, `quration-core`, and `quration-visualizer`.
+
+See `./quration-docs/tutorial/` for tutorials of these programs.
 
 - `quration-algorithm`: Generate popular quantum algorithms and their subroutines with exponential speed-up as Quration-IR
   - Quration-IR is a succinct LLVM-like language dedicated for evaluating popular FTQC applications with exponential speed-up.
@@ -42,51 +43,18 @@ Quration consists of three repositories; `quration-algorithm`, `quration-core`, 
   - Currently, visualizers are developed only for a standard FTQC instructions with surface-code and lattice surgery
 
 
-### planned features
-- Parser from QIR and qualtran to Quration-IR, and parser from Quration-IR to QIR.
-- Increase popular instruction sets to compare state-of-the-art architectures
-- Compilation to physical instructions
-
-
-## Expected usage
-
-See tutorials for detailed usage of Quration.
-
-- 1. Evaluate application demands
-  - Generate your own application instances and evaluate execution time, qubit count, code distance, and other resources
-- 2. Compare algorithms to achieve a target task
-  - Generate IRs in different ways of translating applications to actual quantum programs and compare which is the best.
-- 3. Verify properties of actual quantum programs
-  - Obtain realistic quantum programs in easy-to-parse form and validate their properties and safety.
-- 4. Explore optimization at middleend compilation.
-  - Create your own optimization passes on IR, e.g., reducing T-count and T-depth, imroving parallelization, etc...
-- 5. Explore optimization at backend compilation
-  - Create your own compilation pass from IR to several standard FTQC instructions, such as rotation-decompisition, code-block placement, lattice-surgery or trans-CNOT path routing.
-- 6. Evaluate improvement by new logical operations, experimental flexibility, and QEC codes.
-  - Create your own instruction sets, write backend compilation, and compare the performance with standard settings.
-- 7. Develop techniques in distributed computing
-  - Create your own network settings, entanglement consumption strategy, and their performance
-- 8. Use the output programs as a testbench for low-level machines.
-  - Translate output programs into lower-level descriptions like Stim's circuits and experimental jobs to check the capability of qubits, schedulers, and real-time decoders.
-  
-
-
 ## Install Quration-Core and Quration-Algorithm
 
-### Install pre-build libraries
+Currently we only support build from source. Pre-build executables, python libraries, and C++ shared library will be distributed soon.
 
-- Currently we only support build from source. Pre-build executables, python libraries, and C++ shared library will be distributed soon.
-
-### Build from source
-
-#### Environment
+### Environment
 
 We expect our library will work on Windows, MacOS, and Linux with compilers GCC, Clang, and MSVS. This library is tested on the following environments.
 
 - Windows 11 + Microsoft Visual Studio 2022
 - Ubuntu 24.04 + Clang
 
-#### Install dependencies
+### Install dependencies
 
 - Install `vcpkg`: 
   - vcpkg is a package manager for C++ libraries, which is used for downloading dependent C++ libraries.
@@ -106,7 +74,7 @@ We expect our library will work on Windows, MacOS, and Linux with compilers GCC,
       - MacOS: `./externals/bin/gridsynth_macos`
 
 
-#### Build process
+### Build process
 
 Please type the following commands at the root of quration-core.
 ```
@@ -130,6 +98,7 @@ Then, you can find the following binaries in `./build/bin` for windows, and `./b
     - `create_prepare`: Generate PREPARE circuits
   - Trotter-based Quantum-dynamics simulation
     - `create_trotter`: Generate the whole dynamics simulation
+
 
 ## quration-visualizer
 

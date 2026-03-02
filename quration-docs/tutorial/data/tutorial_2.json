@@ -1,0 +1,150 @@
+{
+    "name": "Tutorial2Module",
+    "circuit_list": [
+        {
+            "name": "Tutorial2Function",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "DiscreteDistribution",
+                            "weights": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "registers": [
+                                0,
+                                1
+                            ]
+                        },
+                        {
+                            "opcode": "Switch",
+                            "default": "default",
+                            "case": [
+                                "case_X0",
+                                "case_X1",
+                                "case_X2"
+                            ],
+                            "registers": [
+                                0,
+                                1
+                            ]
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": [
+                        "default",
+                        "case_X0",
+                        "case_X1",
+                        "case_X2"
+                    ]
+                },
+                {
+                    "name": "case_X0",
+                    "inst_list": [
+                        {
+                            "opcode": "X",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 1,
+                            "if_true": "switch_cont_0"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry"
+                    ],
+                    "successors": [
+                        "switch_cont_0"
+                    ]
+                },
+                {
+                    "name": "case_X1",
+                    "inst_list": [
+                        {
+                            "opcode": "X",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 1,
+                            "if_true": "switch_cont_0"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry"
+                    ],
+                    "successors": [
+                        "switch_cont_0"
+                    ]
+                },
+                {
+                    "name": "case_X2",
+                    "inst_list": [
+                        {
+                            "opcode": "X",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 1,
+                            "if_true": "switch_cont_0"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry"
+                    ],
+                    "successors": [
+                        "switch_cont_0"
+                    ]
+                },
+                {
+                    "name": "default",
+                    "inst_list": [
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 1,
+                            "if_true": "switch_cont_0"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry"
+                    ],
+                    "successors": [
+                        "switch_cont_0"
+                    ]
+                },
+                {
+                    "name": "switch_cont_0",
+                    "inst_list": [
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [
+                        "case_X0",
+                        "case_X1",
+                        "case_X2",
+                        "default"
+                    ],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "x": 3
+                },
+                "num_registers": 2,
+                "registers": {
+                    "r": 2
+                }
+            },
+            "num_tmp_registers": 0
+        }
+    ]
+}
