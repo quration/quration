@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D view</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+
+        #draw-2D {
+            background-color: white;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+
+        #tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            font-size: xx-small;
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="draw-2D"></div>
+    <div id="tooltip"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/two.js/0.7.11/two.min.js"></script>
+    <script>
+        const canvas = document.getElementById('draw-2D');
+        const tooltip = document.getElementById('tooltip');
+
+        const rows = rows_from_python;
+        const cols = cols_from_python;
+        const cellSize = cell_size_from_python;
+        const height = rows * cellSize;
+        const width = cols * cellSize;
+        const two = new Two({
+            width: width,
+            height: height,
+            type: Two.Types.svg
+        }).appendTo(canvas);
+
+        const qubits = [
+            qubits_from_python
+        ];
+        for (let qubit of qubits) {
+            // 0 = id, 1 = x, 2 = y
+            const col = qubit[1];
+            const row = qubit[2];
+            const x = col * cellSize + cellSize / 2;
+            const y = row * cellSize + cellSize / 2;
+            let circle = two.makeCircle(x, y, cellSize / 2);
+            circle.fill = "#8888ee";
+            circle.noStroke();
+        }
+        const factories = [
+            factories_from_python
+        ];
+        for (let factory of factories) {
+            // 0 = id, 1 = x, 2 = y
+            const col = factory[1];
+            const row = factory[2];
+            const x = col * cellSize + cellSize / 2;
+            const y = row * cellSize + cellSize / 2;
+            let circle = two.makeCircle(x, y, cellSize / 2);
+            circle.fill = "#ee8888";
+            circle.noStroke();
+        }
+
+        const paths = [
+            paths_from_python
+        ];
+        for (let path of paths) {
+            let anchors = []
+            for (let point of path) {
+                const col = point[0];
+                const row = point[1];
+                const x = col * cellSize + cellSize / 2;
+                const y = row * cellSize + cellSize / 2;
+                anchors.push(new Two.Anchor(x, y));
+            }
+            let obj = two.makePath(anchors, true);
+            obj.linewidth = 4;
+            obj.stroke = "#22ee22";
+            obj.noFill();
+        }
+
+        var rects = new Array(rows);
+        for (let row = 0; row < rows; row++) {
+            rects[row] = new Array(cols);
+        }
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const x = col * cellSize + cellSize / 2;
+                const y = row * cellSize + cellSize / 2;
+                rects[row][col] = two.makeRectangle(x, y, cellSize, cellSize);
+                rects[row][col].stroke = '#000000';
+                rects[row][col].linewidth = 1;
+                rects[row][col].fill = 'transparent';
+            }
+        }
+
+        two.update();
+
+        const caption = [
+            caption_from_python
+        ];
+
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                rects[row][col]._renderer.elem.addEventListener('mouseover', function (event) {
+                    tooltip.style.opacity = 1;
+                    tooltip.textContent = caption[row * cols + col];
+                    tooltip.style.left = `${event.clientX + 10}px`;
+                    tooltip.style.top = `${event.clientY + 10}px`;
+                });
+                rects[row][col]._renderer.elem.addEventListener('mouseout', function (event) {
+                    tooltip.style.opacity = 0;
+                });
+                rects[row][col]._renderer.elem.addEventListener('mousemove', function (event) {
+                    tooltip.style.left = `${event.clientX + 10}px`;
+                    tooltip.style.top = `${event.clientY + 10}px`;
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>

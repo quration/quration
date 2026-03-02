@@ -1,0 +1,41 @@
+grids:
+  - type: plane
+    coord: [5, 5, 0]  # 5x5, z=0
+    ban:
+      - [2, 4]
+      - [3, 4]
+    magic_factory:
+      - symbol: 0
+        coord: [0, 4]
+    entanglement_factory:
+      - symbol: 0
+        pair: 1
+        coord: [0, 0]
+  - type: plane
+    coord: [10, 10, 2]  # 10x10, z=2
+    magic_factory:
+      - symbol: 1
+        coord: [0, 4]
+  - type: plane
+    coord: [10, 10, 4]  # 10x10, z=4
+    ban:
+      - [9, 9]
+    magic_factory:
+      - symbol: 2
+        coord: [0, 4]
+    entanglement_factory:
+      - symbol: 1
+        pair: 0
+        coord: [0, 0]
+      - symbol: 2
+        pair: 3
+        coord: [0, 1]
+  - type: plane
+    coord: [5, 5, 6]  # 5x5, z=6
+    magic_factory:
+      - symbol: 3
+        coord: [0, 4]
+    entanglement_factory:
+      - symbol: 3
+        pair: 2
+        coord: [0, 0]

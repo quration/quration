@@ -1,0 +1,24 @@
+source: IR
+input: quration-core/examples/data/circuit/random.json
+function: Random
+target: SC_LS_FIXED_V0
+output: out.json
+sc_ls_fixed_v0_topology: quration-core/examples/data/topology/tutorial.yaml
+sc_ls_fixed_v0_machine_type: Dim2
+sc_ls_fixed_v0_use_magic_state_cultivation: true
+sc_ls_fixed_v0_magic_factory_seed_offset: 20250910
+sc_ls_fixed_v0_magic_generation_period: 5
+sc_ls_fixed_v0_prob_magic_state_creation: 0.5
+sc_ls_fixed_v0_maximum_magic_state_stock: 10000
+sc_ls_fixed_v0_entanglement_generation_period: 100
+sc_ls_fixed_v0_maximum_entangled_state_stock: 10
+sc_ls_fixed_v0_reaction_time: 1
+sc_ls_fixed_v0-print-inst-metadata: true
+sc_ls_fixed_v0_pass:
+  - sc_ls_fixed_v0::init_compile_info
+  - sc_ls_fixed_v0::mapping
+  - sc_ls_fixed_v0::routing
+  - sc_ls_fixed_v0::calc_info_without_topology
+  - sc_ls_fixed_v0::calc_info_with_topology
+  - sc_ls_fixed_v0::dump_compile_info
+ir-static-condition-pruning-seed: 3

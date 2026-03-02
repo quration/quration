@@ -1,0 +1,193 @@
+grids:
+  - type: plane
+    coord: [10, 10, 0]
+    magic_factory:
+      - symbol: 0
+        coord: [0, 4]
+    entanglement_factory:
+      - symbol: 0
+        pair: 1
+        coord: [0, 0]
+      - symbol: 2
+        pair: 3
+        coord: [0, 1]
+      - symbol: 4
+        pair: 5
+        coord: [0, 2]
+    qubit:
+      - symbol: 0
+        coord: [2, 2]
+      - symbol: 4
+        coord: [2, 4]
+      - symbol: 8
+        coord: [2, 6]
+      - symbol: 12
+        coord: [2, 8]
+      - symbol: 16
+        coord: [4, 2]
+      - symbol: 20
+        coord: [4, 4]
+      - symbol: 24
+        coord: [4, 6]
+      - symbol: 28
+        coord: [4, 8]
+      - symbol: 32
+        coord: [6, 2]
+      - symbol: 36
+        coord: [6, 4]
+      - symbol: 40
+        coord: [6, 6]
+      - symbol: 44
+        coord: [6, 8]
+      - symbol: 48
+        coord: [8, 2]
+      - symbol: 52
+        coord: [8, 4]
+      - symbol: 56
+        coord: [8, 6]
+      - symbol: 60
+        coord: [8, 8]
+  - type: plane
+    coord: [10, 10, 2]
+    magic_factory:
+      - symbol: 1
+        coord: [0, 4]
+    entanglement_factory:
+      - symbol: 1
+        pair: 0
+        coord: [0, 0]
+      - symbol: 6
+        pair: 7
+        coord: [0, 1]
+      - symbol: 8
+        pair: 9
+        coord: [0, 2]
+    qubit:
+      - symbol: 1
+        coord: [2, 2]
+      - symbol: 5
+        coord: [2, 4]
+      - symbol: 9
+        coord: [2, 6]
+      - symbol: 13
+        coord: [2, 8]
+      - symbol: 17
+        coord: [4, 2]
+      - symbol: 21
+        coord: [4, 4]
+      - symbol: 25
+        coord: [4, 6]
+      - symbol: 29
+        coord: [4, 8]
+      - symbol: 33
+        coord: [6, 2]
+      - symbol: 37
+        coord: [6, 4]
+      - symbol: 41
+        coord: [6, 6]
+      - symbol: 45
+        coord: [6, 8]
+      - symbol: 49
+        coord: [8, 2]
+      - symbol: 53
+        coord: [8, 4]
+      - symbol: 57
+        coord: [8, 6]
+      - symbol: 61
+        coord: [8, 8]
+  - type: plane
+    coord: [10, 10, 4]
+    magic_factory:
+      - symbol: 2
+        coord: [0, 4]
+    entanglement_factory:
+      - symbol: 3
+        pair: 2
+        coord: [0, 0]
+      - symbol: 7
+        pair: 6
+        coord: [0, 1]
+      - symbol: 10
+        pair: 11
+        coord: [0, 2]
+    qubit:
+      - symbol: 2
+        coord: [2, 2]
+      - symbol: 6
+        coord: [2, 4]
+      - symbol: 10
+        coord: [2, 6]
+      - symbol: 14
+        coord: [2, 8]
+      - symbol: 18
+        coord: [4, 2]
+      - symbol: 22
+        coord: [4, 4]
+      - symbol: 26
+        coord: [4, 6]
+      - symbol: 30
+        coord: [4, 8]
+      - symbol: 34
+        coord: [6, 2]
+      - symbol: 38
+        coord: [6, 4]
+      - symbol: 42
+        coord: [6, 6]
+      - symbol: 46
+        coord: [6, 8]
+      - symbol: 50
+        coord: [8, 2]
+      - symbol: 54
+        coord: [8, 4]
+      - symbol: 58
+        coord: [8, 6]
+      - symbol: 62
+        coord: [8, 8]
+  - type: plane
+    coord: [10, 10, 6]
+    magic_factory:
+      - symbol: 3
+        coord: [0, 4]
+    entanglement_factory:
+      - symbol: 5
+        pair: 4
+        coord: [0, 0]
+      - symbol: 9
+        pair: 8
+        coord: [0, 1]
+      - symbol: 11
+        pair: 10
+        coord: [0, 2]
+    qubit:
+      - symbol: 3
+        coord: [2, 2]
+      - symbol: 7
+        coord: [2, 4]
+      - symbol: 11
+        coord: [2, 6]
+      - symbol: 15
+        coord: [2, 8]
+      - symbol: 19
+        coord: [4, 2]
+      - symbol: 23
+        coord: [4, 4]
+      - symbol: 27
+        coord: [4, 6]
+      - symbol: 31
+        coord: [4, 8]
+      - symbol: 35
+        coord: [6, 2]
+      - symbol: 39
+        coord: [6, 4]
+      - symbol: 43
+        coord: [6, 6]
+      - symbol: 47
+        coord: [6, 8]
+      - symbol: 51
+        coord: [8, 2]
+      - symbol: 55
+        coord: [8, 4]
+      - symbol: 59
+        coord: [8, 6]
+      - symbol: 63
+        coord: [8, 8]

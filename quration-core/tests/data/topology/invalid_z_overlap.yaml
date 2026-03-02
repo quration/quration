@@ -1,0 +1,5 @@
+grids:
+  - type: grid
+    coord: [0, 10, 3, 10]
+  - type: plane
+    coord: [0, 10, 9]

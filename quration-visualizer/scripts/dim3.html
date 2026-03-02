@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D view</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+
+        .draw-3D {
+            background-color: white;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="draw-3D"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        const canvas = document.querySelector('#draw-3D');
+        const pillar_size = 0.4;
+        const path_radius = 0.2;
+        const grid_size = [
+            grid_size_from_python
+        ];
+        const dx = grid_size[0] / 2 - 0.5;
+        const dy = grid_size[1] / 2 - 0.5;
+        const dz = -(grid_size[2] + grid_size[3]) / 2;
+        const range = grid_size[3] - grid_size[2];
+        const current_beat = current_beat_from_python;
+        const cameraSettings = JSON.parse('camera_settings_from_python');
+
+        // scene
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xAAAAAA);
+
+        // lighting
+        const lighting0 = new THREE.DirectionalLight(0xFFFFFF);
+        lighting0.position.set(0, 1, 1);
+        scene.add(lighting0);
+        const lighting_ambient = new THREE.AmbientLight(0xFFFFFF);
+        scene.add(lighting_ambient);
+
+        // camera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000)
+        if (Object.keys(cameraSettings).length === 0) {
+            camera.position.set(-dx, dy, -1.1 * range);
+        } else {
+            console.log("default:", -dx, dy, -1.1 * range);
+            console.log("manual:", cameraSettings.position.x, cameraSettings.position.y, cameraSettings.position.z);
+            camera.position.set(Number(cameraSettings.position.x), Number(cameraSettings.position.y), Number(cameraSettings.position.z));
+        }
+        const controls = new THREE.OrbitControls(camera, canvas);
+        if (Object.keys(cameraSettings).length === 0) {
+            controls.target.x = 0;
+            controls.target.y = 0;
+            controls.target.z = 0;
+        } else {
+            console.log("manual:", cameraSettings.orbitTarget.x, cameraSettings.orbitTarget.y, cameraSettings.orbitTarget.z);
+            controls.target.x = Number(cameraSettings.orbitTarget.x);
+            controls.target.y = Number(cameraSettings.orbitTarget.y);
+            controls.target.z = Number(cameraSettings.orbitTarget.z);
+        }
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas });
+        renderer.setSize(window.innerWidth * 0.9, window.innerHeight * 0.9);
+
+        // Draw qubits
+        const qubit_material = new THREE.MeshPhongMaterial({ color: 0x3333bb });
+        qubit_material.depthTest = true;
+        qubit_material.depthWrite = true;
+        qubit_material.transparent = true;
+        qubit_material.opacity = 0.2;
+        qubit_material.shininess = 0.9;
+        const qubits = [
+            qubits_from_python
+        ];
+        for (let qubit of qubits) {
+            let x = qubit[0];
+            let y = qubit[1];
+            let z_begin = qubit[2];
+            let z_end = qubit[3];
+            const geometry = new THREE.BoxGeometry(pillar_size, pillar_size, z_end - z_begin);
+            const pillar = new THREE.Mesh(geometry, qubit_material);
+            pillar.translateX(x + dx);
+            pillar.translateY(y + dy);
+            pillar.translateZ((z_end - z_begin) / 2 + z_begin + dz);
+            scene.add(pillar);
+        }
+
+        // Draw factories
+        const factory_material = new THREE.MeshPhongMaterial({ color: 0xbb3333 });
+        factory_material.depthTest = true;
+        factory_material.depthWrite = true;
+        factory_material.transparent = true;
+        factory_material.opacity = 0.2;
+        factory_material.shininess = 0.9;
+        const factories = [
+            factories_from_python
+        ];
+        for (let factory of factories) {
+            let x = factory[0];
+            let y = factory[1];
+            let z_begin = factory[2];
+            let z_end = factory[3];
+            const geometry = new THREE.BoxGeometry(pillar_size, pillar_size, z_end - z_begin);
+            const pillar = new THREE.Mesh(geometry, factory_material);
+            pillar.translateX(x + dx);
+            pillar.translateY(y + dy);
+            pillar.translateZ((z_end - z_begin) / 2 + z_begin + dz);
+            scene.add(pillar);
+        }
+
+        // Draw aux
+        const highlight_material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+        highlight_material.depthTest = true;
+        highlight_material.depthWrite = true;
+        highlight_material.transparent = false;
+        const shadow_material = new THREE.MeshPhongMaterial({ color: 0x33bb33 });
+        shadow_material.depthTest = true;
+        shadow_material.depthWrite = true;
+        shadow_material.transparent = true;
+        shadow_material.opacity = 0.3;
+        shadow_material.shininess = 0.9;
+        const planes = {
+            planes_from_python
+        };
+        for (const [beat, plane] of Object.entries(planes)) {
+            let moment = new THREE.Group();
+            let material = shadow_material;
+            if (Number(beat) === current_beat) {
+                material = highlight_material;
+            }
+            for (let path of plane) {
+                let last_node = null;
+                for (let node of path) {
+                    if (last_node == null) {
+                        last_node = node;
+                        continue;
+                    }
+                    let path = new THREE.LineCurve3(last_node, node);
+                    var geometry = new THREE.TubeGeometry(path, 4, path_radius, 4, false);
+                    let line = new THREE.Mesh(geometry, material);
+                    line.translateX(dx);
+                    line.translateY(dy);
+                    line.translateZ(dz);
+                    moment.add(line);
+                    last_node = node;
+                }
+            }
+            scene.add(moment);
+        }
+
+        // test
+        // const cube_geometry = new THREE.BoxGeometry(10, 10, 10);
+        // const cube = new THREE.Mesh(cube_geometry, highlight_material);
+        // scene.add(cube);
+
+        function copyCameraSettings() {
+            const tmpCameraSettings = {
+                fov: camera.fov,
+                aspect: camera.aspect,
+                near: camera.near,
+                far: camera.far,
+                position: {
+                    x: camera.position.x.toFixed(2),
+                    y: camera.position.y.toFixed(2),
+                    z: camera.position.z.toFixed(2),
+                },
+                orbitTarget: {
+                    x: controls.target.x.toFixed(2),
+                    y: controls.target.y.toFixed(2),
+                    z: controls.target.z.toFixed(2),
+                }
+            };
+            const tmpCameraSettingsJson = JSON.stringify(tmpCameraSettings);
+            navigator.clipboard.writeText(tmpCameraSettingsJson).then(() => {
+                console.log("Copied camera settings!");
+            }).catch(err => {
+                console.error("Failed to copy camera settings to clipboard.");
+            });
+        }
+        const button = document.createElement("button");
+        button.innerHTML = "Copy camera settings";
+        button.onclick = copyCameraSettings;
+        document.body.appendChild(button);
+        canvas.parentNode.insertBefore(button, canvas.nextSibling);
+
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        })
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+
+</html>

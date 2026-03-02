@@ -1,0 +1,12 @@
+grids:
+  - type: grid
+    coord: [5, 5, 2, 6]  # 5x5, z=2,3,4,5
+    magic_factory:
+      - symbol: 0
+        coord: [0, 0, 2]
+      - symbol: 1
+        coord: [1, 0, 2]
+      - symbol: 2
+        coord: [2, 0, 2]
+      - symbol: 3
+        coord: [3, 0, 2]

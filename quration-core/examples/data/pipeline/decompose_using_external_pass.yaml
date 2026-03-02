@@ -1,0 +1,8 @@
+input: quration-core/examples/data/circuit/decompose_using_external_pass.json
+function: SampleCircuit
+output: IR.json
+pass:
+  - name: DecomposeInst
+    cmd: python quration-core/examples/external-pass/decompose.py in.json out.json SampleCircuit
+    input: in.json
+    output: out.json

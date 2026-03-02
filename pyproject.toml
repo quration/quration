@@ -1,0 +1,80 @@
+[project]
+name = "pyqret"
+description = "Python wrapper of QRET"
+readme = "quration-core/python/README.md"
+required-python = ">=3.10"
+
+# authors =
+# license =
+# keywords =
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering :: Quantum Computing",
+  "Typing :: Typed",
+]
+
+dynamic = ["version"]
+
+dependencies = ["typing_extensions"]
+
+[project.optional-dependencies]
+algorithm = []
+tests = ["pytest", "coverage", "numpy"]
+docs = [
+  "graphviz",
+  "ortools",
+
+  "sphinx>=7.2,<8.0",
+  "sphinx_copybutton",
+  "sphinxcontrib-bibtex",
+  "sphinx-design",
+  "sphinxcontrib-mermaid",
+
+  "furo",
+
+  "breathe>=4.28.0",
+  "myst-parser",
+  "myst-nb",
+
+  "jupyter",
+  "ipykernel",
+]
+dev = ["pyqret[tests,docs,algorithm]", "nb-clean", "ruff"]
+
+[build-system]
+requires = ["scikit-build-core >= 0.4.3", "nanobind >= 2.0.0"]
+build-backend = "scikit_build_core.build"
+
+[tool.setuptools.package-data]
+pyqret = ["py.typed"]
+
+[tool.setuptools.packages.find]
+where = ["quration-core/python"]
+
+[tool.scikit-build]
+# Protect the configuration against future changes in scikit-build-core
+minimum-version = "0.4"
+
+# Setuptools-style build caching in a local directory
+build-dir = "build/{wheel_tag}"
+
+# Build stable ABI wheels for CPython 3.12+
+wheel.py-api = "cp312"
+
+# Include Python package from the non-root location.
+wheel.packages = ["quration-core/python/pyqret"]
+
+[tool.scikit-build.cmake.define]
+# nanobind requires libraries to be position-independent in order to link correctly
+CMAKE_POSITION_INDEPENDENT_CODE = "ON"
+
+[tool.scikit-build.metadata.version]
+provider = "scikit_build_core.metadata.regex"
+input = "Version.txt"
+regex = "(?P<value>.+)"

@@ -1,0 +1,285 @@
+{
+    "metadata": {
+        "format": "IR",
+        "schema_version": "0.1",
+        "qret_version": "0.6.1",
+        "created_at": "2025-09-29T06:54:22"
+    },
+    "name": "cuccaro",
+    "circuit_list": [
+        {
+            "name": "AddCuccaro(5)",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 10
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "MAJ",
+                            "operate": [
+                                5,
+                                10,
+                                0
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "MAJ",
+                            "operate": [
+                                6,
+                                5,
+                                1
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "MAJ",
+                            "operate": [
+                                7,
+                                6,
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "MAJ",
+                            "operate": [
+                                8,
+                                7,
+                                3
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 4,
+                            "q1": 8
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 4,
+                            "q1": 9
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UMA",
+                            "operate": [
+                                8,
+                                7,
+                                3
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UMA",
+                            "operate": [
+                                7,
+                                6,
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UMA",
+                            "operate": [
+                                6,
+                                5,
+                                1
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UMA",
+                            "operate": [
+                                5,
+                                10,
+                                0
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 10
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 0,
+                            "r": 0
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 1,
+                            "r": 1
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 2,
+                            "r": 2
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 3,
+                            "r": 3
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 4,
+                            "r": 4
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 5,
+                            "r": 5
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 6,
+                            "r": 6
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 7,
+                            "r": 7
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 8,
+                            "r": 8
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 9,
+                            "r": 9
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 10,
+                            "r": 10
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 11,
+                "qubits": {
+                    "dst": 5,
+                    "src": 5,
+                    "aux": 1
+                },
+                "num_registers": 11,
+                "registers": {
+                    "c": 11
+                }
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "MAJ",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CCX",
+                            "q0": 0,
+                            "q1": 1,
+                            "q2": 2
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "UMA",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "CCX",
+                            "q0": 0,
+                            "q1": 1,
+                            "q2": 2
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 1
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        }
+    ]
+}

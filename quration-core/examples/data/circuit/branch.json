@@ -1,0 +1,233 @@
+{
+    "metadata": {
+        "format": "IR",
+        "schema_version": "0.1",
+        "qret_version": "0.6.0",
+        "created_at": "2025-09-24T22:12:52"
+    },
+    "name": "branch",
+    "circuit_list": [
+        {
+            "name": "Main",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Measurement",
+                            "q": 0,
+                            "r": 0
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 2,
+                            "condition": 0,
+                            "if_true": "case1",
+                            "if_false": "case0"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": [
+                        "case0",
+                        "case1"
+                    ]
+                },
+                {
+                    "name": "case0",
+                    "inst_list": [
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 0,
+                            "r": 1
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 2,
+                            "condition": 1,
+                            "if_true": "case3",
+                            "if_false": "case2"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry"
+                    ],
+                    "successors": [
+                        "case2",
+                        "case3"
+                    ]
+                },
+                {
+                    "name": "case1",
+                    "inst_list": [
+                        {
+                            "opcode": "H",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 1,
+                            "r": 2
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 2,
+                            "condition": 2,
+                            "if_true": "case4",
+                            "if_false": "case3"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry"
+                    ],
+                    "successors": [
+                        "case3",
+                        "case4"
+                    ]
+                },
+                {
+                    "name": "case2",
+                    "inst_list": [
+                        {
+                            "opcode": "H",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 1,
+                            "if_true": "exit"
+                        }
+                    ],
+                    "predecessors": [
+                        "case0"
+                    ],
+                    "successors": [
+                        "exit"
+                    ]
+                },
+                {
+                    "name": "case3",
+                    "inst_list": [
+                        {
+                            "opcode": "H",
+                            "q": 3
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 3
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 3
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 1,
+                            "if_true": "exit"
+                        }
+                    ],
+                    "predecessors": [
+                        "case0",
+                        "case1"
+                    ],
+                    "successors": [
+                        "exit"
+                    ]
+                },
+                {
+                    "name": "case4",
+                    "inst_list": [
+                        {
+                            "opcode": "H",
+                            "q": 4
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 4
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 4
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 1,
+                            "if_true": "exit"
+                        }
+                    ],
+                    "predecessors": [
+                        "case1"
+                    ],
+                    "successors": [
+                        "exit"
+                    ]
+                },
+                {
+                    "name": "exit",
+                    "inst_list": [
+                        {
+                            "opcode": "H",
+                            "q": 5
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 5
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 5
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [
+                        "case2",
+                        "case3",
+                        "case4"
+                    ],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 6,
+                "qubits": {
+                    "q": 6
+                },
+                "num_registers": 3,
+                "registers": {
+                    "c": 3
+                }
+            },
+            "num_tmp_registers": 0
+        }
+    ]
+}

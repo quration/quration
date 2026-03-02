@@ -1,0 +1,10 @@
+grids:
+  - type: plane
+    coord: [10, 10, 3]  # 10x10, z=3
+    magic_factory:
+      - symbol: 0
+        coord: [0, 0]
+      - symbol: 1
+        coord: [0, 1]
+      - symbol: 0
+        coord: [0, 2]

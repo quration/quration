@@ -1,0 +1,434 @@
+{
+    "metadata": {
+        "format": "IR",
+        "schema_version": "0.1",
+        "qret_version": "0.6.1",
+        "created_at": "2025-09-29T06:54:48"
+    },
+    "name": "craig",
+    "circuit_list": [
+        {
+            "name": "AddCraig(5)",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 10
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 11
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 12
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 13
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "TemporalAnd",
+                            "operate": [
+                                10,
+                                5,
+                                0
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 6,
+                            "q1": 10
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 10
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "TemporalAnd",
+                            "operate": [
+                                11,
+                                6,
+                                1
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 11,
+                            "q1": 10
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 7,
+                            "q1": 11
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 11
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "TemporalAnd",
+                            "operate": [
+                                12,
+                                7,
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 12,
+                            "q1": 11
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 8,
+                            "q1": 12
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 3,
+                            "q1": 12
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "TemporalAnd",
+                            "operate": [
+                                13,
+                                8,
+                                3
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 13,
+                            "q1": 12
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 4,
+                            "q1": 13
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 13,
+                            "q1": 12
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UncomputeTemporalAnd",
+                            "operate": [
+                                13,
+                                8,
+                                3
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 8,
+                            "q1": 12
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 12,
+                            "q1": 11
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UncomputeTemporalAnd",
+                            "operate": [
+                                12,
+                                7,
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 7,
+                            "q1": 11
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 11,
+                            "q1": 10
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UncomputeTemporalAnd",
+                            "operate": [
+                                11,
+                                6,
+                                1
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 6,
+                            "q1": 10
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UncomputeTemporalAnd",
+                            "operate": [
+                                10,
+                                5,
+                                0
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 0,
+                            "q1": 5
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 6
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 7
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 3,
+                            "q1": 8
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 4,
+                            "q1": 9
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 10
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 11
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 12
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 13
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 14,
+                "qubits": {
+                    "dst": 5,
+                    "src": 5,
+                    "aux": 4
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "TemporalAnd",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 0,
+                            "q1": 1
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 0,
+                            "q1": 2
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "TDag",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "TDag",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "S",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "t": 1,
+                    "c0": 1,
+                    "c1": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "UncomputeTemporalAnd",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 0,
+                            "r": 0
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 2,
+                            "condition": 0,
+                            "if_true": "then_0",
+                            "if_false": "if_cont_0"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": [
+                        "then_0",
+                        "if_cont_0"
+                    ]
+                },
+                {
+                    "name": "then_0",
+                    "inst_list": [
+                        {
+                            "opcode": "X",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "CZ",
+                            "q0": 1,
+                            "q1": 2
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 1,
+                            "if_true": "if_cont_0"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry"
+                    ],
+                    "successors": [
+                        "if_cont_0"
+                    ]
+                },
+                {
+                    "name": "if_cont_0",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry",
+                        "then_0"
+                    ],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "t": 1,
+                    "c0": 1,
+                    "c1": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 1
+        }
+    ]
+}

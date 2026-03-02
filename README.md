@@ -1,0 +1,149 @@
+# Quration: Quantum Resource Estimation Toolchain
+
+Quration is a toolchain for exploring large design space of fault-tolerant quantum computer (FTQC) architectures and curate optimization strategies and co-design techniques to find a state-of-the-art system designs.  
+
+The project of Quration is managed by RIKEN and developed by RIKEN and fixstars.
+The development of Quration is in progress, and their backward compatibility might be broken in future updates.  
+
+## License
+
+- External libraries (`./externals/`) are re-distributed under each library's license.
+- Application generators (`./quration-algorithm/`) are distributed only for research purpose.
+- The other quration libraries (`./quration-core/`, `./quration-visualize/`, `./quration-docs/`) are distributed under MIT-license.
+
+## Features
+
+Quration consists of three repositories; `quration-algorithm`, `quration-core`, and `quration-visualizer`.
+
+- `quration-algorithm`: Generate popular quantum algorithms and their subroutines with exponential speed-up as Quration-IR
+  - Quration-IR is a succinct LLVM-like language dedicated for evaluating popular FTQC applications with exponential speed-up.
+  - Users can implement generators for target applications. Generators for the following applications are provieded.
+    - Trotter-based quantum simulation
+    - Qubitization-based quantum phase estimation by [R. Babbush et al.](https://arxiv.org/abs/1805.03662)
+    - Shor's factoring by [C. Gidney](https://arxiv.org/pdf/1706.07884)
+
+- `quration-core`: Manipulate Quration-IR and compile them into a target instruction set.
+  - Quration-IR can be handled with an application named `qret`. Avaialble commands for `qret` are as follows (see manual for details).
+    - `qret parse`: Parse existing forms (e.g. QASM) into Quration-IR
+    - `qret print`: Print Quration-IR as an LLVM-like form
+    - `qret simulate`: Simulate Quration-IR with several types of backend
+    - `qret opt`: Optimize Quration-IR with pre-defined or user-defined workflow
+    - `qret compile`: Compile Quration-IR into pre-defined or user-defined instruction sets of FTQCs
+    - `qret profile`: Profile compiled instruction sets and generate resource estimation profiles
+    - `qret asm`: Dump compiled assembly as a simple ascii form
+  - Currently available target instructions:
+    - We currently support FTQC based on surface codes, lattice surgery, code-deformation-based S-gate, and magic-state cultivation, and communication.
+      - `SC_LS_FIXED_V0_Dim2`: Standard architecture, i.e., 2D array of surface codes
+      - `SC_LS_FIXED_V0_Dim3`: Architecture with several layers of 2D surface-code arrays allowing transversal CNOTs between layers
+      - `SC_LS_FIXED_V0_Dist`: Standard distributed FTQC, where each nodes consists of 2D surface code arrays
+    - You can configure expected performance of cultivation, entanglement distillation, etc. See manual and tutorial for details.
+
+- `quration-visualizer`: Visualize execution traces and compare resource estimation profiles on browers
+  - Currently, visualizers are developed only for a standard FTQC instructions with surface-code and lattice surgery
+
+
+### planned features
+- Parser from QIR and qualtran to Quration-IR, and parser from Quration-IR to QIR.
+- Increase popular instruction sets to compare state-of-the-art architectures
+- Compilation to physical instructions
+
+
+## Expected usage
+
+See tutorials for detailed usage of Quration.
+
+- 1. Evaluate application demands
+  - Generate your own application instances and evaluate execution time, qubit count, code distance, and other resources
+- 2. Compare algorithms to achieve a target task
+  - Generate IRs in different ways of translating applications to actual quantum programs and compare which is the best.
+- 3. Verify properties of actual quantum programs
+  - Obtain realistic quantum programs in easy-to-parse form and validate their properties and safety.
+- 4. Explore optimization at middleend compilation.
+  - Create your own optimization passes on IR, e.g., reducing T-count and T-depth, imroving parallelization, etc...
+- 5. Explore optimization at backend compilation
+  - Create your own compilation pass from IR to several standard FTQC instructions, such as rotation-decompisition, code-block placement, lattice-surgery or trans-CNOT path routing.
+- 6. Evaluate improvement by new logical operations, experimental flexibility, and QEC codes.
+  - Create your own instruction sets, write backend compilation, and compare the performance with standard settings.
+- 7. Develop techniques in distributed computing
+  - Create your own network settings, entanglement consumption strategy, and their performance
+- 8. Use the output programs as a testbench for low-level machines.
+  - Translate output programs into lower-level descriptions like Stim's circuits and experimental jobs to check the capability of qubits, schedulers, and real-time decoders.
+  
+
+
+## Install Quration-Core and Quration-Algorithm
+
+### Install pre-build libraries
+
+- Currently we only support build from source. Pre-build executables, python libraries, and C++ shared library will be distributed soon.
+
+### Build from source
+
+#### Environment
+
+We expect our library will work on Windows, MacOS, and Linux with compilers GCC, Clang, and MSVS. This library is tested on the following environments.
+
+- Windows 11 + Microsoft Visual Studio 2022
+- Ubuntu 24.04 + Clang
+
+#### Install dependencies
+
+- Install `vcpkg`: 
+  - vcpkg is a package manager for C++ libraries, which is used for downloading dependent C++ libraries.
+  - See [vcpkg installation page](https://learn.microsoft.com/ja-jp/vcpkg/get_started/get-started?pivots=shell-bash) for how to install vcpkg.
+  - Make sure that an environment variable `VCPKG_ROOT` is set to your path to vcpkg folder.
+
+- Install cmake:
+  - Windows: Install cmake from official web sites
+  - Ubuntu: Instlal with `apt install cmake`
+
+- Optional
+  - Python: required if you want to build python binding
+  - gridsynth: required if you want to decompose Pauli-rotation gates into Clifford+T
+    - Pre-compiled binaries in [official gridsynth](https://www.mathstat.dal.ca/~selinger/newsynth/) do not work on recent Linux environment, and they are re-distributed with GNU General Public License.
+      - Windows: `./externals/bin/gridsynth.exe`
+      - Linux: `./externals/bin/gridsynth`
+      - MacOS: `./externals/bin/gridsynth_macos`
+
+
+#### Build process
+
+Please type the following commands at the root of quration-core.
+```
+cmake --preset dist
+cmake --build --preset build-dist
+```
+
+Then, you can find the following binaries in `./build/bin` for windows, and `./bin/main` and `./bin/examples` for other OS.
+
+- `qret`: main program
+  - In the case of windows, it is dependent on `qret-core.dll`, `yaml-cpp.dll`, and `boost_program_options-*.dll`
+- Quration-IR generators:
+  - Shor's factoring and subroutines
+    - `create_period_finding`: Generate the whole period finding programs.
+    - `create_multi_controlled_mod_bi_mul_imm`: Generate circuits for Mod-bimultiplication.
+    - `create_add_craig`: Generate craig-adder circuits.
+    - `create_add_cuccaro`: Generate cuccaro-adder circuits.
+  - Qubitization-based quantum phase estimation and subroutines:
+    - `create_qpe`: Generate the whole qunatum phase estimation programs
+    - `create_select`: Generate SELECT circuits
+    - `create_prepare`: Generate PREPARE circuits
+  - Trotter-based Quantum-dynamics simulation
+    - `create_trotter`: Generate the whole dynamics simulation
+
+## quration-visualizer
+
+`quration-visualizer` is a streamlit based web visualization of compiled FTQC programs.
+
+### Install
+
+Install dependent python libraries with
+```
+pip install numpy pandas plotly streamlit graphviz
+```
+
+### Usage
+Then, you can run web applications as follows
+
+* `streamlit run visualize_compile_info.py` : Visualizer for profile information
+* `streamlit run visualize_computational_process.py` : Visualizer for traces of quantum programs

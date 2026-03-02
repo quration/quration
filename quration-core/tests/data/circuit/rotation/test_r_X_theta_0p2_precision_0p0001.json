@@ -1,0 +1,43 @@
+{
+    "metadata": {
+        "format": "IR",
+        "schema_version": "0.1",
+        "qret_version": "0.7.1",
+        "created_at": "2026-02-20T03:34:43"
+    },
+    "name": "test_r",
+    "circuit_list": [
+        {
+            "name": "TestR__000000000__",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "RX",
+                            "q": 0,
+                            "theta": {
+                                "value": 0.2,
+                                "precision": 0.0001
+                            }
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 1,
+                "qubits": {
+                    "q": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        }
+    ]
+}

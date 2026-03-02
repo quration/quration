@@ -1,0 +1,21 @@
+source: IR
+input: quration-core/examples/data/circuit/add_craig_5.json
+function: AddCraig(5)
+target: SC_LS_FIXED_V0
+output: out_naive.json
+sc_ls_fixed_v0_topology: quration-core/examples/data/topology/dist_circle.yaml
+sc_ls_fixed_v0_machine_type: DistributedDim2
+sc_ls_fixed_v0_magic_generation_period: 15
+sc_ls_fixed_v0_maximum_magic_state_stock: 10000
+sc_ls_fixed_v0_entanglement_generation_period: 100
+sc_ls_fixed_v0_maximum_entangled_state_stock: 20
+sc_ls_fixed_v0_reaction_time: 1
+sc_ls_fixed_v0_dump_compile_info_to_markdown: mapping_naive.md
+sc_ls_fixed_v0-mapping-algorithm: 0  # Map qubits based on topology file
+sc_ls_fixed_v0_pass:
+  - sc_ls_fixed_v0::init_compile_info
+  - sc_ls_fixed_v0::mapping  # Use internal mapping
+  - sc_ls_fixed_v0::routing
+  - sc_ls_fixed_v0::calc_info_without_topology
+  - sc_ls_fixed_v0::calc_info_with_topology
+  - sc_ls_fixed_v0::dump_compile_info

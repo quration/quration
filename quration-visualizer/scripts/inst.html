@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructions</title>
+    <style>
+        .TableContainer {
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+        }
+
+        .Table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .Table th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: x-small;
+            background-color: white;
+        }
+
+        .Table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: x-small;
+        }
+
+        .Table tr:hover {
+            background-color: #f0f0f0;
+        }
+
+        .Table tr.selected {
+            background-color: red;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="tableContainer" class="TableContainer">
+        <table id="instructionTable" class="Table" style="width: 100%">
+            <thead>
+                <tr>
+                    <th>Index</th>
+                    <th>Beat</th>
+                    <th>Instruction</th>
+                </tr>
+            </thead>
+            <tbody>
+                rows_from_python
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function scrollToRow(rowNumber) {
+            var tableContainer = document.getElementById("tableContainer");
+            var targetRow = document.getElementById("row" + rowNumber);
+            if (targetRow) {
+                var rowOffset = targetRow.offsetTop;
+                var containerHeight = tableContainer.clientHeight;
+                tableContainer.scrollTop = rowOffset;
+            }
+        }
+
+        scrollToRow(row_number_from_python);
+    </script>
+</body>
+
+</html>

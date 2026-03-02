@@ -1,0 +1,70 @@
+{
+    "num_qubits": 5,
+    "pauli_terms": [
+        {
+            "coeff": 1.0,
+            "pauli_string": {
+                "0": "X"
+            }
+        },
+        {
+            "coeff": 1.0,
+            "pauli_string": {
+                "0": "Z",
+                "1": "Z"
+            }
+        },
+        {
+            "coeff": 1.0,
+            "pauli_string": {
+                "1": "X"
+            }
+        },
+        {
+            "coeff": 1.0,
+            "pauli_string": {
+                "1": "Z",
+                "2": "Z"
+            }
+        },
+        {
+            "coeff": 1.0,
+            "pauli_string": {
+                "2": "X"
+            }
+        },
+        {
+            "coeff": 1.0,
+            "pauli_string": {
+                "2": "Z",
+                "3": "Z"
+            }
+        },
+        {
+            "coeff": 1.0,
+            "pauli_string": {
+                "3": "X"
+            }
+        },
+        {
+            "coeff": 1.0,
+            "pauli_string": {
+                "3": "Z",
+                "4": "Z"
+            }
+        },
+        {
+            "coeff": 1.0,
+            "pauli_string": {
+                "4": "X"
+            }
+        },
+        {
+            "coeff": 1.0,
+            "pauli_string": {
+                "4": "Z",
+                "0": "Z"
+            }
+        }
+    ]
+}

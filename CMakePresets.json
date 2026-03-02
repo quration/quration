@@ -1,0 +1,348 @@
+{
+  "version": 4,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "_base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "BUILD_SHARED_LIBS": "ON",
+        "QRET_DEV_MODE": "ON",
+        "QRET_BUILD_APPLICATION": "OFF",
+        "QRET_BUILD_ALGORITHM": "OFF",
+        "QRET_BUILD_EXAMPLE": "OFF",
+        "QRET_BUILD_TEST": "OFF",
+        "QRET_BUILD_PYTHON": "OFF",
+        "QRET_MEASURE_COVERAGE": "OFF",
+        "QRET_USE_PEGTL": "ON",
+        "QRET_USE_QULACS": "OFF"
+      }
+    },
+    {
+      "name": "_toolchain_vcpkg",
+      "hidden": true,
+      "inherits": "_base",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "_debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "_release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "_relwithdebinfo",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "_clang20",
+      "hidden": true,
+      "inherits": "_toolchain_vcpkg",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang-20",
+        "CMAKE_CXX_COMPILER": "clang++-20"
+      }
+    },
+    {
+      "name": "_gcc12",
+      "hidden": true,
+      "inherits": "_toolchain_vcpkg",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-12",
+        "CMAKE_CXX_COMPILER": "g++-12"
+      }
+    },
+    {
+      "name": "dev-debug",
+      "displayName": "default: dev debug",
+      "inherits": [
+        "_toolchain_vcpkg",
+        "_debug"
+      ],
+      "cacheVariables": {
+        "QRET_BUILD_APPLICATION": "ON"
+      }
+    },
+    {
+      "name": "dev-release",
+      "displayName": "default: dev release",
+      "inherits": [
+        "_toolchain_vcpkg",
+        "_release"
+      ],
+      "cacheVariables": {
+        "QRET_BUILD_APPLICATION": "ON"
+      }
+    },
+    {
+      "name": "dist",
+      "displayName": "default: intended for distribution",
+      "inherits": [
+        "_toolchain_vcpkg",
+        "_release"
+      ],
+      "cacheVariables": {
+        "QRET_BUILD_APPLICATION": "ON",
+        "QRET_BUILD_ALGORITHM": "ON",
+        "QRET_BUILD_EXAMPLE": "ON",
+        "QRET_BUILD_TEST": "OFF",
+        "QRET_USE_QULACS": "OFF"
+      }
+    },
+    {
+      "name": "all-debug",
+      "displayName": "default: all debug",
+      "inherits": [
+        "_toolchain_vcpkg",
+        "_debug"
+      ],
+      "cacheVariables": {
+        "QRET_BUILD_APPLICATION": "ON",
+        "QRET_BUILD_ALGORITHM": "ON",
+        "QRET_BUILD_EXAMPLE": "ON",
+        "QRET_BUILD_TEST": "ON",
+        "QRET_USE_QULACS": "ON"
+      }
+    },
+    {
+      "name": "all-release",
+      "displayName": "default: all release",
+      "inherits": [
+        "_toolchain_vcpkg",
+        "_release"
+      ],
+      "cacheVariables": {
+        "QRET_BUILD_APPLICATION": "ON",
+        "QRET_BUILD_ALGORITHM": "ON",
+        "QRET_BUILD_EXAMPLE": "ON",
+        "QRET_BUILD_TEST": "ON",
+        "QRET_USE_QULACS": "ON"
+      }
+    },
+    {
+      "name": "cov-debug",
+      "displayName": "default: coverage debug",
+      "inherits": [
+        "_toolchain_vcpkg",
+        "_debug"
+      ],
+      "cacheVariables": {
+        "QRET_BUILD_ALGORITHM": "ON",
+        "QRET_BUILD_TEST": "ON",
+        "QRET_MEASURE_COVERAGE": "ON",
+        "QRET_USE_QULACS": "ON"
+      }
+    },
+    {
+      "name": "python-release",
+      "displayName": "default: python release",
+      "inherits": [
+        "_toolchain_vcpkg",
+        "_release"
+      ],
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": "OFF",
+        "QRET_BUILD_PYTHON": "ON"
+      }
+    },
+    {
+      "name": "clang20-dev-debug",
+      "displayName": "clang20: dev debug",
+      "inherits": [
+        "dev-debug",
+        "_clang20"
+      ]
+    },
+    {
+      "name": "clang20-dev-release",
+      "displayName": "clang20: dev release",
+      "inherits": [
+        "dev-release",
+        "_clang20"
+      ]
+    },
+    {
+      "name": "clang20-all-debug",
+      "displayName": "clang20: all debug",
+      "inherits": [
+        "all-debug",
+        "_clang20"
+      ]
+    },
+    {
+      "name": "clang20-all-release",
+      "displayName": "clang20: all release",
+      "inherits": [
+        "all-release",
+        "_clang20"
+      ]
+    },
+    {
+      "name": "clang20-cov-debug",
+      "displayName": "clang20: coverage debug",
+      "inherits": [
+        "cov-debug",
+        "_clang20"
+      ]
+    },
+    {
+      "name": "clang20-python-release",
+      "displayName": "clang20: python release",
+      "inherits": [
+        "python-release",
+        "_clang20"
+      ]
+    },
+    {
+      "name": "gcc12-all-release",
+      "displayName": "gcc12: all release",
+      "inherits": [
+        "all-release",
+        "_gcc12"
+      ]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "build-dev-debug",
+      "configurePreset": "dev-debug",
+      "jobs": 8
+    },
+    {
+      "name": "build-dev-release",
+      "configurePreset": "dev-release",
+      "jobs": 8
+    },
+    {
+      "name": "build-dist",
+      "configurePreset": "dist",
+      "jobs": 8
+    },
+    {
+      "name": "build-all-debug",
+      "configurePreset": "all-debug",
+      "jobs": 8
+    },
+    {
+      "name": "build-all-release",
+      "configurePreset": "all-release",
+      "jobs": 8
+    },
+    {
+      "name": "build-cov-debug",
+      "configurePreset": "cov-debug",
+      "jobs": 8
+    },
+    {
+      "name": "build-python-release",
+      "configurePreset": "python-release",
+      "jobs": 8
+    },
+    {
+      "name": "build-clang20-dev-debug",
+      "configurePreset": "clang20-dev-debug",
+      "jobs": 8
+    },
+    {
+      "name": "build-clang20-dev-release",
+      "configurePreset": "clang20-dev-release",
+      "jobs": 8
+    },
+    {
+      "name": "build-clang20-all-debug",
+      "configurePreset": "clang20-all-debug",
+      "jobs": 8
+    },
+    {
+      "name": "build-clang20-all-release",
+      "configurePreset": "clang20-all-release",
+      "jobs": 8
+    },
+    {
+      "name": "build-clang20-cov-debug",
+      "configurePreset": "clang20-cov-debug",
+      "jobs": 8
+    },
+    {
+      "name": "build-clang20-python-release",
+      "configurePreset": "clang20-python-release",
+      "jobs": 8
+    },
+    {
+      "name": "build-gcc12-all-release",
+      "configurePreset": "gcc12-all-release",
+      "jobs": 8
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test-all-debug",
+      "configurePreset": "all-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-all-release",
+      "configurePreset": "all-release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-cov-debug",
+      "configurePreset": "cov-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-clang20-all-debug",
+      "configurePreset": "clang20-all-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-clang20-all-release",
+      "configurePreset": "clang20-all-release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-clang20-cov-debug",
+      "configurePreset": "clang20-cov-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-gcc12-all-release",
+      "configurePreset": "gcc12-all-release",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,982 @@
+{
+    "metadata": {
+        "format": "IR",
+        "schema_version": "0.1",
+        "qret_version": "0.7.1",
+        "created_at": "2026-02-20T03:34:43"
+    },
+    "name": "prepare_uniform",
+    "circuit_list": [
+        {
+            "name": "PrepareUniformSuperposition(14)",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 4
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 5
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 6
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 7
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 8
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 9
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 3
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "ApplyXToEachIfImm(7,4)",
+                            "operate": [
+                                4,
+                                5,
+                                6,
+                                7
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 3
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 8
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "AddCuccaro(4)",
+                            "operate": [
+                                4,
+                                5,
+                                6,
+                                7,
+                                1,
+                                2,
+                                3,
+                                8,
+                                9
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 7
+                        },
+                        {
+                            "opcode": "RZ",
+                            "q": 7,
+                            "theta": {
+                                "value": -1.1278852827212578,
+                                "precision": 1e-10
+                            }
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 7
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "__adjoint__AddCuccaro(4)",
+                            "operate": [
+                                4,
+                                5,
+                                6,
+                                7,
+                                1,
+                                2,
+                                3,
+                                8,
+                                9
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 3
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 8
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "ApplyXToEachIfImm(7,4)",
+                            "operate": [
+                                4,
+                                5,
+                                6,
+                                7
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 4,
+                            "metadata": [
+                                {
+                                    "kind": "Location",
+                                    "file": "/workspace/quration-algorithm/src/qret/algorithm/preparation/uniform.cpp",
+                                    "line": 131
+                                }
+                            ]
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 5,
+                            "metadata": [
+                                {
+                                    "kind": "Location",
+                                    "file": "/workspace/quration-algorithm/src/qret/algorithm/preparation/uniform.cpp",
+                                    "line": 131
+                                }
+                            ]
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 6,
+                            "metadata": [
+                                {
+                                    "kind": "Location",
+                                    "file": "/workspace/quration-algorithm/src/qret/algorithm/preparation/uniform.cpp",
+                                    "line": 131
+                                }
+                            ]
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 7,
+                            "metadata": [
+                                {
+                                    "kind": "Location",
+                                    "file": "/workspace/quration-algorithm/src/qret/algorithm/preparation/uniform.cpp",
+                                    "line": 131
+                                }
+                            ]
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 8,
+                            "metadata": [
+                                {
+                                    "kind": "Location",
+                                    "file": "/workspace/quration-algorithm/src/qret/algorithm/preparation/uniform.cpp",
+                                    "line": 131
+                                }
+                            ]
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 9,
+                            "metadata": [
+                                {
+                                    "kind": "Location",
+                                    "file": "/workspace/quration-algorithm/src/qret/algorithm/preparation/uniform.cpp",
+                                    "line": 131
+                                }
+                            ]
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 3
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 3
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "TemporalAnd",
+                            "operate": [
+                                4,
+                                1,
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "TemporalAnd",
+                            "operate": [
+                                5,
+                                3,
+                                4
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "RZ",
+                            "q": 5,
+                            "theta": {
+                                "value": -1.1278852827212578,
+                                "precision": 1e-10
+                            }
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UncomputeTemporalAnd",
+                            "operate": [
+                                5,
+                                3,
+                                4
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UncomputeTemporalAnd",
+                            "operate": [
+                                4,
+                                1,
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 3
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 3
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 4
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 5
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 6
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 7
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 8
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 9
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 10,
+                "qubits": {
+                    "tgt": 4,
+                    "aux": 6
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "ApplyXToEachIfImm(7,4)",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "X",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "X",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 4,
+                "qubits": {
+                    "tgt": 4
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "AddCuccaro(4)",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 8
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "MAJ",
+                            "operate": [
+                                4,
+                                8,
+                                0
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "MAJ",
+                            "operate": [
+                                5,
+                                4,
+                                1
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "MAJ",
+                            "operate": [
+                                6,
+                                5,
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 3,
+                            "q1": 6
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 3,
+                            "q1": 7
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UMA",
+                            "operate": [
+                                6,
+                                5,
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UMA",
+                            "operate": [
+                                5,
+                                4,
+                                1
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "UMA",
+                            "operate": [
+                                4,
+                                8,
+                                0
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 8
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 9,
+                "qubits": {
+                    "dst": 4,
+                    "src": 4,
+                    "aux": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "MAJ",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CCX",
+                            "q0": 0,
+                            "q1": 1,
+                            "q2": 2
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "UMA",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "CCX",
+                            "q0": 0,
+                            "q1": 1,
+                            "q2": 2
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 1
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "__adjoint__AddCuccaro(4)",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 8
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "__adjoint__UMA",
+                            "operate": [
+                                4,
+                                8,
+                                0
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "__adjoint__UMA",
+                            "operate": [
+                                5,
+                                4,
+                                1
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "__adjoint__UMA",
+                            "operate": [
+                                6,
+                                5,
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 3,
+                            "q1": 7
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 3,
+                            "q1": 6
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "__adjoint__MAJ",
+                            "operate": [
+                                6,
+                                5,
+                                2
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "__adjoint__MAJ",
+                            "operate": [
+                                5,
+                                4,
+                                1
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Call",
+                            "callee": "__adjoint__MAJ",
+                            "operate": [
+                                4,
+                                8,
+                                0
+                            ],
+                            "input": [],
+                            "output": []
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 8
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 9,
+                "qubits": {
+                    "dst": 4,
+                    "src": 4,
+                    "aux": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "__adjoint__UMA",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 1
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CCX",
+                            "q0": 0,
+                            "q1": 1,
+                            "q2": 2
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "__adjoint__MAJ",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "CCX",
+                            "q0": 0,
+                            "q1": 1,
+                            "q2": 2
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "TemporalAnd",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 0,
+                            "metadata": [
+                                {
+                                    "kind": "Location",
+                                    "file": "/workspace/quration-algorithm/src/qret/algorithm/arithmetic/boolean.cpp",
+                                    "line": 72
+                                }
+                            ]
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 0,
+                            "q1": 1
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 0,
+                            "q1": 2
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "TDag",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "TDag",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "S",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "t": 1,
+                    "c0": 1,
+                    "c1": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "UncomputeTemporalAnd",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 0,
+                            "r": 0
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 2,
+                            "condition": 0,
+                            "if_true": "then_0",
+                            "if_false": "if_cont_0"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": [
+                        "then_0",
+                        "if_cont_0"
+                    ]
+                },
+                {
+                    "name": "then_0",
+                    "inst_list": [
+                        {
+                            "opcode": "X",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "CZ",
+                            "q0": 1,
+                            "q1": 2
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 1,
+                            "if_true": "if_cont_0"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry"
+                    ],
+                    "successors": [
+                        "if_cont_0"
+                    ]
+                },
+                {
+                    "name": "if_cont_0",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 0,
+                            "metadata": [
+                                {
+                                    "kind": "Location",
+                                    "file": "/workspace/quration-algorithm/src/qret/algorithm/arithmetic/boolean.cpp",
+                                    "line": 111
+                                }
+                            ]
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry",
+                        "then_0"
+                    ],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "t": 1,
+                    "c0": 1,
+                    "c1": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 1
+        }
+    ]
+}

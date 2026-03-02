@@ -1,0 +1,12 @@
+grids:
+  - type: plane
+    coord: [20, 20, 0]
+    magic_factory:
+      - symbol: 0
+        coord: [0, 0]
+      - symbol: 1
+        coord: [0, 1]
+      - symbol: 2
+        coord: [0, 2]
+      - symbol: 3
+        coord: [0, 3]

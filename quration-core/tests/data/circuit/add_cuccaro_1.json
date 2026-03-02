@@ -1,0 +1,50 @@
+{
+    "metadata": {
+        "format": "IR",
+        "schema_version": "0.1",
+        "qret_version": "0.7.1",
+        "created_at": "2026-02-20T03:34:42"
+    },
+    "name": "add_cuccaro",
+    "circuit_list": [
+        {
+            "name": "AddCuccaro(1)",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 0,
+                            "q1": 1
+                        },
+                        {
+                            "opcode": "Clean",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "dst": 1,
+                    "src": 1,
+                    "aux": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        }
+    ]
+}

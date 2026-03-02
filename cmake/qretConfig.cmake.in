@@ -1,0 +1,20 @@
+# qret CMake configuration file
+
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+if(NOT Boost_FOUND)
+  find_dependency(Boost REQUIRED)
+endif()
+if(NOT fmt_FOUND)
+  find_dependency(fmt REQUIRED)
+endif()
+if(NOT nlohmann_json_FOUND)
+  find_dependency(nlohmann_json REQUIRED)
+endif()
+if(NOT yaml-cpp_FOUND)
+  find_dependency(yaml-cpp REQUIRED)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")

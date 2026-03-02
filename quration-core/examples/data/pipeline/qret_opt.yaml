@@ -1,0 +1,9 @@
+input: quration-core/examples/data/circuit/add_craig_5.json
+function: AddCraig(5)
+output: out.json
+pass:
+  - name: ir::delete_opt_hint
+  - name: MyOpt
+    cmd: python3 quration-core/examples/external-pass/opt_ir.py ir_in.json "AddCraig(5)" ir_out.json || python quration-core/examples/external-pass/opt_ir.py ir_in.json "AddCraig(5)" ir_out.json
+    input: ir_in.json
+    output: ir_out.json

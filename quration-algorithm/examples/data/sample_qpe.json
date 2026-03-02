@@ -1,0 +1,12 @@
+{
+    "paulis": [
+        [["Z"], ["I"]],
+        [["Z"], ["Z"]],
+        [["Y", "X"], ["I"]],
+        [["Y", "X"], ["X", "Y", "X", "Y", "X"]]
+    ],
+    "lcu_coefficients": [0.25, 0.25, 0.25, 0.25],
+    "system_size": 2,
+    "hadamard_size": 3,
+    "sub_bit_precision": 3
+}

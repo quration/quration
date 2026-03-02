@@ -1,0 +1,43 @@
+{
+    "name": "SampleModule",
+    "circuit_list": [
+        {
+            "name": "SampleCircuit",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "CCX",
+                            "q0": 0,
+                            "q1": 1,
+                            "q2": 2
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 0,
+                            "r": 0
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "x": 3
+                },
+                "num_registers": 1,
+                "registers": {
+                    "r": 1
+                }
+            },
+            "num_tmp_registers": 0
+        }
+    ]
+}

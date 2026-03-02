@@ -1,0 +1,193 @@
+{
+    "name": "boolean",
+    "circuit_list": [
+        {
+            "name": "TemporalAnd",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 0,
+                            "q1": 1
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 0,
+                            "q1": 2
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "TDag",
+                            "q": 1
+                        },
+                        {
+                            "opcode": "TDag",
+                            "q": 2
+                        },
+                        {
+                            "opcode": "T",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 1,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "CX",
+                            "q0": 2,
+                            "q1": 0
+                        },
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "S",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "t": 1,
+                    "c0": 1,
+                    "c1": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "UncomputeTemporalAnd",
+            "entry_point": "entry",
+            "bb_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {
+                            "opcode": "H",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "Measurement",
+                            "q": 0,
+                            "r": 0
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 2,
+                            "condition": 0,
+                            "if_true": "then0",
+                            "if_false": "else0"
+                        }
+                    ],
+                    "predecessors": [],
+                    "successors": [
+                        "then0",
+                        "else0"
+                    ]
+                },
+                {
+                    "name": "then0",
+                    "inst_list": [
+                        {
+                            "opcode": "X",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "CZ",
+                            "q0": 1,
+                            "q1": 2
+                        },
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 1,
+                            "if_true": "ifcont0"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry"
+                    ],
+                    "successors": [
+                        "ifcont0"
+                    ]
+                },
+                {
+                    "name": "else0",
+                    "inst_list": [
+                        {
+                            "opcode": "Branch",
+                            "num_successors": 1,
+                            "if_true": "ifcont0"
+                        }
+                    ],
+                    "predecessors": [
+                        "entry"
+                    ],
+                    "successors": [
+                        "ifcont0"
+                    ]
+                },
+                {
+                    "name": "ifcont0",
+                    "inst_list": [
+                        {
+                            "opcode": "Clean",
+                            "q": 0
+                        },
+                        {
+                            "opcode": "Return"
+                        }
+                    ],
+                    "predecessors": [
+                        "then0",
+                        "else0"
+                    ],
+                    "successors": []
+                }
+            ],
+            "argument": {
+                "num_qubits": 3,
+                "qubits": {
+                    "t": 1,
+                    "c0": 1,
+                    "c1": 1
+                },
+                "num_registers": 0
+            },
+            "num_tmp_registers": 1
+        }
+    ]
+}

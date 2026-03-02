@@ -1,0 +1,15 @@
+/**
+ * @file qret/version.h
+ * @brief QRET version.
+ */
+
+#ifndef QRET_VERSION_H
+#define QRET_VERSION_H
+
+// clang-format off
+#define QRET_VERSION_MAJOR @qret_VERSION_MAJOR@
+#define QRET_VERSION_MINOR @qret_VERSION_MINOR@
+#define QRET_VERSION_PATCH @qret_VERSION_PATCH@
+// clang-format on
+
+#endif  //  QRET_VERSION_H

@@ -1,0 +1,3 @@
+grids:
+  - type: plane
+    coord: [21, 41, 0]

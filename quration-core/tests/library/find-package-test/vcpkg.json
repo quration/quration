@@ -1,0 +1,25 @@
+{
+  "name": "qret",
+  "version": "1.0.0",
+  "builtin-baseline": "96b5ced82828ecaf67e6010a892c98d3e96ed1c2",
+  "dependencies": [
+    "boost-dynamic-bitset",
+    "boost-multiprecision",
+    "boost-program-options",
+    "boost-property-tree",
+    "boost-rational",
+    "eigen3",
+    "fmt",
+    "gtest",
+    "nlohmann-json",
+    "pcg",
+    "pegtl",
+    "yaml-cpp"
+  ],
+  "overrides": [
+    {
+      "name": "fmt",
+      "version": "9.1.0#1"
+    }
+  ]
+}
