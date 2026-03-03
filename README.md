@@ -2,6 +2,7 @@
 
 Quration is a toolchain for exploring design space of fault-tolerant quantum computer (FTQC) architectures and curate optimization strategies and co-design techniques to find a state-of-the-art system designs.  
 
+This project is planned by RIKEN and developed by RIKEN and Fixstars.  
 The development of Quration is in progress, and their backward compatibility might be broken in future updates.  
 
 ## License

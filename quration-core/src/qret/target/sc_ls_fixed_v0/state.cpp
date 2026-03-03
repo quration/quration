@@ -138,7 +138,7 @@ void QuantumStateBuffer::PutQubit(
 
         // Update nodes_.
         nodes_[index][grid.GetIndex()][node_index] =
-                Node{.type = Type::Qubit, .symbol = qubit.Id()};
+                QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::Qubit, .symbol = qubit.Id()};
 
         // Update q2p_.
         q2p_[index][qubit] = {place, dir};
@@ -158,14 +158,14 @@ void QuantumStateBuffer::PutMagicFactory(
 
     auto index = GetBeatIndex(beat);
     nodes_[index][grid.GetIndex()][node_index] =
-            Node{.type = Type::MagicFactory, .symbol = magic_factory.Id()};
+            QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::MagicFactory, .symbol = magic_factory.Id()};
     auto mf_state = initial_mf_state;
     mf_states_[index][magic_factory] = mf_state;
     index = (index + 1) % size_;
     for (auto b = beat + 1; b <= GetFinalBeat(); ++b) {
         // Update nodes_.
         nodes_[index][grid.GetIndex()][node_index] =
-                Node{.type = Type::MagicFactory, .symbol = magic_factory.Id()};
+                QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::MagicFactory, .symbol = magic_factory.Id()};
 
         // Update mf_states_.
         StepMagicFactoryState(option_, mf_state);
@@ -200,9 +200,9 @@ void QuantumStateBuffer::PutEntanglementFactory(
     auto ef_state_curr1 = ef_state1;
     auto ef_state_curr2 = ef_state2;
     nodes_[index][grid1.GetIndex()][node_index1] =
-            Node{.type = Type::EntanglementFactory, .symbol = entanglement_factory1.Id()};
+            QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::EntanglementFactory, .symbol = entanglement_factory1.Id()};
     nodes_[index][grid2.GetIndex()][node_index2] =
-            Node{.type = Type::EntanglementFactory, .symbol = entanglement_factory2.Id()};
+            QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::EntanglementFactory, .symbol = entanglement_factory2.Id()};
     ef_states_[index][entanglement_factory1] = ef_state_curr1;
     ef_states_[index][entanglement_factory2] = ef_state_curr2;
     for (auto b = beat + 1; b <= GetFinalBeat(); ++b) {
@@ -210,9 +210,9 @@ void QuantumStateBuffer::PutEntanglementFactory(
         index = (index + 1) % size_;
 
         nodes_[index][grid1.GetIndex()][node_index1] =
-                Node{.type = Type::EntanglementFactory, .symbol = entanglement_factory1.Id()};
+                QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::EntanglementFactory, .symbol = entanglement_factory1.Id()};
         nodes_[index][grid2.GetIndex()][node_index2] =
-                Node{.type = Type::EntanglementFactory, .symbol = entanglement_factory2.Id()};
+                QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::EntanglementFactory, .symbol = entanglement_factory2.Id()};
         ef_states_[index][entanglement_factory1] = ef_state_curr1;
         ef_states_[index][entanglement_factory2] = ef_state_curr2;
     }
@@ -226,8 +226,8 @@ void QuantumStateBuffer::RemoveQubit(Beat beat, QSymbol qubit) {
 
         // Initialize nodes_.
         auto& node = nodes_[index][grid.GetIndex()][node_index];
-        assert(node.is_available && node.type == Type::Qubit);
-        node = Node{};
+        assert(node.is_available && node.type == QuantumStateBufferInternal::Type::Qubit);
+        node = QuantumStateBufferInternal::Node{};
 
         // Remove qubit from q2p_.
         q2p_[index].erase(qubit);

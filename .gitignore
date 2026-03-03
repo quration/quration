@@ -1,6 +1,12 @@
 
 # Created by https://www.gitignore.io/api/python,macos
 
+### Tutorial materials
+quration-docs/tutorial/*.json
+quration-docs/tutorial/*.dot
+quration-docs/tutorial/*.asm
+quration-docs/tutorial/*.tex
+
 ### build directories ###
 bin
 lib
