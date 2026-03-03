@@ -17,6 +17,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ---------- System dependencies ----------
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
       # ---------- vcpkg ----------
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
