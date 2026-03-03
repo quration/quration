@@ -1,0 +1,38 @@
+name: Notebook Test
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+env:
+  VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+jobs:
+  notebook-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---------- vcpkg ----------
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 96b5ced82828ecaf67e6010a892c98d3e96ed1c2
+
+      # ---------- C++ build ----------
+      - name: Configure CMake (dist preset)
+        run: cmake --preset dist
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      # ---------- Python (uv) ----------
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Run notebook tests
+        run: uv run --only-group notebook-tests pytest --nbmake --nbmake-timeout=300 quration-docs/tutorial/
