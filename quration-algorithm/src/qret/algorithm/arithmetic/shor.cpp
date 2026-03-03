@@ -28,7 +28,7 @@ frontend::Circuit* PeriodFinderGen::Generate() const {
     auto multipliers = std::vector<BigInt>(depth);
     multipliers.back() = coprime;
     for (auto i = static_cast<std::int32_t>(depth) - 2; i >= 0; --i) {
-        multipliers[i] = (multipliers[i + 1] * multipliers[i + 1]) % mod;
+        multipliers[static_cast<std::size_t>(i)] = (multipliers[static_cast<std::size_t>(i + 1)] * multipliers[static_cast<std::size_t>(i + 1)]) % mod;
     }
 
     X(lhs[0]);
