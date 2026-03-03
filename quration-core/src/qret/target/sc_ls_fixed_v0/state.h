@@ -189,26 +189,13 @@ inline bool StepEntanglementFactoryState(
 #pragma endregion
 
 // Forward declarations
-class QuantumState;
-class QuantumGrid;
 class QuantumPlane;
+class QuantumGrid;
+class QuantumState;
+class QuantumStateBuffer;
 
-class QRET_EXPORT QuantumStateBuffer {
-public:
-    static std::unique_ptr<QuantumStateBuffer> New(
-            const Topology& topology,
-            const ScLsFixedV0MachineOption& option,
-            Beat size,
-            Beat begin = 0
-    ) {
-        return std::unique_ptr<QuantumStateBuffer>(
-                new QuantumStateBuffer(topology, option, size, begin)
-        );
-    }
 
-    QuantumStateBuffer(const QuantumStateBuffer&) = delete;
-    QuantumStateBuffer(QuantumStateBuffer&&) = delete;
-
+namespace QuantumStateBufferInternal{
     enum class Type : std::uint8_t {
         Ancilla = 0,
         MagicFactory = 1,
@@ -239,6 +226,197 @@ public:
             symbol = cost;
         }
     };
+};
+
+class QRET_EXPORT QuantumPlane {
+public:
+    using Node = QuantumStateBufferInternal::Node;
+
+    QuantumPlane(const QuantumPlane&) = delete;
+    QuantumPlane(QuantumPlane&&) = default;
+
+    const ScLsPlane& GetTopology() const {
+        return topology_;
+    }
+
+    QuantumGrid& GetParent() {
+        return *parent_;
+    }
+
+    Node& GetNode(const Coord2D& c) {
+        const auto index = c.x + (c.y * topology_.GetMaxX());
+        return nodes_[static_cast<std::size_t>(index)];
+    }
+
+    auto begin() {
+        return nodes_.begin();
+    }
+    auto end() {
+        return nodes_.end();
+    }
+
+private:
+    friend class QuantumGrid;
+    QuantumPlane(const ScLsPlane& topology, std::span<Node> nodes)
+        : topology_(topology)
+        , nodes_(nodes) {}
+    void SetParent(QuantumGrid* parent) {
+        parent_ = parent;
+    }
+
+    const ScLsPlane& topology_;
+    QuantumGrid* parent_ = nullptr;
+    std::span<Node> nodes_;
+};
+
+class QRET_EXPORT QuantumGrid {
+public:
+    using Node = QuantumStateBufferInternal::Node;
+
+    QuantumGrid(const QuantumGrid&) = delete;
+    QuantumGrid(QuantumGrid&&) noexcept;
+
+    const ScLsGrid& GetTopology() const {
+        return topology_;
+    }
+
+    QuantumState& GetParent() {
+        return *parent_;
+    }
+
+    QuantumPlane& GetPlane(std::int32_t z);
+    QuantumPlane& GetPlaneByIndex(std::size_t plane_index);
+
+    Node& GetNode(const Coord3D& coord) {
+        return nodes_[GetNodeIndex(coord)];
+    }
+
+    std::size_t GetNodeIndex(const Coord3D& coord) {
+        const auto& plane = topology_.GetPlane(coord.z);
+        return (plane.GetIndex() * static_cast<std::size_t>(plane.GetMaxX() * plane.GetMaxY()))
+                + static_cast<std::size_t>((coord.y * plane.GetMaxX()) + coord.x);
+    }
+
+    auto begin() {
+        return planes_.begin();
+    }
+    auto end() {
+        return planes_.end();
+    }
+
+private:
+    friend class QuantumState;
+    QuantumGrid(const ScLsGrid& topology, std::vector<Node>& nodes);
+    void SetParent(QuantumState* parent) {
+        parent_ = parent;
+    }
+
+    const ScLsGrid& topology_;
+    QuantumState* parent_ = nullptr;
+    std::vector<Node>& nodes_;
+
+    // Children
+    std::vector<QuantumPlane> planes_;
+};
+
+class QRET_EXPORT QuantumState {
+public:
+    using Node = QuantumStateBufferInternal::Node;
+
+    QuantumState(const QuantumState&) = delete;
+    QuantumState(QuantumState&&) noexcept;
+
+    const Topology& GetTopology() const {
+        return topology_;
+    }
+
+    QuantumStateBuffer& GetParent() {
+        return *parent_;
+    }
+
+    Beat GetBeat() const {
+        return beat_;
+    }
+
+    QuantumGrid& GetGrid(std::int32_t z);
+    QuantumGrid& GetGridByIndex(std::size_t grid_index);
+
+    const std::vector<MSymbol>& GetMagicFactoryList(std::int32_t z) const;
+    bool IsAvailable(MSymbol m) const;
+    const Coord3D& GetPlace(MSymbol m) const;
+    const MagicFactoryState& GetState(MSymbol m) const;
+
+    const std::vector<ESymbol>& GetEntanglementFactoryList(std::int32_t z) const;
+    bool IsAvailable(ESymbol e) const;
+    bool IsReserved(EHandle handle) const;
+    std::optional<ESymbol> LookupSymbol(EHandle handle) const;
+    const Coord3D& GetPlace(ESymbol e) const;
+    const EntanglementFactoryState& GetState(ESymbol e) const;
+
+    const Coord3D& GetPlace(QSymbol q) const;
+    std::uint32_t GetDir(QSymbol q) const;
+
+    std::size_t GetNodeIndex(const Coord3D& coord) const {
+        const auto& plane = topology_.GetPlane(coord.z);
+        return (plane.GetIndex() * static_cast<std::size_t>(plane.GetMaxX() * plane.GetMaxY()))
+                + static_cast<std::size_t>((coord.y * plane.GetMaxX()) + coord.x);
+    }
+
+    void Dump(std::ostream& out) const;
+
+    auto begin() {
+        return grids_.begin();
+    }
+    auto end() {
+        return grids_.end();
+    }
+
+private:
+    friend class QuantumStateBuffer;
+    QuantumState(
+            const Topology& topology,
+            Beat beat,
+            std::vector<std::vector<Node>>& nodes,
+            std::unordered_map<MSymbol, MagicFactoryState>& mf_states,
+            std::unordered_map<ESymbol, EntanglementFactoryState>& ef_states,
+            std::unordered_map<QSymbol, std::pair<Coord3D, std::uint32_t>>& q2p
+    );
+    void SetParent(QuantumStateBuffer* parent) {
+        parent_ = parent;
+    }
+    void SetBeat(Beat beat) {
+        beat_ = beat;
+    }
+
+    const Topology& topology_;
+    QuantumStateBuffer* parent_ = nullptr;
+    Beat beat_;
+    std::vector<std::vector<Node>>& nodes_;
+    std::unordered_map<MSymbol, MagicFactoryState>& mf_states_;
+    std::unordered_map<ESymbol, EntanglementFactoryState>& ef_states_;
+    std::unordered_map<QSymbol, std::pair<Coord3D, std::uint32_t>>& q2p_;
+
+    // Children
+    std::vector<QuantumGrid> grids_;
+};
+
+class QRET_EXPORT QuantumStateBuffer {
+public:
+    using Node = QuantumStateBufferInternal::Node;
+
+    static std::unique_ptr<QuantumStateBuffer> New(
+            const Topology& topology,
+            const ScLsFixedV0MachineOption& option,
+            Beat size,
+            Beat begin = 0
+    ) {
+        return std::unique_ptr<QuantumStateBuffer>(
+                new QuantumStateBuffer(topology, option, size, begin)
+        );
+    }
+
+    QuantumStateBuffer(const QuantumStateBuffer&) = delete;
+    QuantumStateBuffer(QuantumStateBuffer&&) = delete;
 
     Beat GetInitialBeat() const {
         return begin_.first;
@@ -324,177 +502,6 @@ private:
     std::vector<QuantumState> states_;
 };
 
-class QRET_EXPORT QuantumState {
-public:
-    using Node = QuantumStateBuffer::Node;
-
-    QuantumState(const QuantumState&) = delete;
-    QuantumState(QuantumState&&) noexcept;
-
-    const Topology& GetTopology() const {
-        return topology_;
-    }
-
-    QuantumStateBuffer& GetParent() {
-        return *parent_;
-    }
-
-    Beat GetBeat() const {
-        return beat_;
-    }
-
-    QuantumGrid& GetGrid(std::int32_t z);
-    QuantumGrid& GetGridByIndex(std::size_t grid_index);
-
-    const std::vector<MSymbol>& GetMagicFactoryList(std::int32_t z) const;
-    bool IsAvailable(MSymbol m) const;
-    const Coord3D& GetPlace(MSymbol m) const;
-    const MagicFactoryState& GetState(MSymbol m) const;
-
-    const std::vector<ESymbol>& GetEntanglementFactoryList(std::int32_t z) const;
-    bool IsAvailable(ESymbol e) const;
-    bool IsReserved(EHandle handle) const;
-    std::optional<ESymbol> LookupSymbol(EHandle handle) const;
-    const Coord3D& GetPlace(ESymbol e) const;
-    const EntanglementFactoryState& GetState(ESymbol e) const;
-
-    const Coord3D& GetPlace(QSymbol q) const;
-    std::uint32_t GetDir(QSymbol q) const;
-
-    std::size_t GetNodeIndex(const Coord3D& coord) const {
-        const auto& plane = topology_.GetPlane(coord.z);
-        return (plane.GetIndex() * static_cast<std::size_t>(plane.GetMaxX() * plane.GetMaxY()))
-                + static_cast<std::size_t>((coord.y * plane.GetMaxX()) + coord.x);
-    }
-
-    void Dump(std::ostream& out) const;
-
-    auto begin() {
-        return grids_.begin();
-    }
-    auto end() {
-        return grids_.end();
-    }
-
-private:
-    friend class QuantumStateBuffer;
-    QuantumState(
-            const Topology& topology,
-            Beat beat,
-            std::vector<std::vector<Node>>& nodes,
-            std::unordered_map<MSymbol, MagicFactoryState>& mf_states,
-            std::unordered_map<ESymbol, EntanglementFactoryState>& ef_states,
-            std::unordered_map<QSymbol, std::pair<Coord3D, std::uint32_t>>& q2p
-    );
-    void SetParent(QuantumStateBuffer* parent) {
-        parent_ = parent;
-    }
-    void SetBeat(Beat beat) {
-        beat_ = beat;
-    }
-
-    const Topology& topology_;
-    QuantumStateBuffer* parent_ = nullptr;
-    Beat beat_;
-    std::vector<std::vector<Node>>& nodes_;
-    std::unordered_map<MSymbol, MagicFactoryState>& mf_states_;
-    std::unordered_map<ESymbol, EntanglementFactoryState>& ef_states_;
-    std::unordered_map<QSymbol, std::pair<Coord3D, std::uint32_t>>& q2p_;
-
-    // Children
-    std::vector<QuantumGrid> grids_;
-};
-
-class QRET_EXPORT QuantumGrid {
-public:
-    using Node = QuantumStateBuffer::Node;
-
-    QuantumGrid(const QuantumGrid&) = delete;
-    QuantumGrid(QuantumGrid&&) noexcept;
-
-    const ScLsGrid& GetTopology() const {
-        return topology_;
-    }
-
-    QuantumState& GetParent() {
-        return *parent_;
-    }
-
-    QuantumPlane& GetPlane(std::int32_t z);
-    QuantumPlane& GetPlaneByIndex(std::size_t plane_index);
-
-    Node& GetNode(const Coord3D& coord) {
-        return nodes_[GetNodeIndex(coord)];
-    }
-
-    std::size_t GetNodeIndex(const Coord3D& coord) {
-        const auto& plane = topology_.GetPlane(coord.z);
-        return (plane.GetIndex() * static_cast<std::size_t>(plane.GetMaxX() * plane.GetMaxY()))
-                + static_cast<std::size_t>((coord.y * plane.GetMaxX()) + coord.x);
-    }
-
-    auto begin() {
-        return planes_.begin();
-    }
-    auto end() {
-        return planes_.end();
-    }
-
-private:
-    friend class QuantumState;
-    QuantumGrid(const ScLsGrid& topology, std::vector<Node>& nodes);
-    void SetParent(QuantumState* parent) {
-        parent_ = parent;
-    }
-
-    const ScLsGrid& topology_;
-    QuantumState* parent_ = nullptr;
-    std::vector<Node>& nodes_;
-
-    // Children
-    std::vector<QuantumPlane> planes_;
-};
-
-class QRET_EXPORT QuantumPlane {
-public:
-    using Node = QuantumStateBuffer::Node;
-
-    QuantumPlane(const QuantumPlane&) = delete;
-    QuantumPlane(QuantumPlane&&) = default;
-
-    const ScLsPlane& GetTopology() const {
-        return topology_;
-    }
-
-    QuantumGrid& GetParent() {
-        return *parent_;
-    }
-
-    Node& GetNode(const Coord2D& c) {
-        const auto index = c.x + (c.y * topology_.GetMaxX());
-        return nodes_[static_cast<std::size_t>(index)];
-    }
-
-    auto begin() {
-        return nodes_.begin();
-    }
-    auto end() {
-        return nodes_.end();
-    }
-
-private:
-    friend class QuantumGrid;
-    QuantumPlane(const ScLsPlane& topology, std::span<Node> nodes)
-        : topology_(topology)
-        , nodes_(nodes) {}
-    void SetParent(QuantumGrid* parent) {
-        parent_ = parent;
-    }
-
-    const ScLsPlane& topology_;
-    QuantumGrid* parent_ = nullptr;
-    std::span<Node> nodes_;
-};
 
 }  // namespace qret::sc_ls_fixed_v0
 
