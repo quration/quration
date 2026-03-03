@@ -6,6 +6,14 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from typing_extensions import Self
 
+import importlib.util
+
+import os
+
+import platform
+
+from pathlib import Path
+
 from . import _qret_impl as _M
 
 if TYPE_CHECKING:
@@ -281,3 +289,43 @@ class IteratorWrapper:
         ret = self._convert_to()
         ret._impl = next(self._iter)
         return ret
+
+
+_ENV_PATH = "GRIDSYNTH_PATH"
+
+
+def _qsvt_package_root() -> Path | None:
+    spec = importlib.util.find_spec("pyqsvt")
+    if spec is None:
+        return None
+    if spec.origin:
+        return Path(spec.origin).resolve().parent
+    return None
+
+
+def _set_gridsynth_env_from_package() -> None:
+    if _ENV_PATH in os.environ:
+        return
+
+    package_root = _qsvt_package_root()
+    if package_root is None:
+        return
+
+    bin_dir = package_root / "externals" / "newsynth"
+    if not bin_dir.is_dir():
+        return
+
+    candidates = [
+        bin_dir / "gridsynth",
+        bin_dir / "gridsynth.exe",
+    ]
+    if platform.system().lower() == "windows":
+        candidates.reverse()
+
+    for path in candidates:
+        if path.is_file() and os.access(path, os.X_OK):
+            os.environ[_ENV_PATH] = str(path.resolve())
+            break
+
+
+_set_gridsynth_env_from_package()

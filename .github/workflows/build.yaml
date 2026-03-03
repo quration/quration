@@ -1,0 +1,197 @@
+name: python-tests
+
+on:
+  push:
+    branches: [main, py_wheel]
+  release:
+    types: [published]
+
+jobs:
+  wheel:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-15-intel
+          - macos-latest
+          - windows-latest
+          - ubuntu-latest
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Setup Haskell (GHC/Cabal)
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: "9.6.6"
+          cabal-version: "3.12.1.0"
+
+      - name: Setup MSVC (Windows)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Shorten build paths (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          New-Item -ItemType Directory -Force -Path C:\b | Out-Null
+          New-Item -ItemType Directory -Force -Path C:\t | Out-Null
+          Add-Content -Path $env:GITHUB_ENV -Value "SKBUILD_BUILD_DIR=C:\b"
+          Add-Content -Path $env:GITHUB_ENV -Value "TMP=C:\t"
+          Add-Content -Path $env:GITHUB_ENV -Value "TEMP=C:\t"
+        shell: pwsh
+
+      - name: Configure vcpkg toolchain
+        run: |
+          mkdir -p "${{ github.workspace }}/.vcpkg"
+          echo "VCPKG_ROOT=${{ github.workspace }}/.vcpkg" >> "$GITHUB_ENV"
+          git clone https://github.com/microsoft/vcpkg.git "${{ github.workspace }}/.vcpkg"
+          ls "${{ github.workspace }}/.vcpkg"
+
+      - name: Install libyaml-cpp (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc g++ libyaml-cpp0.8 libyaml-cpp-dev
+
+      - name: Set compiler env (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
+
+      - name: Install libyaml-cpp (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install yaml-cpp
+
+      - name: Configure Homebrew lib path (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew_prefix=$(brew --prefix yaml-cpp)
+          if [ -n "$brew_prefix" ]; then
+            echo "DYLD_LIBRARY_PATH=$brew_prefix/lib:$DYLD_LIBRARY_PATH" >> "$GITHUB_ENV"
+          fi
+
+      - name: Set compiler env (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          echo "CC=clang" >> "$GITHUB_ENV"
+          echo "CXX=clang++" >> "$GITHUB_ENV"
+
+      - name: Build newsynth binaries from Hackage
+        run: |
+          cabal update
+          cabal install newsynth --installdir "$PWD/externals/bin" --install-method=copy --overwrite-policy=always
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            chmod +x "$PWD/externals/bin/gridsynth"
+          fi
+          ls -la "$PWD/externals/bin"
+        shell: bash
+
+      - name: Download newsynth LICENSE files
+        run: |
+          rm -rf "$PWD/externals/newsynth-src"
+          rm -rf "$PWD/externals/newsynth-license"
+          mkdir -p "$PWD/externals/newsynth-src"
+          mkdir -p "$PWD/externals/newsynth-license"
+          cabal get newsynth --destdir "$PWD/externals/newsynth-src" --pristine
+          newsynth_src_dir=$(find "$PWD/externals/newsynth-src" -maxdepth 1 -type d -name "newsynth-*" | head -n 1)
+          if [ -n "$newsynth_src_dir" ]; then
+            find "$newsynth_src_dir" -maxdepth 2 -type f \
+              \( -iname "LICENSE*" -o -iname "COPYING*" -o -iname "README*" -o -iname "GPL*" \) \
+              -exec cp {} "$PWD/externals/newsynth-license/" \;
+          fi
+          echo "---"
+          ls -la "$PWD/externals/newsynth-src"
+          echo "---"
+          ls -la "$PWD/externals/newsynth-license"
+        shell: bash
+
+      - name: Build wheel
+        env:
+          SKBUILD_CMAKE_DEFINE: "CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON;QRET_PYTHON_WITH_ALGORITHM=ON"
+        run: |
+          python -m pip install --upgrade pip build pytest coverage wheel numpy
+          python -m build --wheel
+        shell: bash
+
+      - name: Embed newsynth binary and LICENSE files into wheel
+        run: |
+          wheel_file=$(ls dist/*.whl)
+          python -m wheel unpack "$wheel_file" -d dist/unpacked
+          wheel_dir=$(ls -d dist/unpacked/*)
+          pkg_dir="$wheel_dir/pyqret/externals/newsynth"
+          mkdir -p "$pkg_dir"
+
+          # Copy built binaries into pyqret/externals/newsynth.
+          for file in "$PWD"/externals/bin/*; do
+            cp "$file" "$pkg_dir/"
+          done
+
+          # Copy downloaded license files.
+          find "$PWD/externals/newsynth-license" -mindepth 1 -maxdepth 1 -type f -exec cp {} "$pkg_dir/" \;
+
+          rm -f "$wheel_file"
+          python -m wheel pack "$wheel_dir" -d dist
+          ls -la "$pkg_dir"
+        shell: bash
+
+      - name: Install wheel
+        run: python -m pip install dist/*.whl
+        shell: bash
+
+      - name: Run tests
+        run: python -m pytest quration-core/python/tests
+        shell: bash
+
+      - name: Upload Python artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyqret-wheel-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: |
+            dist/*.whl
+
+  merge:
+    needs: [wheel]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: pyqret
+          pattern: pyqret-*
+
+  release:
+    if: github.event_name == 'release'
+    needs: [merge]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download merged artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pyqret
+          path: dist
+
+      - name: Upload artifact to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
