@@ -21,13 +21,25 @@ jobs:
       - name: Install Graphviz
         run: sudo apt-get update && sudo apt-get install -y graphviz
 
-      # ---------- vcpkg ----------
+      # ---------- vcpkg (built-in cache via lukka/run-vcpkg) ----------
+      - name: Read vcpkg baseline from vcpkg.json
+        id: vcpkg-baseline
+        run: echo "commit-id=$(jq -r '."builtin-baseline"' vcpkg.json)" >> "$GITHUB_OUTPUT"
+
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
         with:
-          vcpkgGitCommitId: 96b5ced82828ecaf67e6010a892c98d3e96ed1c2
+          vcpkgGitCommitId: ${{ steps.vcpkg-baseline.outputs.commit-id }}
 
       # ---------- C++ build ----------
+      - name: Cache CMake build
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: cmake-build-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'quration-core/**/CMakeLists.txt', 'quration-algorithm/**/CMakeLists.txt', 'vcpkg.json') }}
+          restore-keys: |
+            cmake-build-${{ runner.os }}-
+
       - name: Configure CMake (dist preset)
         run: cmake --preset dist
 
