@@ -47,7 +47,7 @@ std::optional<std::pair<MSymbol, Coord2D>> FindBestAdjacentMagicFactory(
         }
 
         const auto& node = plane.GetNode(neighbor);
-        if (node.type != QuantumStateBuffer::Type::MagicFactory) {
+        if (node.type != QuantumStateBufferInternal::Type::MagicFactory) {
             continue;
         }
 
