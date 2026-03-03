@@ -1,6 +1,6 @@
 # Quration: Quantum Resource Estimation Toolchain
 
-Quration is a toolchain for exploring large design space of fault-tolerant quantum computer (FTQC) architectures and curate optimization strategies and co-design techniques to find a state-of-the-art system designs.  
+Quration is a toolchain for exploring design space of fault-tolerant quantum computer (FTQC) architectures and curate optimization strategies and co-design techniques to find a state-of-the-art system designs.  
 
 The development of Quration is in progress, and their backward compatibility might be broken in future updates.  
 
@@ -16,31 +16,29 @@ Quration consists of three components; `quration-algorithm`, `quration-core`, an
 
 See `./quration-docs/tutorial/` for tutorials of these programs.
 
-- `quration-algorithm`: Generate popular quantum algorithms and their subroutines with exponential speed-up as Quration-IR
-  - Quration-IR is a succinct LLVM-like language dedicated for evaluating popular FTQC applications with exponential speed-up.
-  - Users can implement generators for target applications. Generators for the following applications are provieded.
+- `quration-algorithm`: Generate popular quantum algorithms and their subroutines as Quration-IR
+  - Quration-IR is a succinct LLVM-like language dedicated for evaluating large-scale FTQC applications.
+  - Algorithm generators for the following applications are implemented.
     - Trotter-based quantum simulation
     - Qubitization-based quantum phase estimation by [R. Babbush et al.](https://arxiv.org/abs/1805.03662)
     - Shor's factoring by [C. Gidney](https://arxiv.org/pdf/1706.07884)
 
 - `quration-core`: Manipulate Quration-IR and compile them into a target instruction set.
   - Quration-IR can be handled with an application named `qret`. Avaialble commands for `qret` are as follows (see manual for details).
-    - `qret parse`: Parse existing forms (e.g. QASM) into Quration-IR
+    - `qret parse`: Parse existing formats (e.g. QASM) into Quration-IR
     - `qret print`: Print Quration-IR as an LLVM-like form
     - `qret simulate`: Simulate Quration-IR with several types of backend
     - `qret opt`: Optimize Quration-IR with pre-defined or user-defined workflow
     - `qret compile`: Compile Quration-IR into pre-defined or user-defined instruction sets of FTQCs
-    - `qret profile`: Profile compiled instruction sets and generate resource estimation profiles
-    - `qret asm`: Dump compiled assembly as a simple ascii form
+    - `qret profile`: Profile compiled programs and generate resource estimation profiles
+    - `qret asm`: Dump compiled programs in a simple ascii form
   - Currently available target instructions:
     - We currently support FTQC based on surface codes, lattice surgery, code-deformation-based S-gate, and magic-state cultivation, and communication.
       - `SC_LS_FIXED_V0_Dim2`: Standard architecture, i.e., 2D array of surface codes
       - `SC_LS_FIXED_V0_Dim3`: Architecture with several layers of 2D surface-code arrays allowing transversal CNOTs between layers
       - `SC_LS_FIXED_V0_Dist`: Standard distributed FTQC, where each nodes consists of 2D surface code arrays
-    - You can configure expected performance of cultivation, entanglement distillation, etc. See manual and tutorial for details.
 
 - `quration-visualizer`: Visualize execution traces and compare resource estimation profiles on browers
-  - Currently, visualizers are developed only for a standard FTQC instructions with surface-code and lattice surgery
 
 
 ## Install Quration-Core and Quration-Algorithm
@@ -59,7 +57,7 @@ We expect our library will work on Windows, MacOS, and Linux with compilers GCC,
 - Install `vcpkg`: 
   - vcpkg is a package manager for C++ libraries, which is used for downloading dependent C++ libraries.
   - See [vcpkg installation page](https://learn.microsoft.com/ja-jp/vcpkg/get_started/get-started?pivots=shell-bash) for how to install vcpkg.
-  - Make sure that an environment variable `VCPKG_ROOT` is set to your path to vcpkg folder.
+  - Make sure that an environment variable `VCPKG_ROOT` is set to the path to vcpkg folder.
 
 - Install cmake:
   - Windows: Install cmake from official web sites
@@ -68,7 +66,7 @@ We expect our library will work on Windows, MacOS, and Linux with compilers GCC,
 - Optional
   - Python: required if you want to build python binding
   - gridsynth: required if you want to decompose Pauli-rotation gates into Clifford+T
-    - Pre-compiled binaries in [official gridsynth](https://www.mathstat.dal.ca/~selinger/newsynth/) do not work on recent Linux environment, and they are re-distributed with GNU General Public License.
+    - Since official binaries in [gridsynth websites](https://www.mathstat.dal.ca/~selinger/newsynth/) do not work on recent Linux environment, our builds are re-distributed with GNU GPL.
       - Windows: `./externals/bin/gridsynth.exe`
       - Linux: `./externals/bin/gridsynth`
       - MacOS: `./externals/bin/gridsynth_macos`
@@ -76,13 +74,13 @@ We expect our library will work on Windows, MacOS, and Linux with compilers GCC,
 
 ### Build process
 
-Please type the following commands at the root of quration-core.
+Please type the following commands at the root of this repository.
 ```
 cmake --preset dist
 cmake --build --preset build-dist
 ```
 
-Then, you can find the following binaries in `./build/bin` for windows, and `./bin/main` and `./bin/examples` for other OS.
+Then, you can find the following binaries in `./build/bin` folder for windows, and `./bin/main` and `./bin/examples` for Linux and MacOS.
 
 - `qret`: main program
   - In the case of windows, it is dependent on `qret-core.dll`, `yaml-cpp.dll`, and `boost_program_options-*.dll`

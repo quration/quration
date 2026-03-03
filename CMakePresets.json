@@ -9,7 +9,6 @@
     {
       "name": "_base",
       "hidden": true,
-      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
