@@ -31,17 +31,14 @@ jobs:
         with:
           vcpkgGitCommitId: ${{ steps.vcpkg-baseline.outputs.commit-id }}
 
-      # ---------- C++ build ----------
-      - name: Cache CMake build
-        uses: actions/cache@v4
+      # ---------- C++ build (ccache for incremental builds) ----------
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1
         with:
-          path: build
-          key: cmake-build-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'quration-core/**/CMakeLists.txt', 'quration-algorithm/**/CMakeLists.txt', 'vcpkg.json') }}
-          restore-keys: |
-            cmake-build-${{ runner.os }}-
+          key: ccache-${{ runner.os }}
 
       - name: Configure CMake (dist preset)
-        run: cmake --preset dist
+        run: cmake --preset dist -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
       - name: Build
         run: cmake --build build --parallel $(nproc)
