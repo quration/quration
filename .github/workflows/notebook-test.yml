@@ -1,0 +1,51 @@
+name: Notebook Test
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+env:
+  VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+jobs:
+  notebook-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---------- System dependencies ----------
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
+      # ---------- vcpkg (built-in cache via lukka/run-vcpkg) ----------
+      - name: Read vcpkg baseline from vcpkg.json
+        id: vcpkg-baseline
+        run: echo "commit-id=$(jq -r '."builtin-baseline"' vcpkg.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: ${{ steps.vcpkg-baseline.outputs.commit-id }}
+
+      # ---------- C++ build (ccache for incremental builds) ----------
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ccache-${{ runner.os }}
+
+      - name: Configure CMake (dist preset)
+        run: cmake --preset dist -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      # ---------- Python (uv) ----------
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Run notebook tests
+        run: uv run --only-group notebook-tests pytest --nbmake --nbmake-timeout=300 quration-docs/tutorial/
