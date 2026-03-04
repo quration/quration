@@ -160,6 +160,9 @@ jobs:
         run: python -m pytest quration-core/python/tests
         shell: bash
 
+      - name: test gridsynth bundle
+        run: python -c "import pyqret; import os; import subprocess; subprocess.run([os.environ['GRIDSYNTH_PATH'], '--help'], check=True)"
+
       - name: Upload Python artifacts
         if: always()
         uses: actions/upload-artifact@v4

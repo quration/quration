@@ -294,8 +294,8 @@ class IteratorWrapper:
 _ENV_PATH = "GRIDSYNTH_PATH"
 
 
-def _qsvt_package_root() -> Path | None:
-    spec = importlib.util.find_spec("pyqsvt")
+def _qret_package_root() -> Path | None:
+    spec = importlib.util.find_spec("pyqret")
     if spec is None:
         return None
     if spec.origin:
@@ -307,7 +307,7 @@ def _set_gridsynth_env_from_package() -> None:
     if _ENV_PATH in os.environ:
         return
 
-    package_root = _qsvt_package_root()
+    package_root = _qret_package_root()
     if package_root is None:
         return
 
