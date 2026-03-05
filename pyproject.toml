@@ -2,14 +2,13 @@
 name = "pyqret"
 description = "Python wrapper of QRET"
 readme = "quration-core/python/README.md"
-required-python = ">=3.10"
+requires-python = ">=3.10"
 
 # authors =
 # license =
 # keywords =
 classifiers = [
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
