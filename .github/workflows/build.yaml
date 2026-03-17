@@ -7,7 +7,71 @@ on:
     types: [published]
 
 jobs:
+  newsynth:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-15-intel
+          - macos-latest
+          - windows-latest
+          - ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Restore newsynth cache
+        id: newsynth-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            externals/bin
+            externals/newsynth-license
+          key: newsynth-${{ matrix.os }}-v1
+
+      - name: Setup Haskell (GHC/Cabal)
+        if: steps.newsynth-cache.outputs.cache-hit != 'true'
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: "9.6.6"
+          cabal-version: "3.12.1.0"
+
+      - name: Build newsynth binaries from Hackage
+        if: steps.newsynth-cache.outputs.cache-hit != 'true'
+        run: |
+          cabal update
+          cabal install newsynth --installdir "$PWD/externals/bin" --install-method=copy --overwrite-policy=always
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            chmod +x "$PWD/externals/bin/gridsynth"
+          fi
+          ls -la "$PWD/externals/bin"
+        shell: bash
+
+      - name: Download newsynth LICENSE files
+        if: steps.newsynth-cache.outputs.cache-hit != 'true'
+        run: |
+          rm -rf "$PWD/externals/newsynth-src"
+          rm -rf "$PWD/externals/newsynth-license"
+          mkdir -p "$PWD/externals/newsynth-src"
+          mkdir -p "$PWD/externals/newsynth-license"
+          cabal get newsynth --destdir "$PWD/externals/newsynth-src" --pristine
+          newsynth_src_dir=$(find "$PWD/externals/newsynth-src" -maxdepth 1 -type d -name "newsynth-*" | head -n 1)
+          if [ -n "$newsynth_src_dir" ]; then
+            find "$newsynth_src_dir" -maxdepth 2 -type f \
+              \( -iname "LICENSE*" -o -iname "COPYING*" -o -iname "README*" -o -iname "GPL*" \) \
+              -exec cp {} "$PWD/externals/newsynth-license/" \;
+          fi
+          echo "---"
+          ls -la "$PWD/externals/newsynth-src"
+          echo "---"
+          ls -la "$PWD/externals/newsynth-license"
+        shell: bash
+
   wheel:
+    needs: [newsynth]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -19,10 +83,10 @@ jobs:
           - ubuntu-latest
         python-version:
           - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+          #- "3.11"
+          #- "3.12"
+          #- "3.13"
+          #- "3.14"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,12 +97,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Setup Haskell (GHC/Cabal)
-        uses: haskell-actions/setup@v2
-        with:
-          ghc-version: "9.6.6"
-          cabal-version: "3.12.1.0"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
 
       - name: Setup MSVC (Windows)
         if: runner.os == 'Windows'
@@ -94,33 +154,18 @@ jobs:
           echo "CC=clang" >> "$GITHUB_ENV"
           echo "CXX=clang++" >> "$GITHUB_ENV"
 
-      - name: Build newsynth binaries from Hackage
-        run: |
-          cabal update
-          cabal install newsynth --installdir "$PWD/externals/bin" --install-method=copy --overwrite-policy=always
-          if [ "$RUNNER_OS" != "Windows" ]; then
-            chmod +x "$PWD/externals/bin/gridsynth"
-          fi
-          ls -la "$PWD/externals/bin"
-        shell: bash
+      - name: Restore newsynth cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            externals/bin
+            externals/newsynth-license
+          key: newsynth-${{ matrix.os }}-v1
+          fail-on-cache-miss: true
 
-      - name: Download newsynth LICENSE files
-        run: |
-          rm -rf "$PWD/externals/newsynth-src"
-          rm -rf "$PWD/externals/newsynth-license"
-          mkdir -p "$PWD/externals/newsynth-src"
-          mkdir -p "$PWD/externals/newsynth-license"
-          cabal get newsynth --destdir "$PWD/externals/newsynth-src" --pristine
-          newsynth_src_dir=$(find "$PWD/externals/newsynth-src" -maxdepth 1 -type d -name "newsynth-*" | head -n 1)
-          if [ -n "$newsynth_src_dir" ]; then
-            find "$newsynth_src_dir" -maxdepth 2 -type f \
-              \( -iname "LICENSE*" -o -iname "COPYING*" -o -iname "README*" -o -iname "GPL*" \) \
-              -exec cp {} "$PWD/externals/newsynth-license/" \;
-          fi
-          echo "---"
-          ls -la "$PWD/externals/newsynth-src"
-          echo "---"
-          ls -la "$PWD/externals/newsynth-license"
+      - name: Fix newsynth permissions (Unix)
+        if: runner.os != 'Windows'
+        run: chmod +x "$PWD/externals/bin/gridsynth"
         shell: bash
 
       - name: Build wheel
@@ -156,12 +201,12 @@ jobs:
         run: python -m pip install dist/*.whl
         shell: bash
 
+      - name: test gridsynth bundle
+        run: python -c "import pyqret; import os; import subprocess; subprocess.run([os.environ['GRIDSYNTH_PATH'], '--help'], check=True)"
+
       - name: Run tests
         run: python -m pytest quration-core/python/tests
         shell: bash
-
-      - name: test gridsynth bundle
-        run: python -c "import pyqret; import os; import subprocess; subprocess.run([os.environ['GRIDSYNTH_PATH'], '--help'], check=True)"
 
       - name: Upload Python artifacts
         if: always()
@@ -171,8 +216,80 @@ jobs:
           path: |
             dist/*.whl
 
+  sdist:
+    needs: [newsynth]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+
+      - name: Configure vcpkg toolchain
+        run: |
+          mkdir -p "${{ github.workspace }}/.vcpkg"
+          echo "VCPKG_ROOT=${{ github.workspace }}/.vcpkg" >> "$GITHUB_ENV"
+          git clone https://github.com/microsoft/vcpkg.git "${{ github.workspace }}/.vcpkg"
+          ls "${{ github.workspace }}/.vcpkg"
+
+      - name: Install libyaml-cpp (Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc g++ libyaml-cpp0.8 libyaml-cpp-dev
+
+      - name: Set compiler env (Linux)
+        run: |
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
+
+      - name: Restore newsynth cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            externals/bin
+            externals/newsynth-license
+          key: newsynth-ubuntu-latest-v1
+          fail-on-cache-miss: true
+
+      - name: Set newsynth environment
+        run: |
+          chmod +x "$PWD/externals/bin/gridsynth"
+          echo "GRIDSYNTH_PATH=$PWD/externals/bin/gridsynth" >> "$GITHUB_ENV"
+          ls -la "$PWD/externals/bin"
+        shell: bash
+
+      - name: Build sdist
+        run: |
+          python -m pip install --upgrade pip build pytest coverage numpy
+          python -m build --sdist
+        shell: bash
+
+      - name: Install sdist
+        env:
+          SKBUILD_CMAKE_DEFINE: "CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON;QRET_PYTHON_WITH_ALGORITHM=ON"
+        run: python -m pip install -vvv dist/*.tar.gz
+        shell: bash
+
+      - name: Run tests
+        run: python -m pytest quration-core/python/tests
+        shell: bash
+
+      - name: Upload sdist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyqret-sdist
+          path: |
+            dist/*.tar.gz
+
   merge:
-    needs: [wheel]
+    needs: [wheel, sdist]
     runs-on: ubuntu-latest
     steps:
       - name: Merge Artifacts
