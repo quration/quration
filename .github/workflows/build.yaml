@@ -2,7 +2,7 @@ name: python-tests
 
 on:
   push:
-    branches: [main, py_wheel, "py_wheel_newabi"]
+    branches: [main, py_wheel]
   release:
     types: [published]
 
@@ -81,6 +81,11 @@ jobs:
           - macos-latest
           - windows-latest
           - ubuntu-latest
+        build-target:
+          - py310
+          - py311
+          - py312-stable-api
+    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -90,7 +95,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.build-target == 'py310' && '3.10' || matrix.build-target == 'py311' && '3.11' || '3.12' }}
           cache: "pip"
           cache-dependency-path: pyproject.toml
 
@@ -167,7 +172,7 @@ jobs:
         if: runner.os == 'Linux'
         uses: pypa/cibuildwheel@v2.23.0
         env:
-          CIBW_BUILD: cp310-manylinux_x86_64
+          CIBW_BUILD: ${{ matrix.build-target == 'py310' && 'cp310-manylinux_x86_64' || matrix.build-target == 'py311' && 'cp311-manylinux_x86_64' || 'cp312-manylinux_x86_64' }}
           CIBW_SKIP: "*-musllinux_*"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_BEFORE_ALL_LINUX: |
@@ -176,14 +181,25 @@ jobs:
             /project/.vcpkg/bootstrap-vcpkg.sh -disableMetrics
           CIBW_ENVIRONMENT_LINUX: >-
             VCPKG_ROOT=/project/.vcpkg
+            ${{ matrix.build-target == 'py312-stable-api' && 'SKBUILD_WHEEL_PY_API=cp312' || '' }}
             SKBUILD_CMAKE_DEFINE="CMAKE_TOOLCHAIN_FILE=/project/.vcpkg/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON;QRET_PYTHON_WITH_ALGORITHM=ON"
         with:
           package-dir: .
           output-dir: dist
 
-      - name: Build wheel
-        if: runner.os != 'Linux'
+      - name: Build wheel (non-stable API, non-Linux)
+        if: runner.os != 'Linux' && matrix.build-target != 'py312-stable-api'
         env:
+          SKBUILD_CMAKE_DEFINE: "CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON;QRET_PYTHON_WITH_ALGORITHM=ON"
+        run: |
+          python -m pip install --upgrade pip build pytest coverage wheel numpy
+          python -m build --wheel
+        shell: bash
+
+      - name: Build wheel (stable API, non-Linux)
+        if: runner.os != 'Linux' && matrix.build-target == 'py312-stable-api'
+        env:
+          SKBUILD_WHEEL_PY_API: "cp312"
           SKBUILD_CMAKE_DEFINE: "CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON;QRET_PYTHON_WITH_ALGORITHM=ON"
         run: |
           python -m pip install --upgrade pip build pytest coverage wheel numpy
@@ -216,7 +232,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pyqret-wheel-${{ matrix.os }}
+          name: pyqret-wheel-${{ matrix.os }}-${{ matrix.build-target }}
           path: |
             dist/*.whl
 
@@ -314,7 +330,7 @@ jobs:
       - name: Download wheel artifact
         uses: actions/download-artifact@v4
         with:
-          name: pyqret-wheel-${{ matrix.os }}
+          name: pyqret-wheel-${{ matrix.os }}-${{ matrix.python-version == '3.10' && 'py310' || matrix.python-version == '3.11' && 'py311' || 'py312-stable-api' }}
           path: dist
 
       - name: Install wheel
@@ -337,16 +353,16 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          #- macos-15-intel
-          #- macos-latest
-          #- windows-latest
+          - macos-15-intel
+          - macos-latest
+          - windows-latest
           - ubuntu-latest
         python-version:
           - "3.10"
           #- "3.11"
           #- "3.12"
           #- "3.13"
-          #- "3.14"
+          - "3.14"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
