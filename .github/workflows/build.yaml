@@ -7,7 +7,298 @@ on:
     types: [published]
 
 jobs:
+  newsynth:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-15-intel
+          - macos-latest
+          - windows-latest
+          - ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Restore newsynth cache
+        id: newsynth-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            externals/bin
+            externals/newsynth-license
+          key: newsynth-${{ matrix.os }}-v1
+
+      - name: Setup Haskell (GHC/Cabal)
+        if: steps.newsynth-cache.outputs.cache-hit != 'true'
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: "9.6.6"
+          cabal-version: "3.12.1.0"
+
+      - name: Build newsynth binaries from Hackage
+        if: steps.newsynth-cache.outputs.cache-hit != 'true'
+        run: |
+          cabal update
+          cabal install newsynth --installdir "$PWD/externals/bin" --install-method=copy --overwrite-policy=always
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            chmod +x "$PWD/externals/bin/gridsynth"
+          fi
+          ls -la "$PWD/externals/bin"
+        shell: bash
+
+      - name: Download newsynth LICENSE files
+        if: steps.newsynth-cache.outputs.cache-hit != 'true'
+        run: |
+          rm -rf "$PWD/externals/newsynth-src"
+          rm -rf "$PWD/externals/newsynth-license"
+          mkdir -p "$PWD/externals/newsynth-src"
+          mkdir -p "$PWD/externals/newsynth-license"
+          cabal get newsynth --destdir "$PWD/externals/newsynth-src" --pristine
+          newsynth_src_dir=$(find "$PWD/externals/newsynth-src" -maxdepth 1 -type d -name "newsynth-*" | head -n 1)
+          if [ -n "$newsynth_src_dir" ]; then
+            find "$newsynth_src_dir" -maxdepth 2 -type f \
+              \( -iname "LICENSE*" -o -iname "COPYING*" -o -iname "README*" -o -iname "GPL*" \) \
+              -exec cp {} "$PWD/externals/newsynth-license/" \;
+          fi
+          echo "---"
+          ls -la "$PWD/externals/newsynth-src"
+          echo "---"
+          ls -la "$PWD/externals/newsynth-license"
+        shell: bash
+
   wheel:
+    needs: [newsynth]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-15-intel
+          - macos-latest
+          - windows-latest
+          - ubuntu-latest
+        build-target:
+          - py310
+          - py311
+          - py312-stable-api
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.build-target == 'py310' && '3.10' || matrix.build-target == 'py311' && '3.11' || '3.12' }}
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+
+      - name: Setup MSVC (Windows)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Shorten build paths (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          New-Item -ItemType Directory -Force -Path C:\b | Out-Null
+          New-Item -ItemType Directory -Force -Path C:\t | Out-Null
+          Add-Content -Path $env:GITHUB_ENV -Value "SKBUILD_BUILD_DIR=C:\b"
+          Add-Content -Path $env:GITHUB_ENV -Value "TMP=C:\t"
+          Add-Content -Path $env:GITHUB_ENV -Value "TEMP=C:\t"
+        shell: pwsh
+
+      - name: Configure vcpkg toolchain
+        if: runner.os != 'Linux'
+        run: |
+          mkdir -p "${{ github.workspace }}/.vcpkg"
+          echo "VCPKG_ROOT=${{ github.workspace }}/.vcpkg" >> "$GITHUB_ENV"
+          git clone https://github.com/microsoft/vcpkg.git "${{ github.workspace }}/.vcpkg"
+          ls "${{ github.workspace }}/.vcpkg"
+
+      - name: Install libyaml-cpp (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc g++ libyaml-cpp0.8 libyaml-cpp-dev
+
+      - name: Set compiler env (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
+
+      - name: Install libyaml-cpp (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install yaml-cpp
+
+      - name: Configure Homebrew lib path (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew_prefix=$(brew --prefix yaml-cpp)
+          if [ -n "$brew_prefix" ]; then
+            echo "DYLD_LIBRARY_PATH=$brew_prefix/lib:$DYLD_LIBRARY_PATH" >> "$GITHUB_ENV"
+          fi
+
+      - name: Set compiler env (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          echo "CC=clang" >> "$GITHUB_ENV"
+          echo "CXX=clang++" >> "$GITHUB_ENV"
+
+      - name: Restore newsynth cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            externals/bin
+            externals/newsynth-license
+          key: newsynth-${{ matrix.os }}-v1
+          fail-on-cache-miss: true
+
+      - name: Fix newsynth permissions (Unix)
+        if: runner.os != 'Windows'
+        run: chmod +x "$PWD/externals/bin/gridsynth"
+        shell: bash
+
+      - name: Build wheel with cibuildwheel (Linux)
+        if: runner.os == 'Linux'
+        uses: pypa/cibuildwheel@v2.23.0
+        env:
+          CIBW_BUILD: ${{ matrix.build-target == 'py310' && 'cp310-manylinux_x86_64' || matrix.build-target == 'py311' && 'cp311-manylinux_x86_64' || 'cp312-manylinux_x86_64' }}
+          CIBW_SKIP: "*-musllinux_*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+          CIBW_BEFORE_ALL_LINUX: |
+            dnf install -y git gcc gcc-c++ make zip unzip tar curl perl
+            git clone https://github.com/microsoft/vcpkg.git /project/.vcpkg
+            /project/.vcpkg/bootstrap-vcpkg.sh -disableMetrics
+          CIBW_ENVIRONMENT_LINUX: >-
+            VCPKG_ROOT=/project/.vcpkg
+            ${{ matrix.build-target == 'py312-stable-api' && 'SKBUILD_WHEEL_PY_API=cp312' || '' }}
+            SKBUILD_CMAKE_DEFINE="CMAKE_TOOLCHAIN_FILE=/project/.vcpkg/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON;QRET_PYTHON_WITH_ALGORITHM=ON"
+        with:
+          package-dir: .
+          output-dir: dist
+
+      - name: Build wheel (non-stable API, non-Linux)
+        if: runner.os != 'Linux' && matrix.build-target != 'py312-stable-api'
+        env:
+          SKBUILD_CMAKE_DEFINE: "CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON;QRET_PYTHON_WITH_ALGORITHM=ON"
+        run: |
+          python -m pip install --upgrade pip build pytest coverage wheel numpy
+          python -m build --wheel
+        shell: bash
+
+      - name: Build wheel (stable API, non-Linux)
+        if: runner.os != 'Linux' && matrix.build-target == 'py312-stable-api'
+        env:
+          SKBUILD_WHEEL_PY_API: "cp312"
+          SKBUILD_CMAKE_DEFINE: "CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON;QRET_PYTHON_WITH_ALGORITHM=ON"
+        run: |
+          python -m pip install --upgrade pip build pytest coverage wheel numpy
+          python -m build --wheel
+        shell: bash
+
+      - name: Embed newsynth binary and LICENSE files into wheel
+        run: |
+          wheel_file=$(ls dist/*.whl)
+          python -m pip install --upgrade wheel
+          python -m wheel unpack "$wheel_file" -d dist/unpacked
+          wheel_dir=$(ls -d dist/unpacked/*)
+          pkg_dir="$wheel_dir/pyqret/externals/newsynth"
+          mkdir -p "$pkg_dir"
+
+          # Copy built binaries into pyqret/externals/newsynth.
+          for file in "$PWD"/externals/bin/*; do
+            cp "$file" "$pkg_dir/"
+          done
+
+          # Copy downloaded license files.
+          find "$PWD/externals/newsynth-license" -mindepth 1 -maxdepth 1 -type f -exec cp {} "$pkg_dir/" \;
+
+          rm -f "$wheel_file"
+          python -m wheel pack "$wheel_dir" -d dist
+          ls -la "$pkg_dir"
+        shell: bash
+
+      - name: Upload Python artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyqret-wheel-${{ matrix.os }}-${{ matrix.build-target }}
+          path: |
+            dist/*.whl
+
+  sdist:
+    needs: [newsynth]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+
+      - name: Configure vcpkg toolchain
+        run: |
+          mkdir -p "${{ github.workspace }}/.vcpkg"
+          echo "VCPKG_ROOT=${{ github.workspace }}/.vcpkg" >> "$GITHUB_ENV"
+          git clone https://github.com/microsoft/vcpkg.git "${{ github.workspace }}/.vcpkg"
+          ls "${{ github.workspace }}/.vcpkg"
+
+      - name: Install libyaml-cpp (Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc g++ libyaml-cpp0.8 libyaml-cpp-dev
+
+      - name: Set compiler env (Linux)
+        run: |
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
+
+      - name: Restore newsynth cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            externals/bin
+            externals/newsynth-license
+          key: newsynth-ubuntu-latest-v1
+          fail-on-cache-miss: true
+
+      - name: Set newsynth permissions
+        run: |
+          chmod +x "$PWD/externals/bin/gridsynth"
+          ls -la "$PWD/externals/bin"
+        shell: bash
+
+      - name: Build sdist
+        run: |
+          python -m pip install --upgrade pip build pytest coverage numpy
+          python -m build --sdist
+        shell: bash
+
+      - name: Upload sdist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyqret-sdist
+          path: |
+            dist/*.tar.gz
+
+  test-wheel:
+    needs: [wheel]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -33,12 +324,57 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
 
-      - name: Setup Haskell (GHC/Cabal)
-        uses: haskell-actions/setup@v2
+      - name: Download wheel artifact
+        uses: actions/download-artifact@v4
         with:
-          ghc-version: "9.6.6"
-          cabal-version: "3.12.1.0"
+          name: pyqret-wheel-${{ matrix.os }}-${{ matrix.python-version == '3.10' && 'py310' || matrix.python-version == '3.11' && 'py311' || 'py312-stable-api' }}
+          path: dist
+
+      - name: Install wheel
+        run: |
+          python -m pip install --upgrade pip pytest coverage numpy
+          python -m pip install dist/*.whl
+        shell: bash
+
+      - name: test gridsynth bundle
+        run: python -c "import pyqret; import os; import subprocess; subprocess.run([os.environ['GRIDSYNTH_PATH'], '--help'], check=True)"
+
+      - name: Run tests
+        run: python -m pytest quration-core/python/tests
+        shell: bash
+
+  test-sdist:
+    needs: [sdist]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-15-intel
+          - macos-latest
+          - windows-latest
+          - ubuntu-latest
+        python-version:
+          - "3.10"
+          #- "3.11"
+          #- "3.12"
+          #- "3.13"
+          - "3.14"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
 
       - name: Setup MSVC (Windows)
         if: runner.os == 'Windows'
@@ -94,85 +430,26 @@ jobs:
           echo "CC=clang" >> "$GITHUB_ENV"
           echo "CXX=clang++" >> "$GITHUB_ENV"
 
-      - name: Build newsynth binaries from Hackage
-        run: |
-          cabal update
-          cabal install newsynth --installdir "$PWD/externals/bin" --install-method=copy --overwrite-policy=always
-          if [ "$RUNNER_OS" != "Windows" ]; then
-            chmod +x "$PWD/externals/bin/gridsynth"
-          fi
-          ls -la "$PWD/externals/bin"
-        shell: bash
+      - name: Download sdist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pyqret-sdist
+          path: dist
 
-      - name: Download newsynth LICENSE files
-        run: |
-          rm -rf "$PWD/externals/newsynth-src"
-          rm -rf "$PWD/externals/newsynth-license"
-          mkdir -p "$PWD/externals/newsynth-src"
-          mkdir -p "$PWD/externals/newsynth-license"
-          cabal get newsynth --destdir "$PWD/externals/newsynth-src" --pristine
-          newsynth_src_dir=$(find "$PWD/externals/newsynth-src" -maxdepth 1 -type d -name "newsynth-*" | head -n 1)
-          if [ -n "$newsynth_src_dir" ]; then
-            find "$newsynth_src_dir" -maxdepth 2 -type f \
-              \( -iname "LICENSE*" -o -iname "COPYING*" -o -iname "README*" -o -iname "GPL*" \) \
-              -exec cp {} "$PWD/externals/newsynth-license/" \;
-          fi
-          echo "---"
-          ls -la "$PWD/externals/newsynth-src"
-          echo "---"
-          ls -la "$PWD/externals/newsynth-license"
-        shell: bash
-
-      - name: Build wheel
+      - name: Install sdist
         env:
           SKBUILD_CMAKE_DEFINE: "CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON;QRET_PYTHON_WITH_ALGORITHM=ON"
         run: |
-          python -m pip install --upgrade pip build pytest coverage wheel numpy
-          python -m build --wheel
-        shell: bash
-
-      - name: Embed newsynth binary and LICENSE files into wheel
-        run: |
-          wheel_file=$(ls dist/*.whl)
-          python -m wheel unpack "$wheel_file" -d dist/unpacked
-          wheel_dir=$(ls -d dist/unpacked/*)
-          pkg_dir="$wheel_dir/pyqret/externals/newsynth"
-          mkdir -p "$pkg_dir"
-
-          # Copy built binaries into pyqret/externals/newsynth.
-          for file in "$PWD"/externals/bin/*; do
-            cp "$file" "$pkg_dir/"
-          done
-
-          # Copy downloaded license files.
-          find "$PWD/externals/newsynth-license" -mindepth 1 -maxdepth 1 -type f -exec cp {} "$pkg_dir/" \;
-
-          rm -f "$wheel_file"
-          python -m wheel pack "$wheel_dir" -d dist
-          ls -la "$pkg_dir"
-        shell: bash
-
-      - name: Install wheel
-        run: python -m pip install dist/*.whl
+          python -m pip install --upgrade pip pytest coverage numpy
+          python -m pip install -vvv dist/*.tar.gz
         shell: bash
 
       - name: Run tests
         run: python -m pytest quration-core/python/tests
         shell: bash
 
-      - name: test gridsynth bundle
-        run: python -c "import pyqret; import os; import subprocess; subprocess.run([os.environ['GRIDSYNTH_PATH'], '--help'], check=True)"
-
-      - name: Upload Python artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pyqret-wheel-${{ matrix.os }}-py${{ matrix.python-version }}
-          path: |
-            dist/*.whl
-
   merge:
-    needs: [wheel]
+    needs: [test-wheel, test-sdist]
     runs-on: ubuntu-latest
     steps:
       - name: Merge Artifacts
