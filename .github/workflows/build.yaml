@@ -181,7 +181,7 @@ jobs:
             /project/.vcpkg/bootstrap-vcpkg.sh -disableMetrics
           CIBW_ENVIRONMENT_LINUX: >-
             VCPKG_ROOT=/project/.vcpkg
-            ${{ matrix.build-target == 'py312-stable-api' && 'SKBUILD_WHEEL_PY_API=cp312' || '' }}
+            ${{ matrix.build-target == 'py312-stable-api' && 'SKBUILD_WHEEL_PY_API=cp312' || 'SKBUILD_WHEEL_PY_API=' }}
             SKBUILD_CMAKE_DEFINE="CMAKE_TOOLCHAIN_FILE=/project/.vcpkg/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON;QRET_PYTHON_WITH_ALGORITHM=ON"
         with:
           package-dir: .
@@ -190,6 +190,7 @@ jobs:
       - name: Build wheel (non-stable API, non-Linux)
         if: runner.os != 'Linux' && matrix.build-target != 'py312-stable-api'
         env:
+          SKBUILD_WHEEL_PY_API: ""
           SKBUILD_CMAKE_DEFINE: "CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON;QRET_PYTHON_WITH_ALGORITHM=ON"
         run: |
           python -m pip install --upgrade pip build pytest coverage wheel numpy
