@@ -1,2 +1,3 @@
 graft include
 graft lib
+graft lib64
