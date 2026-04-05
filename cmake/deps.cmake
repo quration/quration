@@ -63,8 +63,7 @@ if(QRET_USE_QULACS)
     message(STATUS "Configure Qulacs.")
     execute_process(
       COMMAND
-        cmake -S . -B build -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER} -D
-        CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -D
+        cmake -S . -B build -D CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -D
         BOOST_INCLUDEDIR=${Boost_INCLUDE_DIR} -G "Unix Makefiles" -D
         CMAKE_BUILD_TYPE=Release -D USE_OMP:STR=No -D USE_GPU:STR=No -D
         USE_PYTHON:STR=No -DUSE_TEST=No
