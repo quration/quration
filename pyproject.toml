@@ -1,7 +1,7 @@
 [project]
 name = "pyqret"
 description = "Python wrapper of QRET"
-readme = "quration-core/python/README.md"
+readme = "README.md"
 required-python = ">=3.10"
 
 # authors =
@@ -69,6 +69,8 @@ wheel.py-api = "cp312"
 
 # Include Python package from the non-root location.
 wheel.packages = ["quration-core/python/pyqret"]
+wheel.exclude = ["include/**", "lib/**", "lib64/**"]
+sdist.include = ["externals/**", "quration-core/src/**"]
 
 [tool.scikit-build.cmake.define]
 # nanobind requires libraries to be position-independent in order to link correctly
