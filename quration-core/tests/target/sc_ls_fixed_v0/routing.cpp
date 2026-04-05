@@ -6,6 +6,7 @@
 
 #include <iostream>
 
+#include "qret/base/cast.h"
 #include "qret/base/log.h"
 #include "qret/base/option.h"
 #include "qret/base/string.h"
@@ -29,58 +30,87 @@ ir::Function* LoadAddCuccaroCircuit(std::size_t size, ir::IRContext& context) {
     const auto name = fmt::format("AddCuccaro({})", size);
     return tests::LoadCircuitFromJsonFile(path, name, context);
 }
-}  // namespace
 
-TEST(Routing, Plane) {
-    const auto size = std::size_t{3};
-
-    Logger::EnableConsoleOutput();
-    Logger::SetLogLevel(LogLevel::Debug);
-    // 0: Greedy, 1: Random, 2: METIS
+void SetRandomMappingOptions(std::uint64_t seed) {
     std::get<Option<std::uint32_t>*>(
             OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-algorithm")
     )
             ->SetValue(std::uint32_t{1});
-    // 0: EnoughSpaceSoft, 1: EnoughSpaceHard
+    std::get<Option<std::uint64_t>*>(
+            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-seed")
+    )
+            ->SetValue(seed);
     std::get<Option<std::uint32_t>*>(
             OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-find-place-algorithm")
     )
             ->SetValue(std::uint32_t{1});
+}
 
-    ir::IRContext context;
-    auto* circuit = LoadAddCuccaroCircuit(size, context);
-    ASSERT_NE(nullptr, circuit);
-    ir::DecomposeInst().RunOnFunction(*circuit);
-    ir::InlinerPass().RunOnFunction(*circuit);
-
-    auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/plane.yaml"));
-    const auto target = ScLsFixedV0TargetMachine(
-            topology,
-            ScLsFixedV0MachineOption{
-                    .magic_generation_period = 15,
-                    .maximum_magic_state_stock = 100,
-                    .entanglement_generation_period = 15,
-                    .maximum_entangled_state_stock = 100,
-                    .reaction_time = 1,
-            }
-    );
-    auto mf = MachineFunction(&target);
-    mf.SetIR(circuit);
-    Lowering().RunOnMachineFunction(mf);
-    Mapping().RunOnMachineFunction(mf);
-    Routing().RunOnMachineFunction(mf);
-
-    std::cout << "=======================" << std::endl;
-    std::cout << "MachineFunction" << std::endl;
-    for (const auto& mbb : mf) {
-        for (const auto& minst : mbb) {
-            std::cout << static_cast<const ScLsInstructionBase*>(minst.get())->ToStringWithMD()
-                      << std::endl;
-        }
+bool PathTurns(const std::list<Coord3D>& path) {
+    if (path.size() < 3) {
+        return false;
     }
-    std::cout << "=======================" << std::endl;
-    std::cout << "MachineFunction sorted by beat" << std::endl;
-    DumpMachineFunctionSortedByBeat(std::cout, mf);
+
+    auto prev = path.begin();
+    auto curr = std::next(prev);
+    auto next = std::next(curr);
+    auto prev_axis = (prev->x != curr->x) ? 'X' : 'Y';
+    for (; next != path.end(); ++prev, ++curr, ++next) {
+        const auto axis = (curr->x != next->x) ? 'X' : 'Y';
+        if (axis != prev_axis) {
+            return true;
+        }
+        prev_axis = axis;
+    }
+    return false;
+}
+}  // namespace
+
+TEST(Routing, Plane) {
+    for (const auto seed : tests::LoadScLsFixedV0PartitionSeeds()) {
+        SCOPED_TRACE(fmt::format("partition_seed={}", seed));
+
+        const auto size = std::size_t{3};
+
+        Logger::EnableConsoleOutput();
+        Logger::SetLogLevel(LogLevel::Debug);
+        SetRandomMappingOptions(seed);
+
+        ir::IRContext context;
+        auto* circuit = LoadAddCuccaroCircuit(size, context);
+        ASSERT_NE(nullptr, circuit);
+        ir::DecomposeInst().RunOnFunction(*circuit);
+        ir::InlinerPass().RunOnFunction(*circuit);
+
+        auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/plane.yaml"));
+        const auto target = ScLsFixedV0TargetMachine(
+                topology,
+                ScLsFixedV0MachineOption{
+                        .magic_generation_period = 15,
+                        .maximum_magic_state_stock = 100,
+                        .entanglement_generation_period = 15,
+                        .maximum_entangled_state_stock = 100,
+                        .reaction_time = 1,
+                }
+        );
+        auto mf = MachineFunction(&target);
+        mf.SetIR(circuit);
+        Lowering().RunOnMachineFunction(mf);
+        Mapping().RunOnMachineFunction(mf);
+        Routing().RunOnMachineFunction(mf);
+
+        std::cout << "=======================" << std::endl;
+        std::cout << "MachineFunction" << std::endl;
+        for (const auto& mbb : mf) {
+            for (const auto& minst : mbb) {
+                std::cout << static_cast<const ScLsInstructionBase*>(minst.get())->ToStringWithMD()
+                          << std::endl;
+            }
+        }
+        std::cout << "=======================" << std::endl;
+        std::cout << "MachineFunction sorted by beat" << std::endl;
+        DumpMachineFunctionSortedByBeat(std::cout, mf);
+    }
 }
 TEST(Routing, LatticeSurgeryConnectManyQubits) {
     Logger::EnableConsoleOutput();
@@ -167,6 +197,54 @@ TEST(Routing, LatticeSurgeryConnectManyQubits) {
     std::cout << "=======================" << std::endl;
     std::cout << "MachineFunction sorted by beat" << std::endl;
     DumpMachineFunctionSortedByBeat(std::cout, mf);
+}
+TEST(Routing, CnotRemainsCnotAndUsesBentPath) {
+    auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/plane.yaml"));
+    const auto target = ScLsFixedV0TargetMachine(
+            topology,
+            ScLsFixedV0MachineOption{
+                    .magic_generation_period = 15,
+                    .maximum_magic_state_stock = 100,
+                    .entanglement_generation_period = 15,
+                    .maximum_entangled_state_stock = 100,
+                    .reaction_time = 1,
+            }
+    );
+    auto mf = MachineFunction(&target);
+
+    auto& alloc = mf.AddBlock();
+    auto& block = mf.AddBlock();
+    alloc.EmplaceBack(Allocate::New(QSymbol{0}, Coord3D{1, 1, 3}, 0, {}));
+    alloc.EmplaceBack(Allocate::New(QSymbol{1}, Coord3D{4, 3, 3}, 0, {}));
+    block.EmplaceBack(Cnot::New(QSymbol{0}, QSymbol{1}, {}, {}));
+
+    Routing().RunOnMachineFunction(mf);
+
+    auto* routed_cnot = static_cast<const Cnot*>(nullptr);
+    auto num_cnot = std::size_t{0};
+    auto num_lattice_surgery = std::size_t{0};
+    for (const auto& mbb : mf) {
+        for (const auto& minst : mbb) {
+            const auto* inst = static_cast<const ScLsInstructionBase*>(minst.get());
+            if (const auto* cnot = DynCast<Cnot>(inst); cnot != nullptr) {
+                routed_cnot = cnot;
+                ++num_cnot;
+            }
+            if (DynCast<LatticeSurgery>(inst) != nullptr) {
+                ++num_lattice_surgery;
+            }
+        }
+    }
+
+    ASSERT_NE(nullptr, routed_cnot);
+    EXPECT_EQ(num_cnot, 1);
+    EXPECT_EQ(num_lattice_surgery, 0);
+    EXPECT_FALSE(routed_cnot->Path().empty());
+
+    auto full_path = routed_cnot->Path();
+    full_path.emplace_front(Coord3D{1, 1, 3});
+    full_path.emplace_back(Coord3D{4, 3, 3});
+    EXPECT_TRUE(PathTurns(full_path));
 }
 TEST(Routing, LatticeSurgeryMagicConnectManyQubits) {
     Logger::EnableConsoleOutput();
@@ -255,101 +333,91 @@ TEST(Routing, LatticeSurgeryMagicConnectManyQubits) {
     DumpMachineFunctionSortedByBeat(std::cout, mf);
 }
 TEST(Routing, Grid) {
-    const auto size = std::size_t{3};
+    for (const auto seed : tests::LoadScLsFixedV0PartitionSeeds()) {
+        SCOPED_TRACE(fmt::format("partition_seed={}", seed));
 
-    Logger::EnableConsoleOutput();
-    Logger::SetLogLevel(LogLevel::Debug);
-    // 0: Greedy, 1: Random, 2: METIS
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
-    // 0: EnoughSpaceSoft, 1: EnoughSpaceHard
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-find-place-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
+        const auto size = std::size_t{3};
 
-    ir::IRContext context;
-    auto* circuit = LoadAddCuccaroCircuit(size, context);
-    ASSERT_NE(nullptr, circuit);
-    ir::DecomposeInst().RunOnFunction(*circuit);
-    ir::InlinerPass().RunOnFunction(*circuit);
+        Logger::EnableConsoleOutput();
+        Logger::SetLogLevel(LogLevel::Debug);
+        SetRandomMappingOptions(seed);
 
-    auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/grid.yaml"));
-    const auto target = ScLsFixedV0TargetMachine(
-            topology,
-            ScLsFixedV0MachineOption{
-                    .magic_generation_period = 15,
-                    .maximum_magic_state_stock = 100,
-                    .entanglement_generation_period = 15,
-                    .maximum_entangled_state_stock = 100,
-                    .reaction_time = 1,
+        ir::IRContext context;
+        auto* circuit = LoadAddCuccaroCircuit(size, context);
+        ASSERT_NE(nullptr, circuit);
+        ir::DecomposeInst().RunOnFunction(*circuit);
+        ir::InlinerPass().RunOnFunction(*circuit);
+
+        auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/grid.yaml"));
+        const auto target = ScLsFixedV0TargetMachine(
+                topology,
+                ScLsFixedV0MachineOption{
+                        .magic_generation_period = 15,
+                        .maximum_magic_state_stock = 100,
+                        .entanglement_generation_period = 15,
+                        .maximum_entangled_state_stock = 100,
+                        .reaction_time = 1,
+                }
+        );
+        auto mf = MachineFunction(&target);
+        mf.SetIR(circuit);
+        Lowering().RunOnMachineFunction(mf);
+        Mapping().RunOnMachineFunction(mf);
+        Routing().RunOnMachineFunction(mf);
+
+        std::cout << "=======================" << std::endl;
+        std::cout << "MachineFunction" << std::endl;
+        for (const auto& mbb : mf) {
+            for (const auto& minst : mbb) {
+                std::cout << static_cast<const ScLsInstructionBase*>(minst.get())->ToStringWithMD()
+                          << std::endl;
             }
-    );
-    auto mf = MachineFunction(&target);
-    mf.SetIR(circuit);
-    Lowering().RunOnMachineFunction(mf);
-    Mapping().RunOnMachineFunction(mf);
-    Routing().RunOnMachineFunction(mf);
-
-    std::cout << "=======================" << std::endl;
-    std::cout << "MachineFunction" << std::endl;
-    for (const auto& mbb : mf) {
-        for (const auto& minst : mbb) {
-            std::cout << static_cast<const ScLsInstructionBase*>(minst.get())->ToStringWithMD()
-                      << std::endl;
         }
+        std::cout << "=======================" << std::endl;
+        std::cout << "MachineFunction sorted by beat" << std::endl;
+        DumpMachineFunctionSortedByBeat(std::cout, mf);
     }
-    std::cout << "=======================" << std::endl;
-    std::cout << "MachineFunction sorted by beat" << std::endl;
-    DumpMachineFunctionSortedByBeat(std::cout, mf);
 }
 TEST(Routing, Distribute) {
-    const auto size = std::size_t{3};
+    for (const auto seed : tests::LoadScLsFixedV0PartitionSeeds()) {
+        SCOPED_TRACE(fmt::format("partition_seed={}", seed));
 
-    Logger::EnableConsoleOutput();
-    Logger::EnableColorfulOutput();
-    Logger::SetLogLevel(LogLevel::Debug);
-    // 0: Greedy, 1: Random, 2: METIS
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
-    // 0: EnoughSpaceSoft, 1: EnoughSpaceHard
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-find-place-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
+        const auto size = std::size_t{3};
 
-    ir::IRContext context;
-    auto* circuit = LoadAddCuccaroCircuit(size, context);
-    ASSERT_NE(nullptr, circuit);
-    ir::DecomposeInst().RunOnFunction(*circuit);
-    ir::InlinerPass().RunOnFunction(*circuit);
+        Logger::EnableConsoleOutput();
+        Logger::EnableColorfulOutput();
+        Logger::SetLogLevel(LogLevel::Debug);
+        SetRandomMappingOptions(seed);
 
-    auto topology =
-            Topology::FromYAML(LoadFile("quration-core/tests/data/topology/distribute.yaml"));
-    const auto target = ScLsFixedV0TargetMachine(
-            topology,
-            ScLsFixedV0MachineOption{
-                    .type = ScLsFixedV0MachineType::DistributedDim2,
-                    .magic_generation_period = 15,
-                    .maximum_magic_state_stock = 100,
-                    .entanglement_generation_period = 15,
-                    .maximum_entangled_state_stock = 100,
-                    .reaction_time = 15,
-            }
-    );
-    auto mf = MachineFunction(&target);
-    mf.SetIR(circuit);
-    Lowering().RunOnMachineFunction(mf);
-    Mapping().RunOnMachineFunction(mf);
-    Routing().RunOnMachineFunction(mf);
+        ir::IRContext context;
+        auto* circuit = LoadAddCuccaroCircuit(size, context);
+        ASSERT_NE(nullptr, circuit);
+        ir::DecomposeInst().RunOnFunction(*circuit);
+        ir::InlinerPass().RunOnFunction(*circuit);
 
-    // std::cout << "=======================" << std::endl;
-    // std::cout << "MachineFunction" << std::endl;
-    // for (const auto& mbb : mf) {
-    //     for (const auto& minst : mbb) { std::cout << minst->ToString() << std::endl; }
-    // }
+        auto topology =
+                Topology::FromYAML(LoadFile("quration-core/tests/data/topology/distribute.yaml"));
+        const auto target = ScLsFixedV0TargetMachine(
+                topology,
+                ScLsFixedV0MachineOption{
+                        .type = ScLsFixedV0MachineType::DistributedDim2,
+                        .magic_generation_period = 15,
+                        .maximum_magic_state_stock = 100,
+                        .entanglement_generation_period = 15,
+                        .maximum_entangled_state_stock = 100,
+                        .reaction_time = 15,
+                }
+        );
+        auto mf = MachineFunction(&target);
+        mf.SetIR(circuit);
+        Lowering().RunOnMachineFunction(mf);
+        Mapping().RunOnMachineFunction(mf);
+        Routing().RunOnMachineFunction(mf);
+
+        // std::cout << "=======================" << std::endl;
+        // std::cout << "MachineFunction" << std::endl;
+        // for (const auto& mbb : mf) {
+        //     for (const auto& minst : mbb) { std::cout << minst->ToString() << std::endl; }
+        // }
+    }
 }

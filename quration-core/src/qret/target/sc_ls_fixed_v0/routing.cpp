@@ -195,7 +195,8 @@ bool Routing::RunOnMachineFunction(MachineFunction& mf) {
                         queue,
                         inst
                 )) {
-                // Rebuild queue dependencies first; runnability checks below should see the split form.
+                // Rebuild queue dependencies first; runnability checks below should see the split
+                // form.
                 update_inst_queue = true;
                 break;
             }

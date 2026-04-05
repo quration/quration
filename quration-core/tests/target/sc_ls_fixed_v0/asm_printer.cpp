@@ -29,6 +29,21 @@ ir::Function* LoadAddCuccaroCircuit(std::size_t size, ir::IRContext& context) {
     return tests::LoadCircuitFromJsonFile(path, name, context);
 }
 
+void SetRandomMappingOptions(std::uint64_t seed) {
+    std::get<Option<std::uint32_t>*>(
+            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-algorithm")
+    )
+            ->SetValue(std::uint32_t{1});
+    std::get<Option<std::uint64_t>*>(
+            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-seed")
+    )
+            ->SetValue(seed);
+    std::get<Option<std::uint32_t>*>(
+            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-find-place-algorithm")
+    )
+            ->SetValue(std::uint32_t{1});
+}
+
 void WriteTextFile(std::string_view path, std::string_view text) {
     auto ofs = std::ofstream(std::string(path));
     ASSERT_TRUE(ofs.good());
@@ -37,143 +52,131 @@ void WriteTextFile(std::string_view path, std::string_view text) {
 }  // namespace
 
 TEST(PrintAssembly, Plane) {
-    const auto size = std::size_t{3};
+    for (const auto seed : tests::LoadScLsFixedV0PartitionSeeds()) {
+        SCOPED_TRACE(fmt::format("partition_seed={}", seed));
 
-    Logger::EnableConsoleOutput();
-    Logger::SetLogLevel(LogLevel::Debug);
-    // 0: Greedy, 1: Random, 2: METIS
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
-    // 0: EnoughSpaceSoft, 1: EnoughSpaceHard
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-find-place-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
+        const auto size = std::size_t{3};
 
-    ir::IRContext context;
-    auto* circuit = LoadAddCuccaroCircuit(size, context);
-    ASSERT_NE(nullptr, circuit);
-    ir::DecomposeInst().RunOnFunction(*circuit);
-    ir::InlinerPass().RunOnFunction(*circuit);
+        Logger::EnableConsoleOutput();
+        Logger::SetLogLevel(LogLevel::Debug);
+        SetRandomMappingOptions(seed);
 
-    auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/plane.yaml"));
-    const auto target = ScLsFixedV0TargetMachine(
-            topology,
-            ScLsFixedV0MachineOption{
-                    .magic_generation_period = 15,
-                    .maximum_magic_state_stock = 100,
-                    .entanglement_generation_period = 15,
-                    .maximum_entangled_state_stock = 100,
-                    .reaction_time = 1,
-            }
-    );
-    auto mf = MachineFunction(&target);
-    mf.SetIR(circuit);
-    Lowering().RunOnMachineFunction(mf);
-    Mapping().RunOnMachineFunction(mf);
-    Routing().RunOnMachineFunction(mf);
+        ir::IRContext context;
+        auto* circuit = LoadAddCuccaroCircuit(size, context);
+        ASSERT_NE(nullptr, circuit);
+        ir::DecomposeInst().RunOnFunction(*circuit);
+        ir::InlinerPass().RunOnFunction(*circuit);
 
-    const auto* target_obj = qret::TargetRegistry::GetTargetRegistry()->GetTarget("sc_ls_fixed_v0");
-    ASSERT_TRUE(target_obj->HasAsmPrinter());
-    auto streamer = target_obj->CreateAsmStreamer();
-    auto asm_printer = target_obj->CreateAsmPrinter(std::move(streamer));
-    asm_printer->RunOnMachineFunction(mf);
-    WriteTextFile("output_plane.asm", asm_printer->GetStreamer()->ToString());
+        auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/plane.yaml"));
+        const auto target = ScLsFixedV0TargetMachine(
+                topology,
+                ScLsFixedV0MachineOption{
+                        .magic_generation_period = 15,
+                        .maximum_magic_state_stock = 100,
+                        .entanglement_generation_period = 15,
+                        .maximum_entangled_state_stock = 100,
+                        .reaction_time = 1,
+                }
+        );
+        auto mf = MachineFunction(&target);
+        mf.SetIR(circuit);
+        Lowering().RunOnMachineFunction(mf);
+        Mapping().RunOnMachineFunction(mf);
+        Routing().RunOnMachineFunction(mf);
+
+        const auto* target_obj =
+                qret::TargetRegistry::GetTargetRegistry()->GetTarget("sc_ls_fixed_v0");
+        ASSERT_TRUE(target_obj->HasAsmPrinter());
+        auto streamer = target_obj->CreateAsmStreamer();
+        auto asm_printer = target_obj->CreateAsmPrinter(std::move(streamer));
+        asm_printer->RunOnMachineFunction(mf);
+        WriteTextFile("output_plane.asm", asm_printer->GetStreamer()->ToString());
+    }
 }
 TEST(PrintAssembly, Grid) {
-    const auto size = std::size_t{3};
+    for (const auto seed : tests::LoadScLsFixedV0PartitionSeeds()) {
+        SCOPED_TRACE(fmt::format("partition_seed={}", seed));
 
-    Logger::EnableConsoleOutput();
-    Logger::SetLogLevel(LogLevel::Debug);
-    // 0: Greedy, 1: Random, 2: METIS
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
-    // 0: EnoughSpaceSoft, 1: EnoughSpaceHard
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-find-place-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
+        const auto size = std::size_t{3};
 
-    ir::IRContext context;
-    auto* circuit = LoadAddCuccaroCircuit(size, context);
-    ASSERT_NE(nullptr, circuit);
-    ir::DecomposeInst().RunOnFunction(*circuit);
-    ir::InlinerPass().RunOnFunction(*circuit);
+        Logger::EnableConsoleOutput();
+        Logger::SetLogLevel(LogLevel::Debug);
+        SetRandomMappingOptions(seed);
 
-    auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/grid.yaml"));
-    const auto target = ScLsFixedV0TargetMachine(
-            topology,
-            ScLsFixedV0MachineOption{
-                    .magic_generation_period = 15,
-                    .maximum_magic_state_stock = 100,
-                    .entanglement_generation_period = 15,
-                    .maximum_entangled_state_stock = 100,
-                    .reaction_time = 1,
-            }
-    );
-    auto mf = MachineFunction(&target);
-    mf.SetIR(circuit);
-    Lowering().RunOnMachineFunction(mf);
-    Mapping().RunOnMachineFunction(mf);
-    Routing().RunOnMachineFunction(mf);
+        ir::IRContext context;
+        auto* circuit = LoadAddCuccaroCircuit(size, context);
+        ASSERT_NE(nullptr, circuit);
+        ir::DecomposeInst().RunOnFunction(*circuit);
+        ir::InlinerPass().RunOnFunction(*circuit);
 
-    const auto* target_obj = qret::TargetRegistry::GetTargetRegistry()->GetTarget("sc_ls_fixed_v0");
-    ASSERT_TRUE(target_obj->HasAsmPrinter());
-    auto streamer = target_obj->CreateAsmStreamer();
-    auto asm_printer = target_obj->CreateAsmPrinter(std::move(streamer));
-    asm_printer->RunOnMachineFunction(mf);
-    WriteTextFile("output_grid.asm", asm_printer->GetStreamer()->ToString());
+        auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/grid.yaml"));
+        const auto target = ScLsFixedV0TargetMachine(
+                topology,
+                ScLsFixedV0MachineOption{
+                        .magic_generation_period = 15,
+                        .maximum_magic_state_stock = 100,
+                        .entanglement_generation_period = 15,
+                        .maximum_entangled_state_stock = 100,
+                        .reaction_time = 1,
+                }
+        );
+        auto mf = MachineFunction(&target);
+        mf.SetIR(circuit);
+        Lowering().RunOnMachineFunction(mf);
+        Mapping().RunOnMachineFunction(mf);
+        Routing().RunOnMachineFunction(mf);
+
+        const auto* target_obj =
+                qret::TargetRegistry::GetTargetRegistry()->GetTarget("sc_ls_fixed_v0");
+        ASSERT_TRUE(target_obj->HasAsmPrinter());
+        auto streamer = target_obj->CreateAsmStreamer();
+        auto asm_printer = target_obj->CreateAsmPrinter(std::move(streamer));
+        asm_printer->RunOnMachineFunction(mf);
+        WriteTextFile("output_grid.asm", asm_printer->GetStreamer()->ToString());
+    }
 }
 TEST(PrintAssembly, Distribute) {
-    const auto size = std::size_t{3};
+    for (const auto seed : tests::LoadScLsFixedV0PartitionSeeds()) {
+        SCOPED_TRACE(fmt::format("partition_seed={}", seed));
 
-    Logger::EnableConsoleOutput();
-    Logger::EnableColorfulOutput();
-    Logger::SetLogLevel(LogLevel::Debug);
-    // 0: Greedy, 1: Random, 2: METIS
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
-    // 0: EnoughSpaceSoft, 1: EnoughSpaceHard
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-find-place-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
+        const auto size = std::size_t{3};
 
-    ir::IRContext context;
-    auto* circuit = LoadAddCuccaroCircuit(size, context);
-    ASSERT_NE(nullptr, circuit);
-    ir::DecomposeInst().RunOnFunction(*circuit);
-    ir::InlinerPass().RunOnFunction(*circuit);
+        Logger::EnableConsoleOutput();
+        Logger::EnableColorfulOutput();
+        Logger::SetLogLevel(LogLevel::Debug);
+        SetRandomMappingOptions(seed);
 
-    auto topology =
-            Topology::FromYAML(LoadFile("quration-core/tests/data/topology/distribute.yaml"));
-    const auto target = ScLsFixedV0TargetMachine(
-            topology,
-            ScLsFixedV0MachineOption{
-                    .type = ScLsFixedV0MachineType::DistributedDim2,
-                    .magic_generation_period = 15,
-                    .maximum_magic_state_stock = 100,
-                    .entanglement_generation_period = 15,
-                    .maximum_entangled_state_stock = 100,
-                    .reaction_time = 15,
-            }
-    );
-    auto mf = MachineFunction(&target);
-    mf.SetIR(circuit);
-    Lowering().RunOnMachineFunction(mf);
-    Mapping().RunOnMachineFunction(mf);
-    Routing().RunOnMachineFunction(mf);
+        ir::IRContext context;
+        auto* circuit = LoadAddCuccaroCircuit(size, context);
+        ASSERT_NE(nullptr, circuit);
+        ir::DecomposeInst().RunOnFunction(*circuit);
+        ir::InlinerPass().RunOnFunction(*circuit);
 
-    const auto* target_obj = qret::TargetRegistry::GetTargetRegistry()->GetTarget("sc_ls_fixed_v0");
-    ASSERT_TRUE(target_obj->HasAsmPrinter());
-    auto streamer = target_obj->CreateAsmStreamer();
-    auto asm_printer = target_obj->CreateAsmPrinter(std::move(streamer));
-    asm_printer->RunOnMachineFunction(mf);
-    WriteTextFile("output_distribute.asm", asm_printer->GetStreamer()->ToString());
+        auto topology =
+                Topology::FromYAML(LoadFile("quration-core/tests/data/topology/distribute.yaml"));
+        const auto target = ScLsFixedV0TargetMachine(
+                topology,
+                ScLsFixedV0MachineOption{
+                        .type = ScLsFixedV0MachineType::DistributedDim2,
+                        .magic_generation_period = 15,
+                        .maximum_magic_state_stock = 100,
+                        .entanglement_generation_period = 15,
+                        .maximum_entangled_state_stock = 100,
+                        .reaction_time = 15,
+                }
+        );
+        auto mf = MachineFunction(&target);
+        mf.SetIR(circuit);
+        Lowering().RunOnMachineFunction(mf);
+        Mapping().RunOnMachineFunction(mf);
+        Routing().RunOnMachineFunction(mf);
+
+        const auto* target_obj =
+                qret::TargetRegistry::GetTargetRegistry()->GetTarget("sc_ls_fixed_v0");
+        ASSERT_TRUE(target_obj->HasAsmPrinter());
+        auto streamer = target_obj->CreateAsmStreamer();
+        auto asm_printer = target_obj->CreateAsmPrinter(std::move(streamer));
+        asm_printer->RunOnMachineFunction(mf);
+        WriteTextFile("output_distribute.asm", asm_printer->GetStreamer()->ToString());
+    }
 }

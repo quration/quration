@@ -194,39 +194,38 @@ class QuantumGrid;
 class QuantumState;
 class QuantumStateBuffer;
 
-
-namespace QuantumStateBufferInternal{
-    enum class Type : std::uint8_t {
-        Ancilla = 0,
-        MagicFactory = 1,
-        EntanglementFactory = 2,
-        Qubit = 3,
-    };
-    struct QRET_EXPORT Node {
-        // NOTE: member order is optimized to minimize the byte size of this class.
-        bool is_available = true;
-        Type type = Type::Ancilla;
-        std::uint32_t reserved = 0;  //!< reserved for future use.
-        std::uint64_t symbol =
-                std::numeric_limits<std::uint64_t>::max();  // If 'type' is Qubit, MagicFactory, or
-                                                            // EntanglementFactory, holds the symbol
-                                                            // ID. If 'type' is Ancilla, temporarily
-                                                            // stores the search cost.
-
-        char ToChar() const;
-        bool IsFreeAncilla() const {
-            return is_available && type == Type::Ancilla;
-        }
-        std::uint64_t Cost() const {
-            assert(type == Type::Ancilla);
-            return symbol;
-        }
-        void SetCost(std::uint64_t cost) {
-            assert(type == Type::Ancilla);
-            symbol = cost;
-        }
-    };
+namespace QuantumStateBufferInternal {
+enum class Type : std::uint8_t {
+    Ancilla = 0,
+    MagicFactory = 1,
+    EntanglementFactory = 2,
+    Qubit = 3,
 };
+struct Node {
+    // NOTE: member order is optimized to minimize the byte size of this class.
+    bool is_available = true;
+    Type type = Type::Ancilla;
+    std::uint32_t reserved = 0;  //!< reserved for future use.
+    std::uint64_t symbol =
+            std::numeric_limits<std::uint64_t>::max();  // If 'type' is Qubit, MagicFactory, or
+                                                        // EntanglementFactory, holds the symbol
+                                                        // ID. If 'type' is Ancilla, temporarily
+                                                        // stores the search cost.
+
+    char ToChar() const;
+    bool IsFreeAncilla() const {
+        return is_available && type == Type::Ancilla;
+    }
+    std::uint64_t Cost() const {
+        assert(type == Type::Ancilla);
+        return symbol;
+    }
+    void SetCost(std::uint64_t cost) {
+        assert(type == Type::Ancilla);
+        symbol = cost;
+    }
+};
+};  // namespace QuantumStateBufferInternal
 
 class QRET_EXPORT QuantumPlane {
 public:
@@ -501,7 +500,6 @@ private:
     // Children
     std::vector<QuantumState> states_;
 };
-
 
 }  // namespace qret::sc_ls_fixed_v0
 

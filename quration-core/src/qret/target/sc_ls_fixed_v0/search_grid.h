@@ -21,7 +21,7 @@
 #include "qret/target/sc_ls_fixed_v0/topology.h"
 
 namespace qret::sc_ls_fixed_v0 {
-struct SearchHelper {
+struct QRET_EXPORT SearchHelper {
     static void SetCostsOfFreeAncillae(QuantumState& state, std::uint64_t cost);
     static void SetCostsOfFreeAncillae(QuantumGrid& grid, std::uint64_t cost);
     static void SetCostsOfFreeAncillae(QuantumPlane& grid, std::uint64_t cost);
@@ -51,7 +51,7 @@ struct SearchHelper {
  *   - costZ0 = 0x89AB
  *   - costZ1 = 0xCDEF
  */
-struct MoveCostAccessor {
+struct QRET_EXPORT MoveCostAccessor {
     static constexpr std::uint64_t MaskX0 = 0xFFFF'0000'0000'0000ULL;
     static constexpr std::uint64_t MaskX1 = 0x0000'FFFF'0000'0000ULL;
     static constexpr std::uint64_t MaskZ0 = 0x0000'0000'FFFF'0000ULL;
@@ -138,7 +138,7 @@ struct MoveCostAccessor {
  *   - costX = 0x01234567
  *   - costY = 0x89ABCDEF
  */
-struct LSCostAccessor {
+struct QRET_EXPORT LSCostAccessor {
     static constexpr std::uint64_t MaskX = 0xFFFF'FFFF'0000'0000ULL;
     static constexpr std::uint64_t MaskY = 0x0000'0000'FFFF'FFFFULL;
     static constexpr std::uint64_t Inf = 0x0000'0000'FFFF'FFFFULL;
@@ -179,7 +179,7 @@ struct LSCostAccessor {
     }
 };
 
-struct SearchRoute {
+struct QRET_EXPORT SearchRoute {
     struct Route2D {
         QSymbol q_src;
         QSymbol q_dst;
@@ -378,6 +378,24 @@ public:
             std::uint32_t boundaries_dst
     );
     /**
+     * @brief Run BFS for CNOT.
+     *
+     * @details
+     * Search a 2-beat route that connects the requested boundaries and bends at least once.
+     *
+     * @note
+     * * This search does not reuse the free-ancilla cost field.
+     * * `plane_0` and `plane_1` must correspond to consecutive beats on the same z-plane.
+     */
+    static std::optional<Route2D> FindCnotRoute2D(
+            QuantumPlane& plane_0,
+            QuantumPlane& plane_1,
+            QSymbol q_src,
+            QSymbol q_dst,
+            std::uint32_t boundaries_src,
+            std::uint32_t boundaries_dst
+    );
+    /**
      * @brief Run BFS for LATTICE_SURGERY_MAGIC.
      *
      * @details
@@ -518,6 +536,23 @@ public:
             QSymbol q_src,
             QSymbol q_dst,
             std::uint32_t boundaries_src
+    );
+    /**
+     * @brief Search a 3D route for CNOT.
+     *
+     * @details
+     * The move phase uses beats `t` and `t+1`; the logical CNOT phase uses beats `t+2` and
+     * `t+3`.
+     */
+    static std::optional<Route3D> FindCnotRoute3D(
+            QuantumGrid& grid_0,
+            QuantumGrid& grid_1,
+            QuantumPlane& plane_2,
+            QuantumPlane& plane_3,
+            QSymbol q_src,
+            QSymbol q_dst,
+            std::uint32_t boundaries_src,
+            std::uint32_t boundaries_dst
     );
 
     /**

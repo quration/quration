@@ -285,44 +285,7 @@ void LowerBinary(LowerContextOfBB& ctx, MachineBasicBlock& bb, const ir::BinaryI
     const auto q1 = ctx.GetQ(inst->GetQubit1());  // control
     switch (inst->GetOpcode().GetCode()) {
         case ir::Opcode::Table::CX: {
-            // FIXME: Lower CX to cnot.
-            // bb.EmplaceBack(Cnot::New(QSymbol{q1}, QSymbol{q0}, {}, ctx.condition));
-
-            // Lower CX to lattice surgery.
-            if (ctx.machine_type == ScLsFixedV0MachineType::DistributedDim2
-                || ctx.machine_type == ScLsFixedV0MachineType::DistributedDim3) {
-                bb.EmplaceBack(
-                        LatticeSurgeryMultinode::New(
-                                {q0, q1},
-                                {Pauli::Z(), Pauli::Z()},
-                                {},
-                                ctx.GetNewC(),
-                                {},
-                                {},
-                                {},
-                                ctx.condition
-                        )
-                );
-            } else {
-                bb.EmplaceBack(
-                        LatticeSurgery::New(
-                                {q0, q1},
-                                {Pauli::Z(), Pauli::Z()},
-                                {},
-                                ctx.GetNewC(),
-                                ctx.condition
-                        )
-                );
-                bb.EmplaceBack(
-                        LatticeSurgery::New(
-                                {q0, q1},
-                                {Pauli::X(), Pauli::X()},
-                                {},
-                                ctx.GetNewC(),
-                                ctx.condition
-                        )
-                );
-            }
+            bb.EmplaceBack(Cnot::New(q1, q0, {}, ctx.condition));
             break;
         }
         case ir::Opcode::Table::CY:
@@ -601,8 +564,8 @@ void LowerRotationPi8(
         MachineBasicBlock& bb,
         const math::PauliRotation& rotation,
         MSymbol m,
-        QSymbol moved_place,
-        QSymbol ancilla,
+        QSymbol q_magic_state,
+        QSymbol q_correction,
         std::uint64_t cdest
 ) {
     // Use auto-corrected pi/8 rotation
@@ -612,7 +575,9 @@ void LowerRotationPi8(
 
     // Y to X
     for (const auto q : y_list) {
-        bb.EmplaceBack(Twist::New(q, 0, {}));
+        auto inst = Twist::New(q, 0, {});
+        inst->SetTargetPauli(Pauli::Z());
+        bb.EmplaceBack(std::move(inst));
     }
 
     //--------------------------------------------------//
@@ -620,40 +585,48 @@ void LowerRotationPi8(
     //--------------------------------------------------//
 
     // 1. MOVE_MAGIC
-    bb.EmplaceBack(MoveMagic::New(m, moved_place, {}, {}));
+    bb.EmplaceBack(MoveMagic::New(m, q_magic_state, {}, {}));
 
     // 2. LATTICE_SURGERY
-    qsym_list.emplace_back(moved_place);
+    qsym_list.emplace_back(q_magic_state);
     basis_list.emplace_back(Pauli::Z());
     bb.EmplaceBack(LatticeSurgery::New(qsym_list, basis_list, {}, CSymbol{cdest}, {}));
 
-    // 3. LATTICE_SURGERY
-    bb.EmplaceBack(Twist::New(ancilla, 0, {}));
+    // 3. LATTICE_SURGERY of q_magic_state (Z) and q_correction (Y)
+    {
+        auto inst = Twist::New(q_correction, 0, {});
+        inst->SetTargetPauli(Pauli::Z());
+        bb.EmplaceBack(std::move(inst));
+    }
     bb.EmplaceBack(
             LatticeSurgery::New(
-                    {moved_place, ancilla},
+                    {q_magic_state, q_correction},
                     {Pauli::Z(), Pauli::X()},
                     {},
                     CSymbol{cdest + 1},
                     {}
             )
     );
-    bb.EmplaceBack(Twist::New(ancilla, 0, {}));
+    {
+        auto inst = Twist::New(q_correction, 0, {});
+        inst->SetTargetPauli(Pauli::Z());
+        bb.EmplaceBack(std::move(inst));
+    }
 
-    // 4. MEAS_X move_qubit
-    bb.EmplaceBack(MeasZX::New(moved_place, 1, CSymbol{cdest + 2}, {}));
+    // 4. MEAS_X q_magic_state
+    bb.EmplaceBack(MeasZX::New(q_magic_state, 1, CSymbol{cdest + 2}, {}));
 
-    // 5. MEAS_Z ancilla conditioned by CSymbol{cdest}
-    bb.EmplaceBack(MeasZX::New(moved_place, 0, CSymbol{cdest + 3}, {CSymbol{cdest}}));
-
-    bb.EmplaceBack(ClassicalOperation::Xor({CSymbol{1}, CSymbol{cdest}}, CSymbol{cdest + 5}, {}));
-
-    // 7. MEAS_X ancilla conditioned by CSymbol{cdest + 4}
-    bb.EmplaceBack(MeasZX::New(moved_place, 1, CSymbol{cdest + 4}, {CSymbol{cdest + 5}}));
+    // 5. Measure q_correction in X basis conditioned by CSymbol{cdest}
+    //    Measure q_correction in Z basis conditioned by CSymbol{cdest + 3} = C1 ^ CSymbol{cdest}
+    bb.EmplaceBack(ClassicalOperation::Xor({C1, CSymbol{cdest}}, CSymbol{cdest + 3}, {}));
+    bb.EmplaceBack(MeasZX::New(q_correction, 1, CSymbol{cdest + 4}, {CSymbol{cdest}}));
+    bb.EmplaceBack(MeasZX::New(q_correction, 0, CSymbol{cdest + 5}, {CSymbol{cdest + 3}}));
 
     // X to Y
     for (const auto q : y_list) {
-        bb.EmplaceBack(Twist::New(q, 0, {}));
+        auto inst = Twist::New(q, 0, {});
+        inst->SetTargetPauli(Pauli::Z());
+        bb.EmplaceBack(std::move(inst));
     }
 }
 
@@ -669,7 +642,9 @@ void LowerMeasurement(
 
     // Y to X
     for (const auto q : y_list) {
-        bb.EmplaceBack(Twist::New(q, 0, {}));
+        auto inst = Twist::New(q, 0, {});
+        inst->SetTargetPauli(Pauli::Z());
+        bb.EmplaceBack(std::move(inst));
     }
 
     // Measure X or Z
@@ -687,7 +662,9 @@ void LowerMeasurement(
 
     // X to Y
     for (const auto q : y_list) {
-        bb.EmplaceBack(Twist::New(q, 0, {}));
+        auto inst = Twist::New(q, 0, {});
+        inst->SetTargetPauli(Pauli::Z());
+        bb.EmplaceBack(std::move(inst));
     }
 }
 void LowerCircuit(
@@ -818,6 +795,13 @@ bool Lowering::RunOnMachineFunction(MachineFunction& mf) {
 
     // Set inst_block.
     if (target.machine_option.enable_pbc_mode) {
+        // PBC uses auto-corrected pi/8 rotation lowering.
+        // Each non-Clifford rotation consumes two logical qubits:
+        //   q_magic_state: holds the magic state
+        //   q_correction: used to measure correction bits (X/Z) and drive feed-forward corrections
+        // In principle, these should be allocated/deallocated per pi/8 gate, but mapping/routing
+        // currently cannot do that, so we pre-allocate 2 * num_magic_factories logical qubits
+        // here and reuse them in a factory-cyclic mapping.
         for (std::uint64_t i = 0; i < 2 * num_magic_factories; ++i) {
             alloc_block.EmplaceBack(Allocate::New(QSymbol{num_qubits + i}, Coord3D(), 0, {}));
             dealloc_block.EmplaceBack(DeAllocate::New(QSymbol{num_qubits + i}, {}));

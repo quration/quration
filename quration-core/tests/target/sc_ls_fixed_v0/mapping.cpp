@@ -26,6 +26,21 @@ ir::Function* LoadAddCuccaroCircuit(std::size_t size, ir::IRContext& context) {
     const auto name = fmt::format("AddCuccaro({})", size);
     return tests::LoadCircuitFromJsonFile(path, name, context);
 }
+
+void SetRandomMappingOptions(std::uint64_t seed) {
+    std::get<Option<std::uint32_t>*>(
+            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-algorithm")
+    )
+            ->SetValue(std::uint32_t{1});
+    std::get<Option<std::uint64_t>*>(
+            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-seed")
+    )
+            ->SetValue(seed);
+    std::get<Option<std::uint32_t>*>(
+            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-find-place-algorithm")
+    )
+            ->SetValue(std::uint32_t{1});
+}
 }  // namespace
 
 TEST(Mapping, Plane) {
@@ -51,69 +66,57 @@ TEST(Mapping, Plane) {
     }
 }
 TEST(Mapping, Grid) {
-    const auto size = std::size_t{5};
+    for (const auto seed : tests::LoadScLsFixedV0PartitionSeeds()) {
+        SCOPED_TRACE(fmt::format("partition_seed={}", seed));
 
-    // 0: Greedy, 1: Random, 2: METIS
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
-    // 0: EnoughSpaceSoft, 1: EnoughSpaceHard
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-find-place-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
+        const auto size = std::size_t{5};
+        SetRandomMappingOptions(seed);
 
-    ir::IRContext context;
-    auto* circuit = LoadAddCuccaroCircuit(size, context);
-    ASSERT_NE(nullptr, circuit);
-    ir::DecomposeInst().RunOnFunction(*circuit);
-    ir::InlinerPass().RunOnFunction(*circuit);
+        ir::IRContext context;
+        auto* circuit = LoadAddCuccaroCircuit(size, context);
+        ASSERT_NE(nullptr, circuit);
+        ir::DecomposeInst().RunOnFunction(*circuit);
+        ir::InlinerPass().RunOnFunction(*circuit);
 
-    auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/grid.yaml"));
-    const auto target = ScLsFixedV0TargetMachine(topology, ScLsFixedV0MachineOption());
-    auto mf = MachineFunction(&target);
-    mf.SetIR(circuit);
-    Lowering().RunOnMachineFunction(mf);
-    Mapping().RunOnMachineFunction(mf);
+        auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/grid.yaml"));
+        const auto target = ScLsFixedV0TargetMachine(topology, ScLsFixedV0MachineOption());
+        auto mf = MachineFunction(&target);
+        mf.SetIR(circuit);
+        Lowering().RunOnMachineFunction(mf);
+        Mapping().RunOnMachineFunction(mf);
 
-    for (const auto& mbb : mf) {
-        for (const auto& minst : mbb) {
-            std::cout << minst->ToString() << std::endl;
+        for (const auto& mbb : mf) {
+            for (const auto& minst : mbb) {
+                std::cout << minst->ToString() << std::endl;
+            }
         }
     }
 }
 TEST(Mapping, Distribute) {
-    const auto size = std::size_t{5};
+    for (const auto seed : tests::LoadScLsFixedV0PartitionSeeds()) {
+        SCOPED_TRACE(fmt::format("partition_seed={}", seed));
 
-    // 0: Greedy, 1: Random, 2: METIS
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-partition-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
-    // 0: EnoughSpaceSoft, 1: EnoughSpaceHard
-    std::get<Option<std::uint32_t>*>(
-            OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0-find-place-algorithm")
-    )
-            ->SetValue(std::uint32_t{1});
+        const auto size = std::size_t{5};
+        SetRandomMappingOptions(seed);
 
-    ir::IRContext context;
-    auto* circuit = LoadAddCuccaroCircuit(size, context);
-    ASSERT_NE(nullptr, circuit);
-    ir::DecomposeInst().RunOnFunction(*circuit);
-    ir::InlinerPass().RunOnFunction(*circuit);
+        ir::IRContext context;
+        auto* circuit = LoadAddCuccaroCircuit(size, context);
+        ASSERT_NE(nullptr, circuit);
+        ir::DecomposeInst().RunOnFunction(*circuit);
+        ir::InlinerPass().RunOnFunction(*circuit);
 
-    auto topology =
-            Topology::FromYAML(LoadFile("quration-core/tests/data/topology/distribute.yaml"));
-    const auto target = ScLsFixedV0TargetMachine(topology, ScLsFixedV0MachineOption());
-    auto mf = MachineFunction(&target);
-    mf.SetIR(circuit);
-    Lowering().RunOnMachineFunction(mf);
-    Mapping().RunOnMachineFunction(mf);
+        auto topology =
+                Topology::FromYAML(LoadFile("quration-core/tests/data/topology/distribute.yaml"));
+        const auto target = ScLsFixedV0TargetMachine(topology, ScLsFixedV0MachineOption());
+        auto mf = MachineFunction(&target);
+        mf.SetIR(circuit);
+        Lowering().RunOnMachineFunction(mf);
+        Mapping().RunOnMachineFunction(mf);
 
-    for (const auto& mbb : mf) {
-        for (const auto& minst : mbb) {
-            std::cout << minst->ToString() << std::endl;
+        for (const auto& mbb : mf) {
+            for (const auto& minst : mbb) {
+                std::cout << minst->ToString() << std::endl;
+            }
         }
     }
 }

@@ -352,8 +352,11 @@ protected:
 
 class QRET_EXPORT Allocate : public ScLsInstructionBase {
 public:
-    [[nodiscard]] static std::unique_ptr<Allocate>
-    New(QSymbol qubit, const Coord3D& dest, std::uint32_t dir, const std::list<CSymbol>& condition
+    [[nodiscard]] static std::unique_ptr<Allocate> New(
+            QSymbol qubit,
+            const Coord3D& dest,
+            std::uint32_t dir,
+            const std::list<CSymbol>& condition
     ) {
         return std::unique_ptr<Allocate>(new Allocate(qubit, dest, dir, condition));
     }
@@ -1949,22 +1952,28 @@ public:
                 new ClassicalOperation(type, register_list, cdest, condition)
         );
     }
-    static std::unique_ptr<ClassicalOperation>
-    Xor(const std::list<CSymbol>& register_list, CSymbol cdest, const std::list<CSymbol>& condition
+    static std::unique_ptr<ClassicalOperation> Xor(
+            const std::list<CSymbol>& register_list,
+            CSymbol cdest,
+            const std::list<CSymbol>& condition
     ) {
         return std::unique_ptr<ClassicalOperation>(
                 new ClassicalOperation(ScLsInstructionType::XOR, register_list, cdest, condition)
         );
     }
-    static std::unique_ptr<ClassicalOperation>
-    And(const std::list<CSymbol>& register_list, CSymbol cdest, const std::list<CSymbol>& condition
+    static std::unique_ptr<ClassicalOperation> And(
+            const std::list<CSymbol>& register_list,
+            CSymbol cdest,
+            const std::list<CSymbol>& condition
     ) {
         return std::unique_ptr<ClassicalOperation>(
                 new ClassicalOperation(ScLsInstructionType::AND, register_list, cdest, condition)
         );
     }
-    static std::unique_ptr<ClassicalOperation>
-    Or(const std::list<CSymbol>& register_list, CSymbol cdest, const std::list<CSymbol>& condition
+    static std::unique_ptr<ClassicalOperation> Or(
+            const std::list<CSymbol>& register_list,
+            CSymbol cdest,
+            const std::list<CSymbol>& condition
     ) {
         return std::unique_ptr<ClassicalOperation>(
                 new ClassicalOperation(ScLsInstructionType::OR, register_list, cdest, condition)

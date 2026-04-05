@@ -47,9 +47,14 @@ public:
             std::uint32_t boundaries_src,
             std::uint32_t boundaries_dst
     ) = 0;
-    virtual std::optional<SearchRoute::Route2DM>
-    SearchRoute2DM(QuantumStateBuffer& buffer, Beat beat, QSymbol q_dst, std::uint32_t boundaries_dst)
-            = 0;
+    virtual std::optional<SearchRoute::Route2D>
+    SearchCnotRoute2D(QuantumStateBuffer& buffer, Beat beat, QSymbol q_src, QSymbol q_dst) = 0;
+    virtual std::optional<SearchRoute::Route2DM> SearchRoute2DM(
+            QuantumStateBuffer& buffer,
+            Beat beat,
+            QSymbol q_dst,
+            std::uint32_t boundaries_dst
+    ) = 0;
     virtual std::optional<SearchRoute::Route2DE> SearchRoute2DE(
             QuantumStateBuffer& buffer,
             Beat beat,
@@ -65,9 +70,14 @@ public:
             std::uint32_t boundaries_src,
             std::uint32_t boundaries_dst
     ) = 0;
-    virtual std::optional<SearchRoute::Route3DM>
-    SearchRoute3DM(QuantumStateBuffer& buffer, Beat beat, QSymbol q_dst, std::uint32_t boundaries_dst)
-            = 0;
+    virtual std::optional<SearchRoute::Route3D>
+    SearchCnotRoute3D(QuantumStateBuffer& buffer, Beat beat, QSymbol q_src, QSymbol q_dst) = 0;
+    virtual std::optional<SearchRoute::Route3DM> SearchRoute3DM(
+            QuantumStateBuffer& buffer,
+            Beat beat,
+            QSymbol q_dst,
+            std::uint32_t boundaries_dst
+    ) = 0;
 };
 
 class QRET_EXPORT DefaultRouteSearcher : public RouteSearcher {
@@ -80,9 +90,14 @@ public:
             std::uint32_t boundaries_src,
             std::uint32_t boundaries_dst
     ) override;
-    std::optional<SearchRoute::Route2DM>
-    SearchRoute2DM(QuantumStateBuffer& buffer, Beat beat, QSymbol q_dst, std::uint32_t boundaries_dst)
-            override;
+    std::optional<SearchRoute::Route2D>
+    SearchCnotRoute2D(QuantumStateBuffer& buffer, Beat beat, QSymbol q_src, QSymbol q_dst) override;
+    std::optional<SearchRoute::Route2DM> SearchRoute2DM(
+            QuantumStateBuffer& buffer,
+            Beat beat,
+            QSymbol q_dst,
+            std::uint32_t boundaries_dst
+    ) override;
     std::optional<SearchRoute::Route2DE> SearchRoute2DE(
             QuantumStateBuffer& buffer,
             Beat beat,
@@ -98,9 +113,14 @@ public:
             std::uint32_t boundaries_src,
             std::uint32_t boundaries_dst
     ) override;
-    std::optional<SearchRoute::Route3DM>
-    SearchRoute3DM(QuantumStateBuffer& buffer, Beat beat, QSymbol q_dst, std::uint32_t boundaries_dst)
-            override;
+    std::optional<SearchRoute::Route3D>
+    SearchCnotRoute3D(QuantumStateBuffer& buffer, Beat beat, QSymbol q_src, QSymbol q_dst) override;
+    std::optional<SearchRoute::Route3DM> SearchRoute3DM(
+            QuantumStateBuffer& buffer,
+            Beat beat,
+            QSymbol q_dst,
+            std::uint32_t boundaries_dst
+    ) override;
 };
 
 class QRET_EXPORT ScLsSimulator {
@@ -333,6 +353,7 @@ private:
             std::uint32_t boundaries_src,
             std::uint32_t boundaries_dst
     );
+    std::optional<SearchRoute::Route2D> SearchCnotRoute2D(Beat beat, QSymbol q_src, QSymbol q_dst);
     /**
      * @brief Search 2D route from magic factory to q_dst.
      *
@@ -371,6 +392,7 @@ private:
             std::uint32_t boundaries_src,
             std::uint32_t boundaries_dst
     );
+    std::optional<SearchRoute::Route3D> SearchCnotRoute3D(Beat beat, QSymbol q_src, QSymbol q_dst);
     /**
      * @brief Search 3D route from magic factory to q_dst.
      *
@@ -457,7 +479,6 @@ private:
 #pragma region Cnot
     [[nodiscard]] bool SearchCnotPathAndRun(Beat, InstQueue&, MachineFunction&, Cnot*);
     [[nodiscard]] bool SearchCnotPath2DAndRun(Beat, InstQueue&, MachineFunction&, Cnot*);
-    void ReplaceCnotWithLS(Beat, InstQueue&, MachineFunction&, Cnot*);
     CnotTrans* ReplaceCnotWithCnotTrans(Beat, InstQueue&, MachineFunction&, Cnot*);
     [[nodiscard]] bool SearchCnotPath3DAndRun(Beat, InstQueue&, MachineFunction&, Cnot*);
     [[nodiscard]] bool IsCnotRunnable(Beat, Cnot*);

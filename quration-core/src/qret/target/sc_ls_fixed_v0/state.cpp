@@ -121,7 +121,7 @@ void QuantumStateBuffer::SetBanned(Beat beat, const Coord3D& place) {
 
         // Update nodes_.
         auto& node = nodes_[index][grid.GetIndex()][node_index];
-        assert(node.type == Type::Ancilla && node.is_available);
+        assert(node.type == QuantumStateBufferInternal::Type::Ancilla && node.is_available);
         node.is_available = false;
     }
 }
@@ -137,8 +137,10 @@ void QuantumStateBuffer::PutQubit(
         const auto index = GetBeatIndex(b);
 
         // Update nodes_.
-        nodes_[index][grid.GetIndex()][node_index] =
-                QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::Qubit, .symbol = qubit.Id()};
+        nodes_[index][grid.GetIndex()][node_index] = QuantumStateBufferInternal::Node{
+                .type = QuantumStateBufferInternal::Type::Qubit,
+                .symbol = qubit.Id()
+        };
 
         // Update q2p_.
         q2p_[index][qubit] = {place, dir};
@@ -157,15 +159,19 @@ void QuantumStateBuffer::PutMagicFactory(
     const auto node_index = GetNodeIndex(place);
 
     auto index = GetBeatIndex(beat);
-    nodes_[index][grid.GetIndex()][node_index] =
-            QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::MagicFactory, .symbol = magic_factory.Id()};
+    nodes_[index][grid.GetIndex()][node_index] = QuantumStateBufferInternal::Node{
+            .type = QuantumStateBufferInternal::Type::MagicFactory,
+            .symbol = magic_factory.Id()
+    };
     auto mf_state = initial_mf_state;
     mf_states_[index][magic_factory] = mf_state;
     index = (index + 1) % size_;
     for (auto b = beat + 1; b <= GetFinalBeat(); ++b) {
         // Update nodes_.
-        nodes_[index][grid.GetIndex()][node_index] =
-                QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::MagicFactory, .symbol = magic_factory.Id()};
+        nodes_[index][grid.GetIndex()][node_index] = QuantumStateBufferInternal::Node{
+                .type = QuantumStateBufferInternal::Type::MagicFactory,
+                .symbol = magic_factory.Id()
+        };
 
         // Update mf_states_.
         StepMagicFactoryState(option_, mf_state);
@@ -199,20 +205,28 @@ void QuantumStateBuffer::PutEntanglementFactory(
     auto index = GetBeatIndex(beat);
     auto ef_state_curr1 = ef_state1;
     auto ef_state_curr2 = ef_state2;
-    nodes_[index][grid1.GetIndex()][node_index1] =
-            QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::EntanglementFactory, .symbol = entanglement_factory1.Id()};
-    nodes_[index][grid2.GetIndex()][node_index2] =
-            QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::EntanglementFactory, .symbol = entanglement_factory2.Id()};
+    nodes_[index][grid1.GetIndex()][node_index1] = QuantumStateBufferInternal::Node{
+            .type = QuantumStateBufferInternal::Type::EntanglementFactory,
+            .symbol = entanglement_factory1.Id()
+    };
+    nodes_[index][grid2.GetIndex()][node_index2] = QuantumStateBufferInternal::Node{
+            .type = QuantumStateBufferInternal::Type::EntanglementFactory,
+            .symbol = entanglement_factory2.Id()
+    };
     ef_states_[index][entanglement_factory1] = ef_state_curr1;
     ef_states_[index][entanglement_factory2] = ef_state_curr2;
     for (auto b = beat + 1; b <= GetFinalBeat(); ++b) {
         StepEntanglementFactoryPairState(option_, ef_state_curr1, ef_state_curr2);
         index = (index + 1) % size_;
 
-        nodes_[index][grid1.GetIndex()][node_index1] =
-                QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::EntanglementFactory, .symbol = entanglement_factory1.Id()};
-        nodes_[index][grid2.GetIndex()][node_index2] =
-                QuantumStateBufferInternal::Node{.type = QuantumStateBufferInternal::Type::EntanglementFactory, .symbol = entanglement_factory2.Id()};
+        nodes_[index][grid1.GetIndex()][node_index1] = QuantumStateBufferInternal::Node{
+                .type = QuantumStateBufferInternal::Type::EntanglementFactory,
+                .symbol = entanglement_factory1.Id()
+        };
+        nodes_[index][grid2.GetIndex()][node_index2] = QuantumStateBufferInternal::Node{
+                .type = QuantumStateBufferInternal::Type::EntanglementFactory,
+                .symbol = entanglement_factory2.Id()
+        };
         ef_states_[index][entanglement_factory1] = ef_state_curr1;
         ef_states_[index][entanglement_factory2] = ef_state_curr2;
     }

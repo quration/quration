@@ -9,13 +9,16 @@
 #include <fmt/ranges.h>
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 #include <limits>
 #include <optional>
 #include <queue>
 #include <set>
 #include <stdexcept>
+#include <vector>
 
 #include "qret/base/graph.h"
 #include "qret/target/sc_ls_fixed_v0/geometry.h"
@@ -33,11 +36,8 @@ bool IsMoveCostUnreachable(std::uint64_t cost) {
             && MoveCostAccessor::CostZ1(cost) == MoveCostAccessor::Inf;
 }
 
-std::optional<std::pair<MSymbol, Coord2D>> FindBestAdjacentMagicFactory(
-        QuantumPlane& plane,
-        QuantumState& state,
-        const Coord2D& place
-) {
+std::optional<std::pair<MSymbol, Coord2D>>
+FindBestAdjacentMagicFactory(QuantumPlane& plane, QuantumState& state, const Coord2D& place) {
     const auto& topology = plane.GetTopology();
     auto best = std::optional<std::pair<MSymbol, Coord2D>>{};
     auto best_stock = std::uint64_t{0};
@@ -64,6 +64,221 @@ std::optional<std::pair<MSymbol, Coord2D>> FindBestAdjacentMagicFactory(
         }
     }
     return best;
+}
+
+enum class CnotAxis : std::uint8_t {
+    X = 0,
+    Y = 1,
+};
+
+struct CnotState {
+    Coord2D place;
+    CnotAxis edge_from;
+    bool turned;
+};
+
+struct CnotSearchData {
+    std::int32_t z = 0;
+    Coord3D dst;
+    const ScLsPlane* topology = nullptr;
+    std::vector<std::uint64_t> costs;
+    std::vector<std::int64_t> next;
+};
+
+constexpr auto CnotStateCountPerCoord = std::size_t{4};
+constexpr auto InvalidCnotStateIndex = std::int64_t{-1};
+constexpr auto UnreachableCnotCost = std::numeric_limits<std::uint64_t>::max();
+
+CnotAxis AxisOfStep(const Coord2D& src, const Coord2D& dst) {
+    const auto diff = dst - src;
+    assert(std::abs(diff.x) + std::abs(diff.y) == 1);
+    return diff.x == 0 ? CnotAxis::Y : CnotAxis::X;
+}
+
+std::vector<std::pair<Coord2D, CnotAxis>> GetBoundaryCells(
+        const ScLsPlane& topology,
+        const Coord2D& place,
+        std::uint32_t dir,
+        std::uint32_t boundaries
+) {
+    auto ret = std::vector<std::pair<Coord2D, CnotAxis>>{};
+    const auto append = [&ret, &topology, &place](CnotAxis axis) {
+        const auto& neighbors =
+                axis == CnotAxis::X ? GetHorizontalNeighbors(place) : GetVerticalNeighbors(place);
+        for (const auto& neighbor : neighbors) {
+            if (!topology.OutOfPlane(neighbor)) {
+                ret.emplace_back(neighbor, axis);
+            }
+        }
+    };
+
+    if ((boundaries == SearchRoute::LS_X_BOUNDARY && dir == 1)
+        || (boundaries == SearchRoute::LS_Z_BOUNDARY && dir == 0)
+        || boundaries == SearchRoute::LS_ANY_BOUNDARY) {
+        append(CnotAxis::X);
+    }
+    if ((boundaries == SearchRoute::LS_X_BOUNDARY && dir == 0)
+        || (boundaries == SearchRoute::LS_Z_BOUNDARY && dir == 1)
+        || boundaries == SearchRoute::LS_ANY_BOUNDARY) {
+        append(CnotAxis::Y);
+    }
+
+    return ret;
+}
+
+std::size_t
+CnotStateIndex(const ScLsPlane& topology, const Coord2D& place, CnotAxis edge_from, bool turned) {
+    const auto coord_index = static_cast<std::size_t>(place.y * topology.GetMaxX() + place.x);
+    assert(coord_index < static_cast<std::size_t>(topology.GetMaxX())
+                   * static_cast<std::size_t>(topology.GetMaxY()));
+    return (coord_index * CnotStateCountPerCoord)
+            + (edge_from == CnotAxis::Y ? std::size_t{2} : std::size_t{0})
+            + (turned ? std::size_t{1} : std::size_t{0});
+}
+
+CnotState DecodeCnotState(const ScLsPlane& topology, std::size_t index) {
+    const auto state = index % CnotStateCountPerCoord;
+    const auto coord_index = index / CnotStateCountPerCoord;
+    const auto x =
+            static_cast<std::int32_t>(coord_index % static_cast<std::size_t>(topology.GetMaxX()));
+    const auto y =
+            static_cast<std::int32_t>(coord_index / static_cast<std::size_t>(topology.GetMaxX()));
+    return {
+            .place = {x, y},
+            .edge_from = state >= 2 ? CnotAxis::Y : CnotAxis::X,
+            .turned = (state % 2) == 1,
+    };
+}
+
+bool IsFreeAncillaForLatency(QuantumPlane& plane_0, QuantumPlane& plane_1, const Coord2D& place) {
+    const auto& topology = plane_0.GetTopology();
+    if (topology.OutOfPlane(place)) {
+        return false;
+    }
+    return plane_0.GetNode(place).IsFreeAncilla() && plane_1.GetNode(place).IsFreeAncilla();
+}
+
+CnotSearchData BuildCnotSearchData(
+        QuantumPlane& plane_0,
+        QuantumPlane& plane_1,
+        QSymbol q_dst,
+        std::uint32_t boundaries_dst
+) {
+    const auto& topology = plane_0.GetTopology();
+    auto& state = plane_0.GetParent().GetParent();
+    const auto& dst = state.GetPlace(q_dst);
+    const auto dir_dst = state.GetDir(q_dst);
+    const auto num_states = static_cast<std::size_t>(topology.GetMaxX())
+            * static_cast<std::size_t>(topology.GetMaxY()) * CnotStateCountPerCoord;
+
+    auto ret = CnotSearchData{
+            .z = topology.GetZ(),
+            .dst = dst,
+            .topology = &topology,
+            .costs = std::vector<std::uint64_t>(num_states, UnreachableCnotCost),
+            .next = std::vector<std::int64_t>(num_states, InvalidCnotStateIndex),
+    };
+    auto queue = std::queue<std::size_t>{};
+
+    for (const auto& [boundary, axis] :
+         GetBoundaryCells(topology, dst.XY(), dir_dst, boundaries_dst)) {
+        if (!IsFreeAncillaForLatency(plane_0, plane_1, boundary)) {
+            continue;
+        }
+        const auto index = CnotStateIndex(topology, boundary, axis, false);
+        if (ret.costs[index] != UnreachableCnotCost) {
+            continue;
+        }
+        ret.costs[index] = 1;
+        queue.emplace(index);
+    }
+
+    while (!queue.empty()) {
+        const auto current_index = queue.front();
+        queue.pop();
+        const auto current = DecodeCnotState(topology, current_index);
+        const auto current_cost = ret.costs[current_index];
+
+        for (const auto& prev_place : GetNeighbors(current.place)) {
+            if (!IsFreeAncillaForLatency(plane_0, plane_1, prev_place)) {
+                continue;
+            }
+
+            const auto prev_axis = AxisOfStep(prev_place, current.place);
+            const auto prev_turned = current.turned || (prev_axis != current.edge_from);
+            const auto prev_index = CnotStateIndex(topology, prev_place, prev_axis, prev_turned);
+            if (ret.costs[prev_index] != UnreachableCnotCost) {
+                continue;
+            }
+
+            ret.costs[prev_index] = current_cost + 1;
+            ret.next[prev_index] = static_cast<std::int64_t>(current_index);
+            queue.emplace(prev_index);
+        }
+    }
+
+    return ret;
+}
+
+std::optional<std::pair<std::uint64_t, std::size_t>>
+FindBestCnotStateAtPlace(const CnotSearchData& data, const Coord2D& place, CnotAxis source_axis) {
+    auto best = std::optional<std::pair<std::uint64_t, std::size_t>>{};
+    for (const auto edge_from : {CnotAxis::X, CnotAxis::Y}) {
+        for (const auto turned : {false, true}) {
+            const auto index = CnotStateIndex(*data.topology, place, edge_from, turned);
+            const auto cost = data.costs[index];
+            if (cost == UnreachableCnotCost) {
+                continue;
+            }
+            if (!(turned || source_axis != edge_from)) {
+                continue;
+            }
+            if (!best.has_value() || cost < best->first
+                || (cost == best->first && index < best->second)) {
+                best = {{cost, index}};
+            }
+        }
+    }
+    return best;
+}
+
+std::optional<std::pair<std::uint64_t, std::size_t>> FindBestCnotStartState(
+        QuantumPlane& plane_0,
+        QuantumPlane& plane_1,
+        const Coord2D& src_place,
+        std::uint32_t src_dir,
+        std::uint32_t boundaries_src,
+        const CnotSearchData& data
+) {
+    auto best = std::optional<std::pair<std::uint64_t, std::size_t>>{};
+    for (const auto& [boundary, source_axis] :
+         GetBoundaryCells(*data.topology, src_place, src_dir, boundaries_src)) {
+        if (!IsFreeAncillaForLatency(plane_0, plane_1, boundary)) {
+            continue;
+        }
+        const auto candidate = FindBestCnotStateAtPlace(data, boundary, source_axis);
+        if (!candidate.has_value()) {
+            continue;
+        }
+        if (!best.has_value() || candidate->first < best->first
+            || (candidate->first == best->first && candidate->second < best->second)) {
+            best = candidate;
+        }
+    }
+    return best;
+}
+
+std::list<Coord3D> TraceBackPathOfCnot(const CnotSearchData& data, std::size_t start_index) {
+    auto ret = std::list<Coord3D>{};
+    auto current_index = static_cast<std::int64_t>(start_index);
+    while (current_index != InvalidCnotStateIndex) {
+        const auto current =
+                DecodeCnotState(*data.topology, static_cast<std::size_t>(current_index));
+        ret.emplace_back(current.place.x, current.place.y, data.z);
+        current_index = data.next[static_cast<std::size_t>(current_index)];
+    }
+    ret.emplace_back(data.dst);
+    return ret;
 }
 }  // namespace
 
@@ -273,6 +488,42 @@ std::optional<SearchRoute::Route2D> SearchRoute::FindRoute2D(
 
         route.logical_path.emplace_front(current_place.x, current_place.y, z);
     }
+    route.logical_path.emplace_front(route.src);
+    route.Audit();
+
+    return route;
+}
+std::optional<SearchRoute::Route2D> SearchRoute::FindCnotRoute2D(
+        QuantumPlane& plane_0,
+        QuantumPlane& plane_1,
+        QSymbol q_src,
+        QSymbol q_dst,
+        std::uint32_t boundaries_src,
+        std::uint32_t boundaries_dst
+) {
+    auto& state = plane_0.GetParent().GetParent();
+    const auto& src = state.GetPlace(q_src);
+    const auto& dst = state.GetPlace(q_dst);
+    const auto dir_src = state.GetDir(q_src);
+
+    if (src.z != dst.z || plane_0.GetTopology().GetZ() != src.z) {
+        return std::nullopt;
+    }
+
+    const auto search = BuildCnotSearchData(plane_0, plane_1, q_dst, boundaries_dst);
+    const auto best =
+            FindBestCnotStartState(plane_0, plane_1, src.XY(), dir_src, boundaries_src, search);
+    if (!best.has_value()) {
+        return std::nullopt;
+    }
+
+    auto route = Route2D{
+            .q_src = q_src,
+            .q_dst = q_dst,
+            .src = src,
+            .logical_path = TraceBackPathOfCnot(search, best->second),
+            .dst = dst,
+    };
     route.logical_path.emplace_front(route.src);
     route.Audit();
 
@@ -501,8 +752,9 @@ std::optional<SearchRoute::Ancilla2D> SearchRoute::FindAncilla(
     const auto to_ind = [ind_width](std::int32_t x, std::int32_t y) -> std::int32_t {
         return (x * ind_width) + y;
     };
-    const auto from_ind =
-            [ind_width](std::int32_t ind) -> Coord2D { return {ind / ind_width, ind % ind_width}; };
+    const auto from_ind = [ind_width](std::int32_t ind) -> Coord2D {
+        return {ind / ind_width, ind % ind_width};
+    };
 
     // Create graph.
     auto graph = Graph{};
@@ -541,7 +793,8 @@ std::optional<SearchRoute::Ancilla2D> SearchRoute::FindAncilla(
             found_magic_state = true;
             const auto m_place = state.GetPlace(magic_factory).XY();
             const auto& m_node = add_or_get_node(to_ind(m_place.x, m_place.y));
-            // Keep virtual-magic edges expensive so Steiner still optimizes physical ancilla segments.
+            // Keep virtual-magic edges expensive so Steiner still optimizes physical ancilla
+            // segments.
             graph.AddEdge(imag_m_node.id, m_node.id, 1000);
 
             for (const auto& place : GetNeighbors(m_place)) {
@@ -1153,7 +1406,8 @@ std::optional<SearchRoute::Route3D> SearchRoute::FindRoute3D(
     route.q_dst = q_dst;
     route.src = grid_0.GetParent().GetPlace(q_src);
     LOG_DEBUG(
-            "[SearchRoute::FindRoute3D] trans move result: z={} place=({},{}), pauli={}, moved_state_dir={}, edge_from={}",
+            "[SearchRoute::FindRoute3D] trans move result: z={} place=({},{}), pauli={}, "
+            "moved_state_dir={}, edge_from={}",
             search_result.z,
             search_result.place.x,
             search_result.place.y,
@@ -1200,6 +1454,134 @@ std::optional<SearchRoute::Route3D> SearchRoute::FindRoute3D(
     route.Audit();
 
     return std::move(route);
+}
+std::optional<SearchRoute::Route3D> SearchRoute::FindCnotRoute3D(
+        QuantumGrid& grid_0,
+        QuantumGrid& grid_1,
+        QuantumPlane& plane_2,
+        QuantumPlane& plane_3,
+        QSymbol q_src,
+        QSymbol q_dst,
+        std::uint32_t boundaries_src,
+        std::uint32_t boundaries_dst
+) {
+    struct SearchResult {
+        std::uint64_t min_cost = std::numeric_limits<std::uint64_t>::max();
+        Pauli pauli;
+        std::uint32_t moved_state_dir = 0;
+        std::int32_t z = 0;
+        Coord2D place;
+        std::size_t cnot_state_index = 0;
+    };
+
+    const auto& grid_topology = grid_0.GetTopology();
+    const auto dst_z = plane_2.GetTopology().GetZ();
+
+    assert(grid_0.GetTopology().GetIndex() == grid_1.GetTopology().GetIndex());
+    assert(grid_0.GetTopology().GetIndex() == plane_2.GetParent().GetTopology().GetIndex());
+    assert(grid_0.GetTopology().GetIndex() == plane_3.GetParent().GetTopology().GetIndex());
+    assert(grid_0.GetParent().GetBeat() + 1 == grid_1.GetParent().GetBeat());
+    assert(grid_0.GetParent().GetBeat() + 2 == plane_2.GetParent().GetParent().GetBeat());
+    assert(grid_0.GetParent().GetBeat() + 3 == plane_3.GetParent().GetParent().GetBeat());
+
+    const auto& initial_place = grid_0.GetParent().GetPlace(q_src);
+    assert(grid_0.GetTopology().GetMinZ() <= initial_place.z
+           && initial_place.z < grid_0.GetTopology().GetMaxZ());
+
+    auto found_place_to_move = false;
+    for (auto z = grid_topology.GetMinZ(); z < grid_topology.GetMaxZ(); ++z) {
+        if (!TransReachable(grid_0, initial_place, z)) {
+            continue;
+        }
+        found_place_to_move = true;
+        SearchRoute::Move(grid_0.GetPlane(z), q_src);
+    }
+    if (!found_place_to_move) {
+        return std::nullopt;
+    }
+
+    const auto cnot_search = BuildCnotSearchData(plane_2, plane_3, q_dst, boundaries_dst);
+    auto search_result = SearchResult{};
+    for (auto z = grid_topology.GetMinZ(); z < grid_topology.GetMaxZ(); ++z) {
+        const auto trans_move_cost = std::abs(z - initial_place.z) + std::abs(dst_z - z);
+        for (auto x = 0; x < grid_topology.GetMaxX(); ++x) {
+            for (auto y = 0; y < grid_topology.GetMaxY(); ++y) {
+                const auto& node_0 = grid_0.GetNode({x, y, z});
+                if (!node_0.IsFreeAncilla() || IsMoveCostUnreachable(node_0.Cost())) {
+                    continue;
+                }
+                if (!TransReachable(grid_1, {x, y, z}, dst_z)) {
+                    continue;
+                }
+
+                const auto place = Coord2D{x, y};
+                for (const auto moved_state_dir : {std::uint32_t{0}, std::uint32_t{1}}) {
+                    const auto cnot_candidate = FindBestCnotStartState(
+                            plane_2,
+                            plane_3,
+                            place,
+                            moved_state_dir,
+                            boundaries_src,
+                            cnot_search
+                    );
+                    if (!cnot_candidate.has_value()) {
+                        continue;
+                    }
+
+                    for (const auto pauli : {Pauli::X(), Pauli::Z()}) {
+                        const auto move_cost =
+                                MoveCostAccessor::Cost(node_0.Cost(), pauli, moved_state_dir);
+                        if (move_cost == MoveCostAccessor::Inf) {
+                            continue;
+                        }
+
+                        const auto total_cost = CalculateRoute3DCost(
+                                move_cost,
+                                cnot_candidate->first,
+                                trans_move_cost
+                        );
+                        if (total_cost < search_result.min_cost) {
+                            search_result = {
+                                    .min_cost = total_cost,
+                                    .pauli = pauli,
+                                    .moved_state_dir = moved_state_dir,
+                                    .z = z,
+                                    .place = place,
+                                    .cnot_state_index = cnot_candidate->second,
+                            };
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (search_result.min_cost == std::numeric_limits<std::uint64_t>::max()) {
+        return std::nullopt;
+    }
+
+    auto route = Route3D{
+            .q_src = q_src,
+            .q_dst = q_dst,
+            .src = grid_0.GetParent().GetPlace(q_src),
+            .move_path = {},
+            .logical_path = {},
+            .dst = {},
+    };
+    route.move_path = SearchRoute::TraceBackPathOfMove(
+            grid_0.GetPlane(search_result.z),
+            q_src,
+            search_result.pauli,
+            search_result.moved_state_dir,
+            search_result.place
+    );
+    std::reverse(route.move_path.begin(), route.move_path.end());
+    route.logical_path = TraceBackPathOfCnot(cnot_search, search_result.cnot_state_index);
+    route.logical_path.emplace_front(search_result.place.x, search_result.place.y, dst_z);
+    route.dst = plane_2.GetParent().GetParent().GetPlace(q_dst);
+    route.Audit();
+
+    return route;
 }
 std::optional<SearchRoute::Route3DM> SearchRoute::FindRoute3DM(
         QuantumGrid& grid_0,
@@ -1288,6 +1670,33 @@ std::optional<SearchRoute::SearchResult> SearchRoute::FindTransMovePlace(
                                               const std::int32_t z,
                                               const Coord2D& place
                                       ) {
+        if (boundaries_src == LS_ANY_BOUNDARY) {
+            for (const auto pauli : {Pauli::X(), Pauli::Z()}) {
+                for (const auto moved_state_dir : {std::uint32_t{0}, std::uint32_t{1}}) {
+                    const auto move = MoveCostAccessor::Cost(move_cost, pauli, moved_state_dir);
+                    if (const auto min_cost = IsMinCostUpdated(
+                                search_result.min_cost,
+                                move,
+                                LSCostAccessor::CostX(ls_cost),
+                                trans_move_cost
+                        );
+                        min_cost) {
+                        search_result = {*min_cost, pauli, moved_state_dir, 'X', z, place};
+                    }
+                    if (const auto min_cost = IsMinCostUpdated(
+                                search_result.min_cost,
+                                move,
+                                LSCostAccessor::CostY(ls_cost),
+                                trans_move_cost
+                        );
+                        min_cost) {
+                        search_result = {*min_cost, pauli, moved_state_dir, 'Y', z, place};
+                    }
+                }
+            }
+            return;
+        }
+
         // dir=0  dir=1
         // ============
         //   X      Z
@@ -1295,7 +1704,7 @@ std::optional<SearchRoute::SearchResult> SearchRoute::FindTransMovePlace(
         //   X      Z
 
         // Logical operation with X boundary of moved qubit.
-        if (boundaries_src == LS_X_BOUNDARY || boundaries_src == LS_ANY_BOUNDARY) {
+        if (boundaries_src == LS_X_BOUNDARY) {
             for (const auto pauli : {Pauli::X(), Pauli::Z()}) {
                 // edge from X-axis
                 const auto mo_x = MoveCostAccessor::Cost(move_cost, pauli, 1);
@@ -1314,27 +1723,26 @@ std::optional<SearchRoute::SearchResult> SearchRoute::FindTransMovePlace(
                     search_result = {*min_cost, pauli, 0, 'Y', z, place};
                 }
             }
+            return;
         }
 
-        // Logical operation with Z boundary of moved qubit.
-        if (boundaries_src == LS_Z_BOUNDARY || boundaries_src == LS_ANY_BOUNDARY) {
-            for (const auto pauli : {Pauli::X(), Pauli::Z()}) {
-                // edge from X-axis
-                const auto mo_x = MoveCostAccessor::Cost(move_cost, pauli, 0);
-                const auto ls_x = LSCostAccessor::CostX(ls_cost);
-                if (const auto min_cost =
-                            IsMinCostUpdated(search_result.min_cost, mo_x, ls_x, trans_move_cost);
-                    min_cost) {
-                    search_result = {*min_cost, pauli, 0, 'X', z, place};
-                }
-                // edge from Y-axis
-                const auto mo_y = MoveCostAccessor::Cost(move_cost, pauli, 1);
-                const auto ls_y = LSCostAccessor::CostY(ls_cost);
-                if (const auto min_cost =
-                            IsMinCostUpdated(search_result.min_cost, mo_y, ls_y, trans_move_cost);
-                    min_cost) {
-                    search_result = {*min_cost, pauli, 1, 'Y', z, place};
-                }
+        // assert(boundaries_src == LS_Z_BOUNDARY);
+        for (const auto pauli : {Pauli::X(), Pauli::Z()}) {
+            // edge from X-axis
+            const auto mo_x = MoveCostAccessor::Cost(move_cost, pauli, 0);
+            const auto ls_x = LSCostAccessor::CostX(ls_cost);
+            if (const auto min_cost =
+                        IsMinCostUpdated(search_result.min_cost, mo_x, ls_x, trans_move_cost);
+                min_cost) {
+                search_result = {*min_cost, pauli, 0, 'X', z, place};
+            }
+            // edge from Y-axis
+            const auto mo_y = MoveCostAccessor::Cost(move_cost, pauli, 1);
+            const auto ls_y = LSCostAccessor::CostY(ls_cost);
+            if (const auto min_cost =
+                        IsMinCostUpdated(search_result.min_cost, mo_y, ls_y, trans_move_cost);
+                min_cost) {
+                search_result = {*min_cost, pauli, 1, 'Y', z, place};
             }
         }
     };

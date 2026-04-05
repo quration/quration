@@ -772,8 +772,8 @@ void DumpMachineFunctionSortedByBeat(std::ostream& out, const MachineFunction& m
         const auto [lhs_inst, lhs_index] = lhs;
         const auto [rhs_inst, rhs_index] = rhs;
         return lhs_inst->Metadata().beat < rhs_inst->Metadata().beat
-                || (lhs_inst->Metadata().beat == rhs_inst->Metadata().beat && lhs_index < rhs_index
-                );
+                || (lhs_inst->Metadata().beat == rhs_inst->Metadata().beat
+                    && lhs_index < rhs_index);
     };
     auto insts = std::set<T, decltype(comp)>{};
     auto index = std::size_t{0};

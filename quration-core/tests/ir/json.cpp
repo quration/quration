@@ -290,11 +290,12 @@ TEST(TestMetadata, AllMetadata) {
 }
 
 TEST(TestIRDeserializationValidation, DuplicateFunctionName) {
-    const auto bb_list = Json::array({Json{
-            {"name", "entry"},
-            {"inst_list", Json::array({Json{{"opcode", "Return"}}})},
-            {"predecessors", Json::array()},
-            {"successors", Json::array()}}});
+    const auto bb_list = Json::array(
+            {Json{{"name", "entry"},
+                  {"inst_list", Json::array({Json{{"opcode", "Return"}}})},
+                  {"predecessors", Json::array()},
+                  {"successors", Json::array()}}}
+    );
     const auto function = MakeFunction("dup", bb_list, 1, 1);
     const auto module = MakeModule("mod", Json::array({function, function}));
 
@@ -303,24 +304,26 @@ TEST(TestIRDeserializationValidation, DuplicateFunctionName) {
 }
 
 TEST(TestIRDeserializationValidation, CallArgumentSize) {
-    const auto callee_bb = Json::array({Json{
-            {"name", "entry"},
-            {"inst_list", Json::array({Json{{"opcode", "Return"}}})},
-            {"predecessors", Json::array()},
-            {"successors", Json::array()}}});
-    const auto caller_bb = Json::array({Json{
-            {"name", "entry"},
-            {"inst_list",
-             Json::array(
-                     {Json{{"opcode", "Call"},
-                           {"callee", "callee"},
-                           {"operate", Json::array({0})},
-                           {"input", Json::array({0})},
-                           {"output", Json::array()}},
-                      Json{{"opcode", "Return"}}}
-             )},
-            {"predecessors", Json::array()},
-            {"successors", Json::array()}}});
+    const auto callee_bb = Json::array(
+            {Json{{"name", "entry"},
+                  {"inst_list", Json::array({Json{{"opcode", "Return"}}})},
+                  {"predecessors", Json::array()},
+                  {"successors", Json::array()}}}
+    );
+    const auto caller_bb = Json::array(
+            {Json{{"name", "entry"},
+                  {"inst_list",
+                   Json::array(
+                           {Json{{"opcode", "Call"},
+                                 {"callee", "callee"},
+                                 {"operate", Json::array({0})},
+                                 {"input", Json::array({0})},
+                                 {"output", Json::array()}},
+                            Json{{"opcode", "Return"}}}
+                   )},
+                  {"predecessors", Json::array()},
+                  {"successors", Json::array()}}}
+    );
     const auto callee = MakeFunction("callee", callee_bb, 1, 2);
     const auto caller = MakeFunction("caller", caller_bb, 1, 2);
     const auto module = MakeModule("mod", Json::array({callee, caller}));
@@ -333,16 +336,16 @@ TEST(TestIRDeserializationValidation, ReturnReachability) {
     const auto bb_list = Json::array(
             {Json{{"name", "entry"},
                   {"inst_list",
-                   Json::array({Json{{"opcode", "Branch"},
-                                     {"num_successors", 1},
-                                     {"if_true", "loop"}}})},
+                   Json::array(
+                           {Json{{"opcode", "Branch"}, {"num_successors", 1}, {"if_true", "loop"}}}
+                   )},
                   {"predecessors", Json::array()},
                   {"successors", Json::array({"loop"})}},
              Json{{"name", "loop"},
                   {"inst_list",
-                   Json::array({Json{{"opcode", "Branch"},
-                                     {"num_successors", 1},
-                                     {"if_true", "loop"}}})},
+                   Json::array(
+                           {Json{{"opcode", "Branch"}, {"num_successors", 1}, {"if_true", "loop"}}}
+                   )},
                   {"predecessors", Json::array({"entry", "loop"})},
                   {"successors", Json::array({"loop"})}},
              Json{{"name", "exit"},
@@ -361,10 +364,12 @@ TEST(TestIRDeserializationValidation, SwitchRegistersKey) {
     const auto bb_list = Json::array(
             {Json{{"name", "entry"},
                   {"inst_list",
-                   Json::array({Json{{"opcode", "Switch"},
-                                     {"registers", Json::array({0})},
-                                     {"default", "exit"},
-                                     {"case", Json{{"1", "exit"}}}}})},
+                   Json::array(
+                           {Json{{"opcode", "Switch"},
+                                 {"registers", Json::array({0})},
+                                 {"default", "exit"},
+                                 {"case", Json{{"1", "exit"}}}}}
+                   )},
                   {"predecessors", Json::array()},
                   {"successors", Json::array({"exit"})}},
              Json{{"name", "exit"},
@@ -388,10 +393,12 @@ TEST(TestIRDeserializationValidation, SwitchLegacyValueKeyRejected) {
     const auto bb_list = Json::array(
             {Json{{"name", "entry"},
                   {"inst_list",
-                   Json::array({Json{{"opcode", "Switch"},
-                                     {"value", Json::array({0})},
-                                     {"default", "exit"},
-                                     {"case", Json{{"1", "exit"}}}}})},
+                   Json::array(
+                           {Json{{"opcode", "Switch"},
+                                 {"value", Json::array({0})},
+                                 {"default", "exit"},
+                                 {"case", Json{{"1", "exit"}}}}}
+                   )},
                   {"predecessors", Json::array()},
                   {"successors", Json::array({"exit"})}},
              Json{{"name", "exit"},
