@@ -4,7 +4,6 @@
 #include <cerrno>
 #include <cstddef>
 #include <cstdint>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -41,23 +40,26 @@ PREPAREParams LoadPREPAREJson(const std::string& path) {
 };
 
 int main(std::int32_t argc, const char* const* const argv) {
-    std::filesystem::path source_file_path = __FILE__;
-    const auto default_input_file = source_file_path.parent_path() / "data/sample_prepare.json";
     namespace po = boost::program_options;
     po::options_description desc("Create PREPARE circuit from JSON file");
     desc.add_options()
         ("help", "Print usage instructions")
-        ("file", po::value<std::string>()->default_value(default_input_file.string()), "Path to JSON file of input parameters")
+        ("file", po::value<std::string>()->required(), "Path to JSON file of input parameters")
         ("out", po::value<std::string>()->default_value("out.json"), "Path to the output file")
         ("inline", "Option to enable inline expansion.");
 
     po::variables_map vm;
-    store(parse_command_line(argc, argv, desc), vm);
-    notify(vm);
-
-    if (vm.count("help") > 0) {
-        std::cout << desc << std::endl;
-        return 0;
+    try {
+        po::store(po::parse_command_line(argc, argv, desc), vm);
+        if (vm.count("help") > 0) {
+            std::cout << desc << std::endl;
+            return 0;
+        }
+        po::notify(vm);
+    } catch (const po::error& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << desc << std::endl;
+        return 1;
     }
 
     std::string input_file;
