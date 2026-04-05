@@ -202,7 +202,7 @@ namespace QuantumStateBufferInternal{
         EntanglementFactory = 2,
         Qubit = 3,
     };
-    struct Node {
+    struct QRET_EXPORT Node {
         // NOTE: member order is optimized to minimize the byte size of this class.
         bool is_available = true;
         Type type = Type::Ancilla;
