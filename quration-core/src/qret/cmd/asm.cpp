@@ -34,10 +34,9 @@ ReturnStatus Asm(
     }
     const auto option_storage = qret::OptionStorage::GetOptionStorage();
     if (option_storage->Contains("sc_ls_fixed_v0-print-inst-metadata")) {
-        if (const auto* option_ptr =
-                    std::get_if<qret::Option<bool>*>( &option_storage->At(
-                            "sc_ls_fixed_v0-print-inst-metadata"
-                    ))) {
+        if (const auto* option_ptr = std::get_if<qret::Option<bool>*>(
+                    &option_storage->At("sc_ls_fixed_v0-print-inst-metadata")
+            )) {
             (*option_ptr)->SetValue(print_metadata);
         }
     }

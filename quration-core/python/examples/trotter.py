@@ -174,8 +174,7 @@ def main() -> None:
         "-f",
         "--file",
         type=str,
-        required=False,
-        default=Path(__file__).parent / "data" / "1d_ising_hamiltonian.json",
+        required=True,
         help="Path to JSON file of input Hamiltonian",
     )
     parser.add_argument(

@@ -13,7 +13,9 @@
 #include <cmath>
 #include <limits>
 #include <optional>
+#include <queue>
 #include <stdexcept>
+#include <unordered_set>
 
 #include "qret/base/cast.h"
 #include "qret/base/log.h"
@@ -24,43 +26,94 @@
 #include "qret/target/sc_ls_fixed_v0/instruction.h"
 #include "qret/target/sc_ls_fixed_v0/pauli.h"
 #include "qret/target/sc_ls_fixed_v0/search_grid.h"
+#include "qret/target/sc_ls_fixed_v0/simulator_runnability.h"
 #include "qret/target/sc_ls_fixed_v0/state.h"
 #include "qret/target/sc_ls_fixed_v0/symbol.h"
 #include "qret/target/sc_ls_fixed_v0/topology.h"
 
 namespace qret::sc_ls_fixed_v0 {
 namespace {
-bool IsAdjacent(const Coord3D& lhs, const Coord3D& rhs) {
-    if (lhs.z != rhs.z) {
+char AxisOfEdge(const Coord3D& lhs, const Coord3D& rhs) {
+    assert(detail::IsAdjacent(lhs, rhs));
+    return lhs.x != rhs.x ? 'X' : 'Y';
+}
+
+bool UsesRequestedBoundary(std::uint32_t dir, char axis, bool use_z_boundary) {
+    if (use_z_boundary) {
+        return (dir == 0 && axis == 'X') || (dir == 1 && axis == 'Y');
+    }
+    return (dir == 0 && axis == 'Y') || (dir == 1 && axis == 'X');
+}
+
+Pauli BoundaryPauliFromAxis(std::uint32_t dir, char axis) {
+    if (UsesRequestedBoundary(dir, axis, true)) {
+        return Pauli::Z();
+    }
+    if (UsesRequestedBoundary(dir, axis, false)) {
+        return Pauli::X();
+    }
+    throw std::logic_error("Failed to infer boundary pauli from route axis.");
+}
+
+Pauli SourceBoundaryPauliFromRoute(
+        const Coord3D& src,
+        std::uint32_t dir,
+        const std::list<Coord3D>& logical_path
+) {
+    if (logical_path.size() < 2) {
+        throw std::logic_error("LATTICE_SURGERY route must include both endpoints.");
+    }
+
+    const auto next = *std::next(logical_path.begin());
+    if (!detail::IsAdjacent(src, next)) {
+        throw std::logic_error("LATTICE_SURGERY route does not start from the source qubit.");
+    }
+    return BoundaryPauliFromAxis(dir, AxisOfEdge(src, next));
+}
+
+bool IsValidCnotPath(
+        const Coord3D& src,
+        std::uint32_t src_dir,
+        const std::list<Coord3D>& path,
+        const Coord3D& dst,
+        std::uint32_t dst_dir
+) {
+    if (path.empty() || src.z != dst.z) {
         return false;
     }
-    const auto dx = std::abs(lhs.x - rhs.x);
-    const auto dy = std::abs(lhs.y - rhs.y);
-    return (dx + dy) == 1;
-}
 
-bool IsConnectedPathBetween(
-        const Coord3D& src,
-        const std::list<Coord3D>& path,
-        const Coord3D& dst
-) {
     auto prev = src;
-    if (path.empty()) {
-        return IsAdjacent(src, dst);
-    }
-    for (const auto& p : path) {
-        if (!IsAdjacent(prev, p)) {
+    auto prev_axis = char{0};
+    auto has_turn = false;
+
+    for (const auto& current : path) {
+        if (current.z != src.z || !detail::IsAdjacent(prev, current)) {
             return false;
         }
-        prev = p;
-    }
-    return IsAdjacent(prev, dst);
-}
 
-bool HasOnlyBoundaryPauli(const std::list<Pauli>& basis_list) {
-    return std::all_of(basis_list.begin(), basis_list.end(), [](Pauli pauli) {
-        return pauli.IsX() || pauli.IsZ() || pauli.IsAny();
-    });
+        const auto axis = AxisOfEdge(prev, current);
+        if (prev == src && !UsesRequestedBoundary(src_dir, axis, true)) {
+            return false;
+        }
+        if (prev_axis != 0 && prev_axis != axis) {
+            has_turn = true;
+        }
+        prev = current;
+        prev_axis = axis;
+    }
+
+    if (!detail::IsAdjacent(prev, dst)) {
+        return false;
+    }
+    const auto final_axis = AxisOfEdge(prev, dst);
+    if (!UsesRequestedBoundary(dst_dir, final_axis, false)) {
+        return false;
+    }
+    if (prev_axis != final_axis) {
+        has_turn = true;
+    }
+
+    return has_turn;
 }
 }  // namespace
 
@@ -419,46 +472,48 @@ void ScLsSimulator::InsertBeforeAndRunRoute3D(
             route.move_path.front().z
     );
 
+    auto current_qubit =
+            route.src.z == route.move_path.front().z ? qubit : symbol_generator_->LatestQ();
+    auto current_place = route.move_path.front();
+
     if (route.move_path.front() == route.logical_path.front()) {
         // Do not need plane move.
         return;
     }
 
-    if (route.move_path.size() <= 1 || route.move_path.front().XY() == route.move_path.back().XY()) {
-        // No in-plane move in MOVE path.
-        return;
+    if (route.move_path.size() > 1 && route.move_path.front().XY() != route.move_path.back().XY()) {
+        // Move in plane.
+        const auto dst_qubit = symbol_generator_->GenerateQ();
+
+        // Allocate 'dst_qubit'.
+        auto new_allocate_inst = Allocate::New(dst_qubit, route.move_path.back(), 0, condition);
+        RunAllocate(beat, new_allocate_inst.get());
+        mbb->InsertBefore(insert_before, std::move(new_allocate_inst));
+
+        // Move in plane.
+        auto path = route.move_path;
+        path.pop_back();  // Delete coord of 'src_qubit'.
+        path.pop_front();  // Delete coord of 'dst_qubit'.
+        auto new_move_inst = Move::New(current_qubit, dst_qubit, path, condition);
+        RunMove(beat, new_move_inst.get());
+        mbb->InsertBefore(insert_before, std::move(new_move_inst));
+
+        current_qubit = dst_qubit;
+        current_place = route.move_path.back();
     }
 
-    // Move in plane.
-    const auto src_qubit = route.src.z == route.move_path.front().z ? qubit  // If no trans move.
-                                                                    : symbol_generator_->LatestQ();
-    const auto dst_qubit = symbol_generator_->GenerateQ();
-
-    // Allocate 'dst_qubit'.
-    auto new_allocate_inst = Allocate::New(dst_qubit, route.move_path.back(), 0, condition);
-    RunAllocate(beat, new_allocate_inst.get());
-    mbb->InsertBefore(insert_before, std::move(new_allocate_inst));
-
-    // Move in plane.
-    auto path = route.move_path;
-    path.pop_back();  // Delete coord of 'src_qubit'.
-    path.pop_front();  // Delete coord of 'dst_qubit'.
-    auto new_move_inst = Move::New(src_qubit, dst_qubit, path, condition);
-    RunMove(beat, new_move_inst.get());
-    mbb->InsertBefore(insert_before, std::move(new_move_inst));
-
-    // Step beat: 'beat' -> 'beat+1'.
-
-    // Move transversely.
-    InsertBeforeAndRunTransMove(
-            beat + 1,
-            mbb,
-            insert_before,
-            condition,
-            dst_qubit,
-            route.move_path.back(),
-            route.logical_path.front().z
-    );
+    if (current_place != route.logical_path.front()) {
+        // Step beat: 'beat' -> 'beat+1'.
+        InsertBeforeAndRunTransMove(
+                beat + 1,
+                mbb,
+                insert_before,
+                condition,
+                current_qubit,
+                current_place,
+                route.logical_path.front().z
+        );
+    }
 }
 void ScLsSimulator::InsertBeforeAndRunRoute3DM(
         const Beat beat,
@@ -981,6 +1036,26 @@ std::optional<SearchRoute::Route2D> DefaultRouteSearcher::SearchRoute2D(
     SearchHelper::SetCostsOfFreeAncillae(plane, std::numeric_limits<std::uint64_t>::max());
     return SearchRoute::FindRoute2D(plane, q_src, q_dst, boundaries_src, boundaries_dst);
 }
+std::optional<SearchRoute::Route2D> DefaultRouteSearcher::SearchCnotRoute2D(
+        QuantumStateBuffer& buffer,
+        Beat beat,
+        QSymbol q_src,
+        QSymbol q_dst
+) {
+    auto& state_0 = buffer.GetQuantumState(beat);
+    auto& state_1 = buffer.GetQuantumState(beat + 1);
+    const auto& place_src = state_0.GetPlace(q_src);
+    auto& plane_0 = state_0.GetGrid(place_src.z).GetPlane(place_src.z);
+    auto& plane_1 = state_1.GetGrid(place_src.z).GetPlane(place_src.z);
+    return SearchRoute::FindCnotRoute2D(
+            plane_0,
+            plane_1,
+            q_src,
+            q_dst,
+            SearchRoute::LS_Z_BOUNDARY,
+            SearchRoute::LS_X_BOUNDARY
+    );
+}
 std::optional<SearchRoute::Route2DM> DefaultRouteSearcher::SearchRoute2DM(
         QuantumStateBuffer& buffer,
         Beat beat,
@@ -1038,6 +1113,35 @@ std::optional<SearchRoute::Route3D> DefaultRouteSearcher::SearchRoute3D(
             boundaries_src
     );
 }
+std::optional<SearchRoute::Route3D> DefaultRouteSearcher::SearchCnotRoute3D(
+        QuantumStateBuffer& buffer,
+        Beat beat,
+        QSymbol q_src,
+        QSymbol q_dst
+) {
+    auto& state_0 = buffer.GetQuantumState(beat);
+    auto& state_1 = buffer.GetQuantumState(beat + 1);
+    auto& state_2 = buffer.GetQuantumState(beat + 2);
+    auto& state_3 = buffer.GetQuantumState(beat + 3);
+    const auto& place_src = state_0.GetPlace(q_src);
+    const auto& place_dst = state_0.GetPlace(q_dst);
+    auto& grid_0 = state_0.GetGrid(place_src.z);
+    auto& grid_1 = state_1.GetGrid(place_src.z);
+    auto& grid_2 = state_2.GetGrid(place_src.z);
+    auto& grid_3 = state_3.GetGrid(place_src.z);
+
+    SearchHelper::SetCostsOfFreeAncillae(grid_0, std::numeric_limits<std::uint64_t>::max());
+    return SearchRoute::FindCnotRoute3D(
+            grid_0,
+            grid_1,
+            grid_2.GetPlane(place_dst.z),
+            grid_3.GetPlane(place_dst.z),
+            q_src,
+            q_dst,
+            SearchRoute::LS_Z_BOUNDARY,
+            SearchRoute::LS_X_BOUNDARY
+    );
+}
 std::optional<SearchRoute::Route3DM> DefaultRouteSearcher::SearchRoute3DM(
         QuantumStateBuffer& buffer,
         Beat beat,
@@ -1078,13 +1182,16 @@ std::optional<SearchRoute::Route2D> ScLsSimulator::SearchRoute2D(
                 boundaries_dst
         );
     } catch (const std::logic_error& err) {
-        LOG_ERROR(
-                "[BEAT {}] SearchRoute2D({}, {}) failed: {}",
-                beat,
-                q_src,
-                q_dst,
-                err.what()
-        );
+        LOG_ERROR("[BEAT {}] SearchRoute2D({}, {}) failed: {}", beat, q_src, q_dst, err.what());
+        throw;
+    }
+}
+std::optional<SearchRoute::Route2D>
+ScLsSimulator::SearchCnotRoute2D(Beat beat, QSymbol q_src, QSymbol q_dst) {
+    try {
+        return route_searcher_->SearchCnotRoute2D(GetStateBuffer(), beat, q_src, q_dst);
+    } catch (const std::logic_error& err) {
+        LOG_ERROR("[BEAT {}] SearchCnotRoute2D({}, {}) failed: {}", beat, q_src, q_dst, err.what());
         throw;
     }
 }
@@ -1093,12 +1200,7 @@ ScLsSimulator::SearchRoute2DM(Beat beat, QSymbol q_dst, std::uint32_t boundaries
     try {
         return route_searcher_->SearchRoute2DM(GetStateBuffer(), beat, q_dst, boundaries_dst);
     } catch (const std::logic_error& err) {
-        LOG_ERROR(
-                "[BEAT {}] SearchRoute2DM({}) failed: {}",
-                beat,
-                q_dst,
-                err.what()
-        );
+        LOG_ERROR("[BEAT {}] SearchRoute2DM({}) failed: {}", beat, q_dst, err.what());
         throw;
     }
 }
@@ -1109,13 +1211,8 @@ std::optional<SearchRoute::Route2DE> ScLsSimulator::SearchRoute2DE(
         std::uint32_t boundaries_dst
 ) {
     try {
-        return route_searcher_->SearchRoute2DE(
-                GetStateBuffer(),
-                beat,
-                e_factory,
-                q_dst,
-                boundaries_dst
-        );
+        return route_searcher_
+                ->SearchRoute2DE(GetStateBuffer(), beat, e_factory, q_dst, boundaries_dst);
     } catch (const std::logic_error& err) {
         LOG_ERROR(
                 "[BEAT {}] SearchRoute2DE({}, {}) failed: {}",
@@ -1137,14 +1234,7 @@ std::optional<SearchRoute::Route3D> ScLsSimulator::SearchRoute3D(
     auto& state = GetStateBuffer().GetQuantumState(beat);
     const auto& place_src = state.GetPlace(q_src);
     const auto& place_dst = state.GetPlace(q_dst);
-    LOG_DEBUG(
-            "[BEAT {}] SearchRoute3D: {}@{} -> {}@{}",
-            beat,
-            q_src,
-            place_src,
-            q_dst,
-            place_dst
-    );
+    LOG_DEBUG("[BEAT {}] SearchRoute3D: {}@{} -> {}@{}", beat, q_src, place_src, q_dst, place_dst);
     try {
         return route_searcher_->SearchRoute3D(
                 GetStateBuffer(),
@@ -1155,13 +1245,16 @@ std::optional<SearchRoute::Route3D> ScLsSimulator::SearchRoute3D(
                 boundaries_dst
         );
     } catch (const std::logic_error& err) {
-        LOG_ERROR(
-                "[BEAT {}] SearchRoute3D({}, {}) failed: {}",
-                beat,
-                q_src,
-                q_dst,
-                err.what()
-        );
+        LOG_ERROR("[BEAT {}] SearchRoute3D({}, {}) failed: {}", beat, q_src, q_dst, err.what());
+        throw;
+    }
+}
+std::optional<SearchRoute::Route3D>
+ScLsSimulator::SearchCnotRoute3D(Beat beat, QSymbol q_src, QSymbol q_dst) {
+    try {
+        return route_searcher_->SearchCnotRoute3D(GetStateBuffer(), beat, q_src, q_dst);
+    } catch (const std::logic_error& err) {
+        LOG_ERROR("[BEAT {}] SearchCnotRoute3D({}, {}) failed: {}", beat, q_src, q_dst, err.what());
         throw;
     }
 }
@@ -1170,12 +1263,7 @@ ScLsSimulator::SearchRoute3DM(Beat beat, QSymbol q_dst, std::uint32_t boundaries
     try {
         return route_searcher_->SearchRoute3DM(GetStateBuffer(), beat, q_dst, boundaries_dst);
     } catch (const std::logic_error& err) {
-        LOG_ERROR(
-                "[BEAT {}] SearchRoute3DM({}) failed: {}",
-                beat,
-                q_dst,
-                err.what()
-        );
+        LOG_ERROR("[BEAT {}] SearchRoute3DM({}) failed: {}", beat, q_dst, err.what());
         throw;
     }
 }
@@ -1318,10 +1406,23 @@ bool ScLsSimulator::SearchLatticeSurgeryPath3DAndRun(
     auto qubit_list = inst->QubitList();
     qubit_list.front() = moved_q_src;  // Replace 'q_src' with 'moved_q_src'.
     inst->SetQubitList(std::move(qubit_list));
-    auto path = route.logical_path;
+    const auto actual_route = SearchRoute2D(
+            beat + 2,
+            moved_q_src,
+            q_dst,
+            SearchRoute::GetBoundaryCode(pauli_src),
+            SearchRoute::GetBoundaryCode(pauli_dst)
+    );
+    if (!actual_route.has_value()) {
+        throw std::logic_error("Failed to realize 2D LATTICE_SURGERY after 3D movement.");
+    }
+    auto path = actual_route->logical_path;
     path.pop_front();  // Delete coord of 'moved_q_src'.
     path.pop_back();  // Delete coord of 'q_dst'.
     inst->SetPath(std::move(path));
+    if (!IsLatticeSurgeryRunnable(beat + 2, inst)) {
+        throw std::logic_error("SearchRoute3D returned an unrunnable LATTICE_SURGERY.");
+    }
 
     // Run LATTICE_SURGERY.
     RunLatticeSurgery(beat + 2, inst);
@@ -1343,44 +1444,7 @@ bool ScLsSimulator::SearchLatticeSurgeryPath3DAndRun(
     return true;
 }
 bool ScLsSimulator::IsLatticeSurgeryRunnable(Beat beat, LatticeSurgery* inst) {
-    const auto& qubits = inst->QubitList();
-    if (qubits.size() <= 1) {
-        return true;
-    }
-
-    const auto z = GetStateBuffer().GetQuantumState(beat).GetPlace(qubits.front()).z;
-    const auto& topology =
-            GetStateBuffer().GetQuantumState(beat).GetGrid(z).GetPlane(z).GetTopology();
-
-    if (!QubitsAreAvailable(beat, qubits)) {
-        return false;
-    }
-    for (auto b = beat; b < beat + inst->Latency(); ++b) {
-        auto& state = GetStateBuffer().GetQuantumState(b);
-        auto& plane = state.GetGrid(z).GetPlane(z);
-
-        for (const auto& q : inst->QubitList()) {
-            const auto& place = state.GetPlace(q);
-            if (z != place.z) {
-                return false;
-            }
-            if (!plane.GetNode(place.XY()).is_available) {
-                return false;
-            }
-        }
-        for (const auto& coord : inst->Path()) {
-            if (z != coord.z) {
-                return false;
-            }
-            if (topology.OutOfPlane(coord.XY())) {
-                return false;
-            }
-            if (!plane.GetNode(coord.XY()).IsFreeAncilla()) {
-                return false;
-            }
-        }
-    }
-    return HasOnlyBoundaryPauli(inst->BasisList());
+    return detail::IsLatticeSurgeryRunnable(GetStateBuffer(), avail_, beat, *inst);
 }
 void ScLsSimulator::RunLatticeSurgery(Beat beat, LatticeSurgery* inst) {
     const auto& qubits = inst->QubitList();
@@ -1577,8 +1641,19 @@ bool ScLsSimulator::SearchLatticeSurgeryMagicPath3DAndRun(
     const auto moved_magic_state = symbol_generator_->LatestQ();
     auto qubit_list = inst->QubitList();
     qubit_list.push_front(moved_magic_state);
+    auto& moved_state = GetStateBuffer().GetQuantumState(beat + 2);
+    if (route.logical_path.empty()) {
+        throw std::logic_error("SearchRoute3DM returned an empty logical path.");
+    }
+    if (moved_state.GetPlace(moved_magic_state) != route.logical_path.front()) {
+        throw std::logic_error("SearchRoute3DM logical path does not start at moved magic state.");
+    }
     auto basis_list = inst->BasisList();
-    basis_list.push_front(pauli_dst.IsZ() ? Pauli::Z() : Pauli::X());
+    basis_list.push_front(SourceBoundaryPauliFromRoute(
+            moved_state.GetPlace(moved_magic_state),
+            moved_state.GetDir(moved_magic_state),
+            route.logical_path
+    ));
     auto path = route.logical_path;
     path.pop_front();  // Delete coord of 'moved_magic_state'.
     path.pop_back();  // Delete coord of 'q_dst'.
@@ -1586,6 +1661,9 @@ bool ScLsSimulator::SearchLatticeSurgeryMagicPath3DAndRun(
             LatticeSurgery::New(qubit_list, basis_list, path, inst->CDest(), inst->Condition());
     auto* new_ls_inst_ptr = new_ls_inst.get();
     const auto latency = new_ls_inst->Latency();
+    if (!IsLatticeSurgeryRunnable(beat + 2, new_ls_inst_ptr)) {
+        throw std::logic_error("Generated LATTICE_SURGERY after moving magic state is unrunnable.");
+    }
     RunLatticeSurgery(beat + 2, new_ls_inst_ptr);
     mbb->InsertBefore(inst, std::move(new_ls_inst));
 
@@ -1603,52 +1681,7 @@ bool ScLsSimulator::SearchLatticeSurgeryMagicPath3DAndRun(
     return true;
 }
 bool ScLsSimulator::IsLatticeSurgeryMagicRunnable(Beat beat, LatticeSurgeryMagic* inst) {
-    const auto& qubits = inst->QubitList();
-    const auto magic_factory = inst->MagicFactory();
-    if (!QubitsAreAvailable(beat, qubits)) {
-        return false;
-    }
-    if (!MagicFactoryIsAvailable(beat, magic_factory)) {
-        return false;
-    }
-
-    auto& state = GetStateBuffer().GetQuantumState(beat);
-    const auto& place = state.GetPlace(qubits.front());
-    const auto& magic_factory_place = state.GetPlace(magic_factory);
-    auto& plane = state.GetGrid(place.z).GetPlane(place.z);
-    const auto& topology = plane.GetTopology();
-
-    if (place.z != magic_factory_place.z) {
-        return false;
-    }
-    if (plane.GetNode(magic_factory_place.XY()).is_available) {
-        return false;
-    }
-    if (!state.IsAvailable(magic_factory)) {
-        return false;
-    }
-    for (auto b = beat; b < beat + inst->Latency(); ++b) {
-        auto& tmp_state = GetStateBuffer().GetQuantumState(b);
-        auto& tmp_plane = tmp_state.GetGrid(place.z).GetPlane(place.z);
-        for (const auto& [x, y, z] : inst->Path()) {
-            if (place.z != z) {
-                return false;
-            }
-            if (topology.OutOfPlane({x, y})) {
-                return false;
-            }
-            if (!tmp_plane.GetNode({x, y}).IsFreeAncilla()) {
-                return false;
-            }
-        }
-        for (const auto& q : inst->QubitList()) {
-            const auto& place = tmp_state.GetPlace(q);
-            if (!tmp_plane.GetNode(place.XY()).is_available) {
-                return false;
-            }
-        }
-    }
-    return HasOnlyBoundaryPauli(inst->BasisList());
+    return detail::IsLatticeSurgeryMagicRunnable(GetStateBuffer(), avail_, beat, *inst);
 }
 void ScLsSimulator::RunLatticeSurgeryMagic(Beat beat, LatticeSurgeryMagic* inst) {
     const auto& qubits = inst->QubitList();
@@ -1724,7 +1757,8 @@ bool ScLsSimulator::SearchLatticeSurgeryMultinodePathAndRun(
     auto e_itr = inst->EFactoryList().begin();
     auto h_itr = inst->EHandleList().begin();
     while (e_itr != inst->EFactoryList().end() && h_itr != inst->EHandleList().end()) {
-        if (!EntanglementFactoryIsAvailable(beat, *e_itr) || !can_use_entanglement(*e_itr, *h_itr)) {
+        if (!EntanglementFactoryIsAvailable(beat, *e_itr)
+            || !can_use_entanglement(*e_itr, *h_itr)) {
             return false;
         }
         e_itr++;
@@ -1763,85 +1797,7 @@ bool ScLsSimulator::SearchLatticeSurgeryMultinodePathAndRun(
     return true;
 }
 bool ScLsSimulator::IsLatticeSurgeryMultinodeRunnable(Beat beat, LatticeSurgeryMultinode* inst) {
-    const auto& qubits = inst->QubitList();
-    auto& state = GetStateBuffer().GetQuantumState(beat);
-    const auto can_use_entanglement = [&state](ESymbol e, EHandle h) {
-        const auto pair = state.GetTopology().GetPair(e);
-        const auto& e_state = state.GetState(e);
-        if (e_state.IsReserved(h)) {
-            return true;
-        }
-        return e_state.IsAvailable() && state.GetState(pair).IsAvailable();
-    };
-
-    if (!QubitsAreAvailable(beat, qubits)) {
-        return false;
-    }
-    auto e_itr = inst->EFactoryList().begin();
-    auto h_itr = inst->EHandleList().begin();
-    while (e_itr != inst->EFactoryList().end() && h_itr != inst->EHandleList().end()) {
-        if (!EntanglementFactoryIsAvailable(beat, *e_itr) || !can_use_entanglement(*e_itr, *h_itr)) {
-            return false;
-        }
-        e_itr++;
-        h_itr++;
-    }
-    if (inst->UseMagicFactory() && !MagicFactoryIsAvailable(beat, inst->MagicFactory())) {
-        return false;
-    }
-
-    const auto& place = qubits.empty() ? state.GetPlace(inst->EFactoryList().front())
-                                       : state.GetPlace(qubits.front());
-    auto& plane = state.GetGrid(place.z).GetPlane(place.z);
-    const auto& topology = plane.GetTopology();
-
-    if (inst->UseMagicFactory()) {
-        const auto magic_factory = inst->MagicFactory();
-        const auto& magic_factory_place = state.GetPlace(magic_factory);
-        if (place.z != magic_factory_place.z) {
-            return false;
-        }
-        if (plane.GetNode(magic_factory_place.XY()).is_available) {
-            return false;
-        }
-        if (!state.IsAvailable(magic_factory)) {
-            return false;
-        }
-    }
-    for (const auto e : inst->EFactoryList()) {
-        const auto& e_place = state.GetPlace(e);
-        if (place.z != e_place.z) {
-            return false;
-        }
-        if (plane.GetNode(e_place.XY()).is_available) {
-            return false;
-        }
-        if (!state.IsAvailable(e)) {
-            return false;
-        }
-    }
-    for (auto b = beat; b < beat + inst->Latency(); ++b) {
-        auto& tmp_state = GetStateBuffer().GetQuantumState(b);
-        auto& tmp_plane = tmp_state.GetGrid(place.z).GetPlane(place.z);
-        for (const auto& [x, y, z] : inst->Path()) {
-            if (place.z != z) {
-                return false;
-            }
-            if (topology.OutOfPlane({x, y})) {
-                return false;
-            }
-            if (!tmp_plane.GetNode({x, y}).IsFreeAncilla()) {
-                return false;
-            }
-        }
-        for (const auto& q : inst->QubitList()) {
-            const auto& place = tmp_state.GetPlace(q);
-            if (!tmp_plane.GetNode(place.XY()).is_available) {
-                return false;
-            }
-        }
-    }
-    return HasOnlyBoundaryPauli(inst->BasisList());
+    return detail::IsLatticeSurgeryMultinodeRunnable(GetStateBuffer(), avail_, beat, *inst);
 }
 void ScLsSimulator::RunLatticeSurgeryMultinode(Beat beat, LatticeSurgeryMultinode* inst) {
     auto& state = GetStateBuffer().GetQuantumState(beat);
@@ -2064,7 +2020,7 @@ bool ScLsSimulator::IsMoveRunnable(Beat beat, Move* inst) {
             }
         }
     }
-    return IsConnectedPathBetween(
+    return detail::IsConnectedPathBetween(
             state.GetPlace(inst->Qubit()),
             inst->Path(),
             state.GetPlace(inst->QDest())
@@ -2076,7 +2032,7 @@ void ScLsSimulator::RunMove(Beat beat, Move* inst) {
     auto& state = GetStateBuffer().GetQuantumState(beat);
     const auto place =
             state.GetPlace(qubit);  // NOTE: NEED COPY BECAUSE 'qubit' will be deallocated.
-    
+
     // auto& plane = state.GetGrid(place.z).GetPlane(place.z);
     // const auto& topology = plane.GetTopology();
 
@@ -2281,7 +2237,7 @@ bool ScLsSimulator::IsMoveMagicRunnable(Beat beat, MoveMagic* inst) {
             return false;
         }
     }
-    return IsConnectedPathBetween(
+    return detail::IsConnectedPathBetween(
             state.GetPlace(inst->MagicFactory()),
             inst->Path(),
             state.GetPlace(inst->QDest())
@@ -2379,56 +2335,7 @@ bool ScLsSimulator::SearchMoveEntanglementPath2DAndRun(
     return true;
 }
 bool ScLsSimulator::IsMoveEntanglementRunnable(Beat beat, MoveEntanglement* inst) {
-    const auto& qubit = inst->QDest();
-    const auto e_factory = inst->EFactory();
-    const auto e_handle = inst->GetEHandle();
-    if (!QubitIsAvailable(beat, qubit)) {
-        return false;
-    }
-    if (!EntanglementFactoryIsAvailable(beat, e_factory)) {
-        return false;
-    }
-
-    auto& state = GetStateBuffer().GetQuantumState(beat);
-    const auto& place = state.GetPlace(qubit);
-    const auto& e_factory_place = state.GetPlace(e_factory);
-    auto& plane = state.GetGrid(place.z).GetPlane(place.z);
-    const auto& topology = plane.GetTopology();
-
-    if (place.z != e_factory_place.z) {
-        return false;
-    }
-    if (plane.GetNode(e_factory_place.XY()).is_available) {
-        return false;
-    }
-    const auto pair_factory = state.GetTopology().GetPair(e_factory);
-    const auto& e_state = state.GetState(e_factory);
-    const auto can_use_entanglement = e_state.IsReserved(e_handle)
-            || (e_state.IsAvailable() && state.GetState(pair_factory).IsAvailable());
-    if (!can_use_entanglement) {
-        return false;
-    }
-    for (auto b = beat; b < beat + inst->Latency(); ++b) {
-        auto& tmp_state = GetStateBuffer().GetQuantumState(b);
-        auto& tmp_plane = tmp_state.GetGrid(place.z).GetPlane(place.z);
-        for (const auto& [x, y, z] : inst->Path()) {
-            if (place.z != z) {
-                return false;
-            }
-            if (topology.OutOfPlane({x, y})) {
-                return false;
-            }
-            if (!tmp_plane.GetNode({x, y}).IsFreeAncilla()) {
-                return false;
-            }
-        }
-        const auto& place = tmp_state.GetPlace(qubit);
-        if (!tmp_plane.GetNode(place.XY()).is_available) {
-            return false;
-        }
-    }
-
-    return true;
+    return detail::IsMoveEntanglementRunnable(GetStateBuffer(), avail_, beat, *inst);
 }
 void ScLsSimulator::RunMoveEntanglement(
         Beat beat,
@@ -2480,9 +2387,7 @@ bool ScLsSimulator::SearchCnotPathAndRun(
     }
 
     if (SymbolsAreOnTheSamePlane(beat, inst->QTarget(), {}, {})) {
-        // return SearchCnotPath2DAndRun(beat, queue, mf, inst);
-        ReplaceCnotWithLS(beat, queue, mf, inst);
-        return true;
+        return SearchCnotPath2DAndRun(beat, queue, mf, inst);
     } else {
         const auto& state = GetStateBuffer().GetQuantumState(beat);
         const auto q_src = inst->Qubit1();
@@ -2515,15 +2420,7 @@ bool ScLsSimulator::SearchCnotPath2DAndRun(
     const auto q_src = inst->Qubit1();  // Z-boundary
     const auto q_dst = inst->Qubit2();  // X-boundary
 
-    // TODO: search two code beats
-    // TODO: implement kink constraint
-    const auto tmp_route = SearchRoute2D(
-            beat,
-            q_src,
-            q_dst,
-            SearchRoute::LS_Z_BOUNDARY,
-            SearchRoute::LS_X_BOUNDARY
-    );
+    const auto tmp_route = SearchCnotRoute2D(beat, q_src, q_dst);
     if (!tmp_route) {
         return false;
     }
@@ -2535,41 +2432,14 @@ bool ScLsSimulator::SearchCnotPath2DAndRun(
     path.pop_front();  // Delete coord of 'q_src'.
     path.pop_back();  // Delete coord of 'q_dst'.
     inst->SetPath(std::move(path));
+    if (!IsCnotRunnable(beat, inst)) {
+        throw std::logic_error("SearchCnotRoute2D returned an unrunnable route.");
+    }
     // Run CNOT.
     RunCnot(beat, inst);
     RunInstructionInQueue(queue, inst);
 
     return true;
-}
-void ScLsSimulator::ReplaceCnotWithLS(Beat, InstQueue& queue, MachineFunction& mf, Cnot* inst) {
-    // Replace CNOT with LS Z + LS X.
-    auto* mbb = FindMBB(mf, inst);
-    auto lsz = LatticeSurgery::New(
-            inst->QTarget(),
-            {Pauli::Z(), Pauli::Z()},
-            {},
-            symbol_generator_->GenerateC(),
-            inst->Condition()
-    );
-    auto lsx = LatticeSurgery::New(
-            inst->QTarget(),
-            {Pauli::X(), Pauli::X()},
-            {},
-            symbol_generator_->GenerateC(),
-            inst->Condition()
-    );
-    auto* ptr_lsz = lsz.get();
-    auto* ptr_lsx = lsx.get();
-
-    // Update MachineBasicBlock.
-    mbb->InsertAfter(inst, std::move(lsx));
-    mbb->InsertAfter(inst, std::move(lsz));
-    mbb->Erase(inst);
-
-    // Update InstQueue.
-    // Replace CNOT with LS Z + LS X.
-    queue.Replace(inst, {ptr_lsz}, ptr_lsz->Latency());
-    queue.InsertAfter(ptr_lsz, ptr_lsx);
 }
 CnotTrans*
 ScLsSimulator::ReplaceCnotWithCnotTrans(Beat, InstQueue& queue, MachineFunction& mf, Cnot* inst) {
@@ -2601,14 +2471,7 @@ bool ScLsSimulator::SearchCnotPath3DAndRun(
     const auto q_dst = inst->Qubit2();  // X-boundary
 
     // 1: Check if CNOT is realizable.
-    // Search 3D route from 'q_src' to the plane of 'q_dst'.
-    const auto tmp_route = SearchRoute3D(
-            beat,
-            q_src,
-            q_dst,
-            SearchRoute::LS_Z_BOUNDARY,
-            SearchRoute::LS_X_BOUNDARY
-    );
+    const auto tmp_route = SearchCnotRoute3D(beat, q_src, q_dst);
     if (!tmp_route) {
         return false;
     }
@@ -2625,10 +2488,17 @@ bool ScLsSimulator::SearchCnotPath3DAndRun(
     // Update CNOT.
     const auto moved_q_src = symbol_generator_->LatestQ();
     inst->Qubit1Mut() = moved_q_src;
-    auto path = route.logical_path;
+    const auto actual_route = SearchCnotRoute2D(beat + 2, moved_q_src, q_dst);
+    if (!actual_route.has_value()) {
+        throw std::logic_error("Failed to realize 2D CNOT after 3D movement.");
+    }
+    auto path = actual_route->logical_path;
     path.pop_front();  // Delete coord of 'moved_q_src'.
     path.pop_back();  // Delete coord of 'q_dst'.
     inst->SetPath(std::move(path));
+    if (!IsCnotRunnable(beat + 2, inst)) {
+        throw std::logic_error("SearchCnotRoute3D returned an unrunnable route.");
+    }
 
     // Run CNOT.
     RunCnot(beat + 2, inst);
@@ -2653,40 +2523,56 @@ bool ScLsSimulator::SearchCnotPath3DAndRun(
 bool ScLsSimulator::IsCnotRunnable(Beat beat, Cnot* inst) {
     const auto& qubits = inst->QTarget();
     if (!QubitsAreAvailable(beat, qubits)) {
+        LOG_DEBUG("CNOT qubits are not available: {}", inst->ToString());
         return false;
     }
 
     auto& state = GetStateBuffer().GetQuantumState(beat);
-    const auto& place = state.GetPlace(qubits.front());
-    auto& plane = state.GetGrid(place.z).GetPlane(place.z);
+    const auto& src = state.GetPlace(inst->Qubit1());
+    const auto& dst = state.GetPlace(inst->Qubit2());
+    const auto src_dir = state.GetDir(inst->Qubit1());
+    const auto dst_dir = state.GetDir(inst->Qubit2());
+    auto& plane = state.GetGrid(src.z).GetPlane(src.z);
     const auto& topology = plane.GetTopology();
 
     for (auto b = beat; b < beat + inst->Latency(); ++b) {
         auto& tmp_state = GetStateBuffer().GetQuantumState(b);
-        auto& tmp_plane = tmp_state.GetGrid(place.z).GetPlane(place.z);
+        auto& tmp_plane = tmp_state.GetGrid(src.z).GetPlane(src.z);
         for (const auto& [x, y, z] : inst->Path()) {
-            if (place.z != z) {
+            if (src.z != z) {
+                LOG_DEBUG("CNOT path uses another plane: {}", inst->ToString());
                 return false;
             }
             if (topology.OutOfPlane({x, y})) {
+                LOG_DEBUG("CNOT path is out of plane: {}", inst->ToString());
                 return false;
             }
             if (!tmp_plane.GetNode({x, y}).IsFreeAncilla()) {
+                LOG_DEBUG("CNOT ancilla is unavailable at beat {}: {}", b, inst->ToString());
                 return false;
             }
         }
         for (const auto& q : inst->QTarget()) {
             const auto& place = tmp_state.GetPlace(q);
             if (!tmp_plane.GetNode(place.XY()).is_available) {
+                LOG_DEBUG("CNOT qubit cell is unavailable at beat {}: {}", b, inst->ToString());
                 return false;
             }
         }
     }
-    return IsConnectedPathBetween(
-            state.GetPlace(inst->Qubit1()),
-            inst->Path(),
-            state.GetPlace(inst->Qubit2())
-    );
+    if (!IsValidCnotPath(src, src_dir, inst->Path(), dst, dst_dir)) {
+        LOG_DEBUG(
+                "CNOT path does not satisfy boundary/turn constraints: {} src={} dir={} dst={} "
+                "dir={}",
+                inst->ToString(),
+                src,
+                src_dir,
+                dst,
+                dst_dir
+        );
+        return false;
+    }
+    return true;
 }
 void ScLsSimulator::RunCnot(Beat beat, Cnot* inst) {
     const auto& qubits = inst->QTarget();

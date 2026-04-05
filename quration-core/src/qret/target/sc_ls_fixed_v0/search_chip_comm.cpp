@@ -207,9 +207,7 @@ void SplitMultinodeInst::SplitLSMultinode(
         if (z_magic.has_value() && z_magic.value() == n.id) {
             const auto magic_factory = select_magic_factory(n.id);
             if (!magic_factory.has_value()) {
-                throw std::runtime_error(
-                        fmt::format("No magic factory is defined at z={}", n.id)
-                );
+                throw std::runtime_error(fmt::format("No magic factory is defined at z={}", n.id));
             }
             std::get<std::list<MSymbol>>(qme).emplace_back(*magic_factory);
         }

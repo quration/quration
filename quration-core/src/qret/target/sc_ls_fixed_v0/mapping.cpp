@@ -44,6 +44,12 @@ static auto ScLsPartitionAlgorithm = Opt<std::uint32_t>(
         "Partition algorithm of mapping (0: Greedy, 1: Random, 2: METIS)",
         OptionHidden::Hidden
 );
+static auto ScLsPartitionSeed = Opt<std::uint64_t>(
+        "sc_ls_fixed_v0-partition-seed",
+        314,
+        "Random seed of mapping partition when partition algorithm is Random.",
+        OptionHidden::Hidden
+);
 static auto ScLsFindPlaceAlgorithm = Opt<std::uint32_t>(
         "sc_ls_fixed_v0-find-place-algorithm",
         0,
@@ -108,7 +114,7 @@ bool QubitGraph::Partition(
         case PartitionAlgorithm::Greedy:
             return PartitionByGreedy(max_weights);
         case PartitionAlgorithm::Random:
-            return PartitionByRandom(max_weights);
+            return PartitionByRandom(max_weights, ScLsPartitionSeed.Get());
         case PartitionAlgorithm::METIS:
             return PartitionByMETIS(max_weights);
         default:

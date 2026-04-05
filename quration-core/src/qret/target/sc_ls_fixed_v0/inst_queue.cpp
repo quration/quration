@@ -29,7 +29,8 @@ std::int64_t EstimateInsertedWeight(
     (void)algorithm;
     (void)replacement;
     (void)base_index;
-    // Keep inserted instructions near the original priority and use rank for deterministic ordering.
+    // Keep inserted instructions near the original priority and use rank for deterministic
+    // ordering.
     return base_weight + static_cast<std::int64_t>(rank);
 }
 }  // namespace
@@ -357,13 +358,8 @@ void InstQueue::InsertBefore(ScLsInstructionBase* inst, ScLsInstructionBase* new
 
     // Insert new node as a COPY of 'node'.
     auto& node = nodes_.at(inst);
-    const auto insert_weight = EstimateInsertedWeight(
-            algorithm_,
-            new_inst,
-            node.weight,
-            node.index,
-            0
-    );
+    const auto insert_weight =
+            EstimateInsertedWeight(algorithm_, new_inst, node.weight, node.index, 0);
     const auto [new_node_itr, success_to_emplace_new_node] = nodes_.emplace(new_inst, node);
     if (!success_to_emplace_new_node) {
         throw std::runtime_error("Failed to emplace new instruction");
@@ -405,13 +401,8 @@ void InstQueue::InsertAfter(ScLsInstructionBase* inst, ScLsInstructionBase* new_
 
     // Insert new node as a COPY of 'node'.
     auto& node = nodes_.at(inst);
-    const auto insert_weight = EstimateInsertedWeight(
-            algorithm_,
-            new_inst,
-            node.weight,
-            node.index,
-            0
-    );
+    const auto insert_weight =
+            EstimateInsertedWeight(algorithm_, new_inst, node.weight, node.index, 0);
     const auto [new_node_itr, success_to_emplace_new_node] = nodes_.emplace(new_inst, node);
     if (!success_to_emplace_new_node) {
         throw std::runtime_error("Failed to emplace new instruction");
@@ -472,8 +463,8 @@ void InstQueue::Replace(
                     fmt::format("Failed to emplace new instruction: {}", new_inst->ToString());
             throw std::runtime_error(msg);
         }
-        new_node_itr->second.weight = EstimateInsertedWeight(
-                algorithm_, new_inst, node.weight, node.index, i);
+        new_node_itr->second.weight =
+                EstimateInsertedWeight(algorithm_, new_inst, node.weight, node.index, i);
         new_node_itr->second.index = ++index_;
     }
 

@@ -345,11 +345,7 @@ Function* FindFunctionOrThrow(
     const auto itr = fmap.find(std::string(function_name));
     if (itr == fmap.end()) {
         throw std::runtime_error(
-                fmt::format(
-                        "Unknown function '{}' while loading {}.",
-                        function_name,
-                        context
-                )
+                fmt::format("Unknown function '{}' while loading {}.", function_name, context)
         );
     }
     return itr->second;
@@ -525,7 +521,8 @@ void ValidateCallArgumentSize(const Module& module) {
                             )
                     );
                 }
-                if (call->GetInput().size() + call->GetOutput().size() != callee->GetNumRegisters()) {
+                if (call->GetInput().size() + call->GetOutput().size()
+                    != callee->GetNumRegisters()) {
                     throw std::runtime_error(
                             fmt::format(
                                     "Call argument size mismatch: callee '{}' expects {} registers "
@@ -821,8 +818,7 @@ void LoadFunction(const Json& j, const FunctionMap& fmap) {
     }
 
     // Set entry point.
-    auto* entry_point =
-            FindBBOrThrow(bmap, j.at("entry_point").get<std::string>(), "entry point");
+    auto* entry_point = FindBBOrThrow(bmap, j.at("entry_point").get<std::string>(), "entry point");
     func->SetEntryBB(entry_point);
 
     // Create BB contents.
@@ -1020,7 +1016,12 @@ void InsertInst(const Json& j, BasicBlock* parent, const BBMap& bmap, const Func
                 case_bb[std::stoull(key)] = FindBBOrThrow(
                         bmap,
                         tmp.get<std::string>(),
-                        fmt::format("Switch case {} (func: {}, bb: {})", key, function_name, bb_name)
+                        fmt::format(
+                                "Switch case {} (func: {}, bb: {})",
+                                key,
+                                function_name,
+                                bb_name
+                        )
                 );
             }
             SwitchInst::Create(registers, default_bb, case_bb, parent);
