@@ -13,7 +13,10 @@
 #include "qret/target/sc_ls_fixed_v0/routing.h"
 #include "qret/target/sc_ls_fixed_v0/sc_ls_fixed_v0_target_machine.h"
 #include "qret/target/sc_ls_fixed_v0/topology.h"
+#include "qret/transforms/ipo/inliner.h"
 #include "qret/transforms/scalar/decomposition.h"
+#include <cstdlib>
+#include <vector>
 
 using namespace qret;
 using namespace qret::sc_ls_fixed_v0;
@@ -29,6 +32,8 @@ void Run(const std::size_t size, const std::string& topology_path) {
     auto* circuit = gen.Generate();
     auto* ir = circuit->GetIR();
     ir::DecomposeInst().RunOnFunction(*ir);
+    // SC_LS_FIXED_V0 lowering rejects Call instructions; inline before lowering.
+    ir::RecursiveInlinerPass().RunOnFunction(*ir);
 
     auto topology = Topology::FromYAML(LoadFile(topology_path));
     const auto target = ScLsFixedV0TargetMachine(
@@ -79,11 +84,22 @@ int main() {
     )
             ->SetValue(std::uint32_t{1});
 
-    for (const auto size : {5, 10, 15, 20, 25, 30}) {
+    const auto smoke = std::getenv("QRET_EXAMPLE_SMOKE") != nullptr;
+    // Smoke mode keeps CI execution lightweight/stable while still executing this binary.
+    const auto sizes = smoke ? std::vector<std::size_t>{5}
+                             : std::vector<std::size_t>{5, 10, 15, 20, 25, 30};
+
+    for (const auto size : sizes) {
         Run(size, "quration-core/examples/data/topology/dist_line.yaml");
         Run(size, "quration-core/examples/data/topology/dist_circle.yaml");
         Run(size, "quration-core/examples/data/topology/dist_all.yaml");
     }
+
+    if (smoke) {
+        // Skip heavy benchmark/json-dump section in CI smoke runs.
+        return 0;
+    }
+
     std::get<Option<std::string>*>(
             OptionStorage::GetOptionStorage()->At("sc_ls_fixed_v0_dump_compile_info_to_json")
     )

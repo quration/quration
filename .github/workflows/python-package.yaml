@@ -534,6 +534,7 @@ jobs:
         with:
           name: pyqret
           pattern: pyqret-*
+<<<<<<< ours
 
   release-pyqret:
     name: 🕊️ Release pyqret to PyPI
@@ -561,3 +562,24 @@ jobs:
         env:
           TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: ${{ secrets.TWINE_API_TOKEN }}
+||||||| base
+
+  release:
+    if: github.event_name == 'release'
+    needs: [merge]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download merged artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pyqret
+          path: dist
+
+      - name: Upload artifact to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+=======
+>>>>>>> theirs
