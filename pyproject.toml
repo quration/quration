@@ -3,11 +3,13 @@ name = "pyqret"
 description = "Python wrapper of QRET"
 readme = "README.md"
 required-python = ">=3.10"
+license = "MIT"
 
 # authors =
 # license =
 # keywords =
 classifiers = [
+  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
