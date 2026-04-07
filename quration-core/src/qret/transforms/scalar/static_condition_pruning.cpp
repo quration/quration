@@ -267,8 +267,15 @@ bool PruneCondition(Function& func, std::mt19937_64& engine) {
                     value_list.emplace_back(static_register[r.id] == RegisterState::True);
                 }
                 const auto value = BoolArrayAsInt(value_list);
+                // NOTE: Keep debug logging fmt-compatible across runner toolchains.
+                // Some fmt versions cannot format std::vector<bool> directly.
+                auto value_bits = std::string{};
+                value_bits.reserve(value_list.size());
+                for (const auto bit : value_list) {
+                    value_bits.push_back(bit ? '1' : '0');
+                }
 
-                LOG_DEBUG("value_list: {}", value_list);
+                LOG_DEBUG("value_list(bits): {}", value_bits);
                 LOG_DEBUG("value: {}", value);
 
                 auto* next_bb = tmp->GetCaseBB().contains(value) ? tmp->GetCaseBB().at(value)
