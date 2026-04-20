@@ -15,6 +15,7 @@
 #include "qret/target/sc_ls_fixed_v0/lowering.h"
 #include "qret/target/sc_ls_fixed_v0/mapping.h"
 #include "qret/target/sc_ls_fixed_v0/sc_ls_fixed_v0_target_machine.h"
+#include "qret/target/sc_ls_fixed_v0/simulator_runnability.h"
 #include "qret/target/sc_ls_fixed_v0/topology.h"
 #include "qret/transforms/ipo/inliner.h"
 #include "qret/transforms/scalar/decomposition.h"
@@ -64,6 +65,7 @@ bool PathTurns(const std::list<Coord3D>& path) {
     }
     return false;
 }
+
 }  // namespace
 
 TEST(Routing, Plane) {
@@ -82,7 +84,8 @@ TEST(Routing, Plane) {
         ir::DecomposeInst().RunOnFunction(*circuit);
         ir::InlinerPass().RunOnFunction(*circuit);
 
-        auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/plane.yaml"));
+        auto topology =
+                Topology::FromYAML(LoadFile("quration-core/tests/data/topology/plane.yaml"));
         const auto target = ScLsFixedV0TargetMachine(
                 topology,
                 ScLsFixedV0MachineOption{
@@ -420,4 +423,66 @@ TEST(Routing, Distribute) {
         //     for (const auto& minst : mbb) { std::cout << minst->ToString() << std::endl; }
         // }
     }
+}
+
+TEST(Routing, LatticeSurgeryPathIsConnectedWhenQubitIsBridge) {
+    auto topology = Topology::FromYAML(LoadFile("quration-core/tests/data/topology/plane_ls.yaml"));
+    const auto target = ScLsFixedV0TargetMachine(
+            topology,
+            ScLsFixedV0MachineOption{
+                    .magic_generation_period = 15,
+                    .maximum_magic_state_stock = 100,
+                    .entanglement_generation_period = 15,
+                    .maximum_entangled_state_stock = 100,
+                    .reaction_time = 1,
+            }
+    );
+    auto mf = MachineFunction(&target);
+
+    auto& alloc = mf.AddBlock();
+    auto& block = mf.AddBlock();
+
+    alloc.EmplaceBack(Allocate::New(QSymbol{0}, Coord3D{8, 8, 0}, std::uint8_t{0}, {}));
+    alloc.EmplaceBack(Allocate::New(QSymbol{1}, Coord3D{8, 6, 0}, std::uint8_t{0}, {}));
+    alloc.EmplaceBack(Allocate::New(QSymbol{2}, Coord3D{8, 4, 0}, std::uint8_t{0}, {}));
+
+    block.EmplaceBack(
+            LatticeSurgery::New(
+                    {QSymbol{0}, QSymbol{1}, QSymbol{2}},
+                    {Pauli::X(), Pauli::X(), Pauli::X()},
+                    {},
+                    CSymbol{10},
+                    {}
+            )
+    );
+
+    ASSERT_NO_THROW(Routing().RunOnMachineFunction(mf));
+
+    // Find the scheduled LATTICE_SURGERY instruction.
+    const auto* ls_inst = [&]() -> const LatticeSurgery* {
+        for (const auto& mbb : mf) {
+            for (const auto& minst : mbb) {
+                const auto* base = static_cast<const ScLsInstructionBase*>(minst.get());
+                if (const auto* inst = DynCast<LatticeSurgery>(base)) {
+                    return inst;
+                }
+            }
+        }
+        return nullptr;
+    }();
+    ASSERT_NE(ls_inst, nullptr);
+
+    // Build qubit_boundaries from the known fixed placements and dir=0.
+    // All three qubits are allocated with dir=0 and measured in X basis, so
+    // BoundaryCodeFromPauli(X) with dir=0 selects the vertical neighbors.
+    const auto qubit_boundaries = std::vector<std::tuple<Coord3D, std::uint32_t, std::uint32_t>>{
+            {Coord3D{8, 8, 0}, 0, detail::BoundaryCodeFromPauli(Pauli::X())},
+            {Coord3D{8, 6, 0}, 0, detail::BoundaryCodeFromPauli(Pauli::X())},
+            {Coord3D{8, 4, 0}, 0, detail::BoundaryCodeFromPauli(Pauli::X())},
+    };
+
+    // IsValidLsPath checks connectivity, boundary contact for every qubit,
+    // and endpoint touch — the full set of ISA path validity rules.
+    EXPECT_TRUE(detail::IsValidLsPath(ls_inst->Path(), qubit_boundaries, {}))
+            << "LATTICE_SURGERY path is invalid: " << ls_inst->ToString();
 }
