@@ -2,7 +2,9 @@
 
 #include <gtest/gtest.h>
 
+#include <queue>
 #include <set>
+#include <unordered_set>
 #include <utility>
 
 #include "qret/base/string.h"
@@ -142,4 +144,70 @@ TEST(SearchRoute, FindCnotRoute2DRejectsCrossPlaneEndpoints) {
     );
 
     EXPECT_FALSE(route.has_value());
+}
+
+// Returns true if all cells in `path` form a single connected component.
+bool IsAncillaPathConnected(const std::list<Coord3D>& path) {
+    if (path.empty()) {
+        return false;
+    }
+    auto remaining = std::unordered_set<Coord3D>(path.begin(), path.end());
+    auto queue = std::queue<Coord3D>{};
+    auto start = *remaining.begin();
+    remaining.erase(start);
+    queue.push(start);
+    while (!queue.empty()) {
+        const auto cur = queue.front();
+        queue.pop();
+        for (const auto& nb :
+             {cur + Coord2D::Left(),
+              cur + Coord2D::Right(),
+              cur + Coord2D::Up(),
+              cur + Coord2D::Down()}) {
+            const auto it = remaining.find(nb);
+            if (it != remaining.end()) {
+                queue.push(*it);
+                remaining.erase(it);
+            }
+        }
+    }
+    return remaining.empty();
+}
+
+TEST(SearchRoute, FindAncillaProducesConnectedSetWhenQubitIsBridge) {
+    const auto topology =
+            Topology::FromYAML(LoadFile("quration-core/tests/data/topology/plane.yaml"));
+    const auto option = ScLsFixedV0MachineOption{};
+    auto buffer = QuantumStateBuffer::New(*topology, option, 1);
+
+    buffer->PutQubit(0, QSymbol{0}, Coord3D{8, 8, 3}, 0);
+    buffer->PutQubit(0, QSymbol{1}, Coord3D{8, 6, 3}, 0);
+    buffer->PutQubit(0, QSymbol{2}, Coord3D{8, 4, 3}, 0);
+
+    auto& plane = buffer->GetQuantumState(0).GetGrid(3).GetPlane(3);
+
+    const auto result = SearchRoute::FindAncilla(
+            plane,
+            {QSymbol{0}, QSymbol{1}, QSymbol{2}},
+            {Pauli::X(), Pauli::X(), Pauli::X()},
+            {},
+            false
+    );
+
+    ASSERT_TRUE(result.has_value());
+
+    EXPECT_TRUE(IsAncillaPathConnected(result->ancilla));
+
+    // No qubit cell must appear in the ancilla list.
+    const auto qubit_places = std::vector<Coord3D>{
+            Coord3D{8, 8, 3},
+            Coord3D{8, 6, 3},
+            Coord3D{8, 4, 3},
+    };
+    for (const auto& coord : result->ancilla) {
+        for (const auto& q_place : qubit_places) {
+            EXPECT_NE(coord, q_place)
+                    << "qubit cell " << q_place << " appeared in the ancilla path";
+        }
+    }
 }

@@ -869,6 +869,19 @@ std::optional<SearchRoute::Ancilla2D> SearchRoute::FindAncilla(
     }
     const auto& [cost, tree] = result.value();
 
+    // Build sets of terminal node IDs so we can distinguish them from ancilla
+    // nodes when post-processing the Steiner tree.
+    auto qubit_terminal_ids = std::unordered_set<std::int32_t>{};
+    for (const auto q : qs) {
+        const auto q_place = state.GetPlace(q).XY();
+        qubit_terminal_ids.insert(to_ind(q_place.x, q_place.y));
+    }
+    auto factory_terminal_ids = std::unordered_set<std::int32_t>{};
+    for (const auto e : es) {
+        const auto e_place = state.GetPlace(e).XY();
+        factory_terminal_ids.insert(to_ind(e_place.x, e_place.y));
+    }
+
     // Construct ancilla.
     auto ret = Ancilla2D{.qs = qs, .es = es, .m = std::nullopt, .ancilla = {}};
     if (use_magic_state) {
@@ -881,6 +894,9 @@ std::optional<SearchRoute::Ancilla2D> SearchRoute::FindAncilla(
         const auto neighbor_place = from_ind(*m_imag_node.adj.begin());
         ret.m = MSymbol{plane.GetNode(neighbor_place).symbol};
     }
+    // Collect ancilla nodes from the Steiner tree; ancilla_ids is a companion hash set
+    // for fast duplicate checks in the bridge-fix loop below.
+    auto ancilla_ids = std::unordered_set<std::int32_t>{};
     for (const auto& node : tree) {
         if (node.id == MId) {
             continue;
@@ -888,6 +904,93 @@ std::optional<SearchRoute::Ancilla2D> SearchRoute::FindAncilla(
         const auto place = from_ind(node.id);
         if (plane.GetNode(place).IsFreeAncilla()) {
             ret.ancilla.emplace_back(place.x, place.y, plane.GetTopology().GetZ());
+            ancilla_ids.insert(node.id);
+        }
+    }
+
+    // Post-process: a qubit terminal connecting two or more ancilla subtrees in
+    // the Steiner tree splits the ancilla set (the qubit cell is excluded).
+    // Repair each such split by adding an ancilla-only detour path.
+    for (const auto q_id : qubit_terminal_ids) {
+        if (!tree.HasNode(q_id)) {
+            continue;
+        }
+        const auto& q_tree_node = tree.GetNode(q_id);
+
+        // Collect the tree-neighbors of this qubit that are ancilla cells.
+        auto ancilla_nbrs = std::vector<std::int32_t>{};
+        for (const auto adj_id : q_tree_node.adj) {
+            if (adj_id == MId) {
+                continue;
+            }
+            if (qubit_terminal_ids.contains(adj_id)) {
+                continue;
+            }
+            if (factory_terminal_ids.contains(adj_id)) {
+                continue;
+            }
+            ancilla_nbrs.push_back(adj_id);
+        }
+
+        if (ancilla_nbrs.size() < 2) {
+            continue;
+        }
+
+        // Connect adjacent pairs in the neighbor list via BFS
+        // on the ancilla-only portion of the graph.
+        for (std::size_t i = 0; i + 1 < ancilla_nbrs.size(); ++i) {
+            const auto src_id = ancilla_nbrs[i];
+            const auto dst_id = ancilla_nbrs[i + 1];
+
+            auto prev = std::unordered_map<std::int32_t, std::int32_t>{};
+            auto visited = std::unordered_set<std::int32_t>{src_id};
+            auto bfs_queue = std::queue<std::int32_t>{};
+            bfs_queue.push(src_id);
+
+            while (!bfs_queue.empty()) {
+                const auto cur = bfs_queue.front();
+                bfs_queue.pop();
+                if (cur == dst_id) {
+                    break;
+                }
+                if (!graph.HasNode(cur)) {
+                    continue;
+                }
+                for (const auto nbr : graph.GetNode(cur).adj) {
+                    if (visited.contains(nbr)) {
+                        continue;
+                    }
+                    if (nbr == MId) {
+                        continue;
+                    }
+                    if (qubit_terminal_ids.contains(nbr)) {
+                        continue;
+                    }
+                    if (factory_terminal_ids.contains(nbr)) {
+                        continue;
+                    }
+                    visited.insert(nbr);
+                    prev[nbr] = cur;
+                    bfs_queue.push(nbr);
+                }
+            }
+
+            if (!prev.contains(dst_id)) {
+                // No ancilla-only path exists between the two subtrees.
+                return std::nullopt;
+            }
+
+            // Trace the path from dst back to src and add any intermediate
+            // cells that are not already in the ancilla set.
+            auto cur = dst_id;
+            while (cur != src_id) {
+                if (!ancilla_ids.contains(cur)) {
+                    const auto place = from_ind(cur);
+                    ret.ancilla.emplace_back(place.x, place.y, plane.GetTopology().GetZ());
+                    ancilla_ids.insert(cur);
+                }
+                cur = prev.at(cur);
+            }
         }
     }
 
