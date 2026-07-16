@@ -19,7 +19,7 @@
   "overrides": [
     {
       "name": "fmt",
-      "version": "9.1.0#1"
+      "version": "12.1.0"
     }
   ]
 }
