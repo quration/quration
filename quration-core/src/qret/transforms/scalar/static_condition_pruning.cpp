@@ -6,6 +6,8 @@
 #include "qret/transforms/scalar/static_condition_pruning.h"
 
 #include <fmt/format.h>
+#include <fmt/ranges.h>
+#include <fmt/std.h>
 
 #include <ostream>
 #include <random>
@@ -267,6 +269,7 @@ bool PruneCondition(Function& func, std::mt19937_64& engine) {
                 }
                 const auto value = BoolArrayAsInt(value_list);
 
+                LOG_DEBUG("value_list: {}", value_list);
                 LOG_DEBUG("value: {}", value);
 
                 auto* next_bb = tmp->GetCaseBB().contains(value) ? tmp->GetCaseBB().at(value)

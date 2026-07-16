@@ -7,6 +7,13 @@ on:
   release:
     types: [published]
 
+env:
+  # CMake version the pinned vcpkg 2026.03.18 registry expects; scikit-build-core
+  # fetches it from PyPI on every CI platform instead of relying on the runner's
+  # preinstalled CMake. CI-only: not declared in pyproject.toml.
+  SKBUILD_MINIMUM_VERSION: "0.8"
+  SKBUILD_CMAKE_VERSION: ">=3.31.10"
+
 jobs:
   newsynth:
     runs-on: ${{ matrix.os }}
@@ -510,7 +517,7 @@ jobs:
             # that subprocess can't import the "cmake" package from pip's throwaway
             # isolated build venv, so install the build backend explicitly and build
             # without isolation instead.
-            python -m pip install "cmake>=3.31.10,<3.32" "scikit-build-core>=0.8" "nanobind>=2.0.0" delvewheel wheel
+            python -m pip install "cmake>=3.31.10" "scikit-build-core>=0.8" "nanobind>=2.0.0" delvewheel wheel
             python -m pip wheel --no-build-isolation --no-deps -w dist/built dist/*.tar.gz
             # The extension links dynamically against vcpkg-built DLLs (fmt, yaml-cpp,
             # boost); Windows has no rpath equivalent, so repair the wheel with
