@@ -7,7 +7,6 @@
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
-#include <fmt/std.h>
 
 #include <ostream>
 #include <random>
