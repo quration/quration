@@ -15,5 +15,11 @@
     "pcg",
     "pegtl",
     "yaml-cpp"
+  ],
+  "overrides": [
+    {
+      "name": "fmt",
+      "version": "9.1.0#1"
+    }
   ]
 }
