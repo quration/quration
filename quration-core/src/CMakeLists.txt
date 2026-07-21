@@ -226,6 +226,10 @@ set_target_properties(
     ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     SOVERSION ${PROJECT_VERSION_MAJOR})
 target_compile_definitions(${TARGET_NAME} PRIVATE ${QRET_COMPILE_DEFINITIONS})
+if(APPLE)
+  # Apple Clang in Xcode 26 rejects fmt's consteval format-string parser.
+  target_compile_definitions(${TARGET_NAME} PRIVATE FMT_USE_CONSTEVAL=0)
+endif()
 target_compile_options(${TARGET_NAME} PRIVATE ${QRET_PRIVATE_COMPILE_OPTIONS})
 target_compile_options(${TARGET_NAME} PUBLIC ${QRET_PUBLIC_COMPILE_OPTIONS})
 

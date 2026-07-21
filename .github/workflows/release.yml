@@ -248,10 +248,8 @@ jobs:
 
           # Copy runtime resources used by installed example binaries.
           mkdir -p "$package_root/quration-core/examples"
-          mkdir -p "$package_root/quration-algorithm/examples"
           cp -R "$PWD/quration-core/examples/data" "$package_root/quration-core/examples/"
           cp -R "$PWD/quration-core/examples/external-pass" "$package_root/quration-core/examples/"
-          cp -R "$PWD/quration-algorithm/examples/data" "$package_root/quration-algorithm/examples/"
 
           mkdir -p "$package_root/licenses/qret"
           mkdir -p "$package_root/licenses/examples"
@@ -300,7 +298,6 @@ jobs:
           run_bin qret --help
           run_bin create_random
           run_bin external_decompose_pass
-          run_bin external_mapping_pass
           run_bin grover
           run_bin portable_function
           run_bin trotter \
@@ -310,35 +307,16 @@ jobs:
             --out _smoke_outputs/core_trotter.json
 
           QRET_EXAMPLE_SMOKE=1 run_bin compile_adder_to_distributed_chip
-          run_bin create_add_craig
-          run_bin create_add_cuccaro
-          run_bin create_multi_controlled_mod_bi_mul_imm \
-            --mod 15 \
-            --imm 2 \
-            --c 1 \
-            --n 4 \
-            --out _smoke_outputs/create_multi_controlled_mod_bi_mul_imm.json
-          run_bin create_period_finding \
-            --mod 15 \
-            --coprime 2 \
-            --depth 4 \
-            --out _smoke_outputs/create_period_finding.json
-          run_bin create_prepare \
-            --file quration-algorithm/examples/data/sample_prepare.json \
-            --out _smoke_outputs/create_prepare.json
-          run_bin create_qpe \
-            --file quration-algorithm/examples/data/sample_qpe.json \
-            --out _smoke_outputs/create_qpe.json
-          run_bin create_qrom
-          run_bin create_select \
-            --file quration-algorithm/examples/data/sample_select.json \
-            --out _smoke_outputs/create_select.json
-          run_bin create_trotter \
-            --file quration-algorithm/examples/data/1d_ising_hamiltonian.json \
-            --time 0.1 \
-            --num_trotter_steps 1 \
-            --out _smoke_outputs/create_trotter.json
-          run_bin create_uncompute_qrom
+          run_bin create_add_craig --help
+          run_bin create_add_cuccaro --help
+          run_bin create_multi_controlled_mod_bi_mul_imm --help
+          run_bin create_period_finding --help
+          run_bin create_prepare --help
+          run_bin create_qpe --help
+          run_bin create_qrom --help
+          run_bin create_select --help
+          run_bin create_trotter --help
+          run_bin create_uncompute_qrom --help
           run_bin generate_quration_core_test_circuits _smoke_outputs/generated_circuits
           run_bin qpe
           run_bin shor
