@@ -115,6 +115,10 @@ ReturnStatus CommandOpt::Main(int argc, const char** argv) {
     ; // NOLINT
     // clang-format on
 
+	//Resolve those inputs relative to the input pipeline-file
+	cmd::PathKeyRegistry::Instance().Register("input");
+	cmd::PathKeyRegistry::Instance().Register("output"); 
+
     auto vm = VariablesMap();
     try {
         po::store(po::parse_command_line(argc, argv, description), vm.vm);
@@ -152,7 +156,7 @@ ReturnStatus CommandOpt::Main(int argc, const char** argv) {
     // Check 'pipeline' option at first to update VariablesMap class.
     if (vm.vm.count("pipeline") > 0) {
         LOG_DEBUG("Use pipeline file to compile.");
-        vm.yaml = YAML::LoadFile(vm.vm.at("pipeline").as<std::string>());
+        vm.LoadYamlPipeline(vm.vm.at("pipeline").as<std::string>());
     }
 
     if (!vm.Contains("input")) {
@@ -176,7 +180,7 @@ ReturnStatus CommandOpt::Main(int argc, const char** argv) {
         )
                 ->SetValue(vm.Get<std::uint64_t>("ir-static-condition-pruning-seed"));
     }
-    const auto pass_config = ParsePass(vm, "pass");
+    const auto pass_config = vm.ParsePass("pass");
 
     return OptIR(input, function_name, output, pass_config);
 }
