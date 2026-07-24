@@ -8,9 +8,7 @@ on:
     types: [published]
 
 env:
-  # CMake version the pinned vcpkg 2026.03.18 registry expects; scikit-build-core
-  # fetches it from PyPI on every CI platform instead of relying on the runner's
-  # preinstalled CMake. CI-only: not declared in pyproject.toml.
+  # CMake version the pinned vcpkg 2026.03.18 registry expects
   SKBUILD_MINIMUM_VERSION: "0.8"
   SKBUILD_CMAKE_VERSION: ">=3.31.10"
 
@@ -142,18 +140,6 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: echo "VCPKG_OVERLAY_PORTS=${{ github.workspace }}/.vcpkg/ports/fmt" >> "$GITHUB_ENV"
         shell: bash
-
-      # - name: Install libyaml-cpp (Linux)
-      #   if: runner.os == 'Linux'
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y build-essential gcc g++ libyaml-cpp0.8 libyaml-cpp-dev
-
-      # - name: Set compiler env (Linux)
-      #   if: runner.os == 'Linux'
-      #   run: |
-      #     echo "CC=gcc" >> "$GITHUB_ENV"
-      #     echo "CXX=g++" >> "$GITHUB_ENV"
 
       - name: Install libyaml-cpp (macOS)
         if: runner.os == 'macOS'
