@@ -135,6 +135,7 @@ jobs:
         run: |
           mkdir -p "${{ github.workspace }}/.vcpkg"
           echo "VCPKG_ROOT=${{ github.workspace }}/.vcpkg" >> "$GITHUB_ENV"
+          echo "VCPKG_OVERLAY_PORTS=${{ github.workspace }}/.vcpkg/ports/fmt" >> "$GITHUB_ENV"
           git clone --branch 2026.03.18 https://github.com/microsoft/vcpkg.git "${{ github.workspace }}/.vcpkg"
           ls "${{ github.workspace }}/.vcpkg"
 
@@ -197,6 +198,7 @@ jobs:
             /project/.vcpkg/bootstrap-vcpkg.sh -disableMetrics
           CIBW_ENVIRONMENT_LINUX: >-
             VCPKG_ROOT=/project/.vcpkg
+            VCPKG_OVERLAY_PORTS=/project/.vcpkg/ports/fmt
             SKBUILD_CMAKE_DEFINE="CMAKE_TOOLCHAIN_FILE=/project/.vcpkg/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON"
         with:
           package-dir: .
@@ -327,6 +329,7 @@ jobs:
         run: |
           mkdir -p "${{ github.workspace }}/.vcpkg"
           echo "VCPKG_ROOT=${{ github.workspace }}/.vcpkg" >> "$GITHUB_ENV"
+          echo "VCPKG_OVERLAY_PORTS=${{ github.workspace }}/.vcpkg/ports/fmt" >> "$GITHUB_ENV"
           git clone --branch 2026.03.18 https://github.com/microsoft/vcpkg.git "${{ github.workspace }}/.vcpkg"
           ls "${{ github.workspace }}/.vcpkg"
 
@@ -467,6 +470,7 @@ jobs:
         run: |
           mkdir -p "${{ github.workspace }}/.vcpkg"
           echo "VCPKG_ROOT=${{ github.workspace }}/.vcpkg" >> "$GITHUB_ENV"
+          echo "VCPKG_OVERLAY_PORTS=${{ github.workspace }}/.vcpkg/ports/fmt" >> "$GITHUB_ENV"
           git clone --branch 2026.03.18 https://github.com/microsoft/vcpkg.git "${{ github.workspace }}/.vcpkg"
           ls "${{ github.workspace }}/.vcpkg"
 
