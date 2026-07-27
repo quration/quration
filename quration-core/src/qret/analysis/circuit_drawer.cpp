@@ -14,17 +14,9 @@
 #include <span>
 #include <stdexcept>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "qret/math/pauli.h"
-
-namespace {
-template <typename... Args>
-std::string RuntimeFormat(fmt::string_view format, Args&&... args) {
-    return fmt::format(fmt::runtime(format), std::forward<Args>(args)...);
-}
-}
 
 namespace qret {
 std::ostream&
@@ -33,7 +25,7 @@ CircuitDrawer::Print(std::ostream& out, const std::vector<std::string>& lsticks)
     const auto n_columns = content_.size();
     for (const auto i : std::views::iota(std::size_t{0}, n_qubits_ + n_registers_)) {
         if (i < lsticks.size()) {
-            out << RuntimeFormat("    \\lstick{{{}}} & ", lsticks[i]);
+            out << fmt::format("    \\lstick{{{}}} & ", lsticks[i]);
         } else if (i < n_qubits_) {
             out << "    \\qw & ";
         } else {
@@ -59,13 +51,13 @@ CircuitDrawer::Print(std::ostream& out, const std::vector<std::string>& lsticks)
 
 void CircuitDrawer::Barrier(std::string_view label) {
     auto& col = FindVacantColumnAndOccupy(0, n_qubits_ + n_registers_ - 1);
-    col[0] += RuntimeFormat(" \\slice{{{}}}", label);
+    col[0] += fmt::format(" \\slice{{{}}}", label);
 }
 
 void CircuitDrawer::Measure(std::size_t q, std::size_t r) {
     auto& col = FindVacantColumnAndOccupy(q, n_qubits_ + r);
     col[q] = "\\meter{}";
-    col[n_qubits_ + r] = RuntimeFormat(
+    col[n_qubits_ + r] = fmt::format(
             "\\cwbend{{{}}} \\cw",
             static_cast<int>(q) - static_cast<int>(n_qubits_ + r)
     );
@@ -135,38 +127,38 @@ void CircuitDrawer::TDag(std::size_t q) {
 
 void CircuitDrawer::RX(std::size_t q, double theta) {
     auto& col = FindVacantColumnAndOccupy(q, q);
-    col[q] = RuntimeFormat("\\gate{{RX({})}}", AngleToString(theta));
+    col[q] = fmt::format("\\gate{{RX({})}}", AngleToString(theta));
 }
 
 void CircuitDrawer::RY(std::size_t q, double theta) {
     auto& col = FindVacantColumnAndOccupy(q, q);
-    col[q] = RuntimeFormat("\\gate{{RY({})}}", AngleToString(theta));
+    col[q] = fmt::format("\\gate{{RY({})}}", AngleToString(theta));
 }
 
 void CircuitDrawer::RZ(std::size_t q, double theta) {
     auto& col = FindVacantColumnAndOccupy(q, q);
-    col[q] = RuntimeFormat("\\gate{{RZ({})}}", AngleToString(theta));
+    col[q] = fmt::format("\\gate{{RZ({})}}", AngleToString(theta));
 }
 
 void CircuitDrawer::CX(std::size_t t, std::size_t c) {
     const auto [mn, mx] = std::minmax(t, c);
     auto& col = FindVacantColumnAndOccupy(mn, mx);
     col[t] = "\\targ{}";
-    col[c] = RuntimeFormat("\\ctrl{{{}}}", static_cast<int>(t) - static_cast<int>(c));
+    col[c] = fmt::format("\\ctrl{{{}}}", static_cast<int>(t) - static_cast<int>(c));
 }
 
 void CircuitDrawer::CY(std::size_t t, std::size_t c) {
     const auto [mn, mx] = std::minmax(t, c);
     auto& col = FindVacantColumnAndOccupy(mn, mx);
     col[t] = "\\gate{Y}";
-    col[c] = RuntimeFormat("\\ctrl{{{}}}", static_cast<int>(t) - static_cast<int>(c));
+    col[c] = fmt::format("\\ctrl{{{}}}", static_cast<int>(t) - static_cast<int>(c));
 }
 
 void CircuitDrawer::CZ(std::size_t t, std::size_t c) {
     const auto [mn, mx] = std::minmax(t, c);
     auto& col = FindVacantColumnAndOccupy(mn, mx);
     col[t] = "\\gate{Z}";
-    col[c] = RuntimeFormat("\\ctrl{{{}}}", static_cast<int>(t) - static_cast<int>(c));
+    col[c] = fmt::format("\\ctrl{{{}}}", static_cast<int>(t) - static_cast<int>(c));
 }
 
 void CircuitDrawer::CCX(std::size_t t, std::size_t c0, std::size_t c1) {
@@ -176,7 +168,7 @@ void CircuitDrawer::CCX(std::size_t t, std::size_t c0, std::size_t c1) {
     col[t] = "\\targ{}";
     for (const auto idx : {std::size_t{0}, std::size_t{2}}) {
         if (targets[idx] != t) {
-            col[targets[idx]] = RuntimeFormat(
+            col[targets[idx]] = fmt::format(
                     "\\ctrl{{{}}}",
                     static_cast<int>(t) - static_cast<int>(targets[idx])
             );
@@ -194,7 +186,7 @@ void CircuitDrawer::CCY(std::size_t t, std::size_t c0, std::size_t c1) {
     col[t] = "\\gate{Y}";
     for (const auto idx : {std::size_t{0}, std::size_t{2}}) {
         if (targets[idx] != t) {
-            col[targets[idx]] = RuntimeFormat(
+            col[targets[idx]] = fmt::format(
                     "\\ctrl{{{}}}",
                     static_cast<int>(t) - static_cast<int>(targets[idx])
             );
@@ -212,7 +204,7 @@ void CircuitDrawer::CCZ(std::size_t t, std::size_t c0, std::size_t c1) {
     col[t] = "\\gate{Z}";
     for (const auto idx : {std::size_t{0}, std::size_t{2}}) {
         if (targets[idx] != t) {
-            col[targets[idx]] = RuntimeFormat(
+            col[targets[idx]] = fmt::format(
                     "\\ctrl{{{}}}",
                     static_cast<int>(t) - static_cast<int>(targets[idx])
             );
@@ -231,7 +223,7 @@ void CircuitDrawer::MCX(std::size_t t, const std::vector<std::size_t>& c) {
     col[t] = "\\targ{}";
     for (const auto q : {targets.front(), targets.back()}) {
         if (q != t) {
-            col[q] = RuntimeFormat("\\ctrl{{{}}}", static_cast<int>(t) - static_cast<int>(q));
+            col[q] = fmt::format("\\ctrl{{{}}}", static_cast<int>(t) - static_cast<int>(q));
         }
     }
     for (const auto q : std::span(targets).subspan(1, targets.size() - 2)) {
@@ -246,7 +238,7 @@ void CircuitDrawer::MCX(std::size_t t, const std::vector<std::size_t>& c) {
 
 void CircuitDrawer::RotateGlobalPhase(double theta) {
     auto& col = FindVacantColumnAndOccupy(0, 0);
-    col[0] = RuntimeFormat("\\phase{{{}}}", AngleToString(theta));
+    col[0] = fmt::format("\\phase{{{}}}", AngleToString(theta));
 }
 
 void CircuitDrawer::Call(
@@ -277,7 +269,7 @@ void CircuitDrawer::Call(
         wires_str += std::to_string(i + 1);
     }
     wires_str += '}';
-    col[mn] = RuntimeFormat(
+    col[mn] = fmt::format(
             "\\gate[wires={},nwires={}][{:.2f}cm]{{{}}} {}",
             mx - mn + 1,
             wires_str,
@@ -286,13 +278,13 @@ void CircuitDrawer::Call(
             mn < n_qubits_ ? "\\qw" : "\\cw"
     );
     for (const auto i : std::views::iota(std::size_t{0}, op.size())) {
-        col[op[i]] += RuntimeFormat(" \\gateinput{{op[{}]}}", i);
+        col[op[i]] += fmt::format(" \\gateinput{{op[{}]}}", i);
     }
     for (const auto i : std::views::iota(std::size_t{0}, in.size())) {
-        col[n_qubits_ + in[i]] += RuntimeFormat(" \\gateinput{{in[{}]}}", i);
+        col[n_qubits_ + in[i]] += fmt::format(" \\gateinput{{in[{}]}}", i);
     }
     for (const auto i : std::views::iota(std::size_t{0}, out.size())) {
-        col[n_qubits_ + out[i]] += RuntimeFormat(" \\gateoutput{{out[{}]}}", i);
+        col[n_qubits_ + out[i]] += fmt::format(" \\gateoutput{{out[{}]}}", i);
     }
 }
 
@@ -320,7 +312,7 @@ void CircuitDrawer::ClassicalFunction(
     }
     wires_str += '}';
 
-    col[n_qubits_ + mn] = RuntimeFormat(
+    col[n_qubits_ + mn] = fmt::format(
             "\\gate[wires={},nwires={}][{:.2f}cm]{{{}}} \\cw",
             mx - mn + 1,
             wires_str,
@@ -328,10 +320,10 @@ void CircuitDrawer::ClassicalFunction(
             escaped_name
     );
     for (const auto i : std::views::iota(std::size_t{0}, in.size())) {
-        col[n_qubits_ + in[i]] += RuntimeFormat(" \\gateinput{{in[{}]}}", i);
+        col[n_qubits_ + in[i]] += fmt::format(" \\gateinput{{in[{}]}}", i);
     }
     for (const auto i : std::views::iota(std::size_t{0}, out.size())) {
-        col[n_qubits_ + out[i]] += RuntimeFormat(" \\gateoutput{{out[{}]}}", i);
+        col[n_qubits_ + out[i]] += fmt::format(" \\gateoutput{{out[{}]}}", i);
     }
 }
 
@@ -366,7 +358,7 @@ void CircuitDrawer::CRand(
         for (auto j = std::size_t{0}; j < num_per_line; ++j) {
             if (i < weights.size()) {
                 const auto w = weights[i++];
-                box_line += RuntimeFormat("{:.2f}", w);
+                box_line += fmt::format("{:.2f}", w);
             }
             if (i != weights.size()) {
                 box_line += ",";
@@ -378,7 +370,7 @@ void CircuitDrawer::CRand(
     }
     box_str += "}";
 
-    col[n_qubits_ + mn] = RuntimeFormat(
+    col[n_qubits_ + mn] = fmt::format(
             "\\gate[wires={},nwires={}][{:.2f}cm]{{{}}} \\cw",
             mx - mn + 1,
             wires_str,
@@ -386,7 +378,7 @@ void CircuitDrawer::CRand(
             box_str
     );
     for (const auto r : std::views::iota(std::size_t{0}, regs.size())) {
-        col[n_qubits_ + regs[r]] += RuntimeFormat(" \\gateinput{{regs[{}]}}", r);
+        col[n_qubits_ + regs[r]] += fmt::format(" \\gateinput{{regs[{}]}}", r);
     }
 }
 
@@ -427,12 +419,12 @@ std::string CircuitDrawer::AngleToString(double angle) {
                 if (m == -1) {
                     return "-\\pi";
                 }
-                return RuntimeFormat("{}\\pi", m);
+                return fmt::format("{}\\pi", m);
             }
-            return RuntimeFormat("{}\\frac{{{}}}{{{}}}\\pi", m < 0 ? "-" : "", std::abs(m), d);
+            return fmt::format("{}\\frac{{{}}}{{{}}}\\pi", m < 0 ? "-" : "", std::abs(m), d);
         }
     }
-    return RuntimeFormat("{}\\pi", angle);
+    return fmt::format("{}\\pi", angle);
 }
 
 std::string CircuitDrawer::EscapeLabel(std::string_view label) {
