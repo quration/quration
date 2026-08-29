@@ -195,7 +195,7 @@ public:
             std::string_view key
     ) const override {
         auto ret = std::vector<qret::PassConfig>();
-        const auto config_list = ParsePass(vm_, std::string(key));
+        const auto config_list = vm_.ParsePass(std::string(key));
         ret.reserve(config_list.size());
         for (const auto& config : config_list) {
             ret.emplace_back(config.arg, config.cmd, config.input, config.output, config.runner);
@@ -224,6 +224,10 @@ void AddCommonCompileOptions(Description& generic) {
         ("target,t", po::value<std::string>()->default_value("SC_LS_FIXED_V0")->value_name("KIND"), "Target machine name.")
     ; // NOLINT
     // clang-format on
+	
+	//Resolve those inputs relative to the input pipeline-file
+	cmd::PathKeyRegistry::Instance().Register("input");
+	cmd::PathKeyRegistry::Instance().Register("output");
 }
 
 void AddTargetCompileOptions(Description& generic) {
@@ -348,7 +352,7 @@ ReturnStatus CommandCompile::Main(int argc, const char** argv) {
     // 5) Optional YAML pipeline overrides source of option values via VariablesMap.
     if (vm.vm.count("pipeline") > 0) {
         LOG_DEBUG("Use pipeline file to compile.");
-        vm.yaml = YAML::LoadFile(vm.vm.at("pipeline").as<std::string>());
+        vm.LoadYamlPipeline(vm.vm.at("pipeline").as<std::string>());
     }
 
     // 6) Propagate parsed values into global option storage used by pass/backends.

@@ -5,6 +5,7 @@
 
 #include "qret/target/sc_ls_fixed_v0/target_info/sc_ls_fixed_v0_target_info.h"
 
+#include "qret/cmd/common.h"
 #include "qret/target/sc_ls_fixed_v0/sc_ls_fixed_v0_compile_backend.h"
 #include "qret/target/target_enum.h"
 #include "qret/target/target_registry.h"
@@ -28,6 +29,8 @@ const auto kScLsFixedV0Registered = []() {
             "SC_LS_FIXED_V0 target"
     );
     registry->RegisterCompileBackend(&GetScLsFixedV0CompileBackend());
+
+	cmd::PathKeyRegistry::Instance().Register("sc_ls_fixed_v0_topology");
     return true;
 }();
 }  // namespace
