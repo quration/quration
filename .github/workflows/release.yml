@@ -298,6 +298,7 @@ jobs:
           run_bin qret --help
           run_bin create_random
           run_bin external_decompose_pass
+          run_bin external_mapping_pass
           run_bin grover
           run_bin portable_function
           run_bin trotter \
