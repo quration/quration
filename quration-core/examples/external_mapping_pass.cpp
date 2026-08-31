@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <fstream>
 #include <random>
 #include <stdexcept>
@@ -24,6 +25,10 @@
 using namespace qret;
 
 namespace {
+bool IsSmokeTest() {
+    return std::getenv("QRET_EXAMPLE_SMOKE") != nullptr;
+}
+
 class SampleGen : frontend::CircuitGenerator {
 public:
     static inline const char* Name = "SampleCircuit";
@@ -37,7 +42,7 @@ public:
         return Name;
     }
     void SetArgument(Argument& arg) const override {
-        arg.Add("x", Type::Qubit, 64, Attribute::Operate);
+        arg.Add("x", Type::Qubit, IsSmokeTest() ? 8 : 64, Attribute::Operate);
         arg.Add("r", Type::Register, 1, Attribute::Output);
     }
 
@@ -98,13 +103,13 @@ public:
         auto engine = std::mt19937_64{seed};
 
         for (auto c = std::uint64_t{0}; c < num_clusters; ++c) {
-            for (auto i = 0; i < 100; ++i) {
+            for (auto i = 0; i < (IsSmokeTest() ? 4 : 100); ++i) {
                 ApplyRandomGate(x, engine, [num_clusters, cluster_size, c](const auto t) {
                     return (c * cluster_size) + (t % cluster_size);
                 });
             }
         }
-        for (auto i = 0; i < 10; ++i) {
+        for (auto i = 0; i < (IsSmokeTest() ? 2 : 10); ++i) {
             ApplyRandomGate(x, engine, [&x](const auto t) { return t % (x.Size()); });
         }
 

@@ -155,7 +155,7 @@ def get_qubit_graph(program: dict) -> tuple[Graph, dict[int, int]]:
 def mapping(input_program: dict) -> dict:
     parameter = input_program["parameter"]
 
-    if parameter["target"]["machine_option"]["type"] != "DistributedDim2":
+    if parameter["target"]["machine_option"]["topology_type"] != "DistributedDim2":
         return input_program
 
     topology = get_topology_graph(parameter["target"]["topology"])

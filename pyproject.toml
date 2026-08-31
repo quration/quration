@@ -3,6 +3,7 @@ name = "pyqret"
 description = "Python wrapper of QRET"
 readme = "README.md"
 required-python = ">=3.10"
+license = "MIT"
 
 # authors =
 # license =

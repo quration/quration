@@ -1,0 +1,20 @@
+Unlicensed
+
+The binaries under `quration-algorithm/examples` are distributed as
+unlicensed artifacts for research usage only.
+
+Shipped example binaries covered by this notice:
+- `compile_adder_to_distributed_chip`
+- `create_add_craig`
+- `create_add_cuccaro`
+- `create_qrom`
+- `create_uncompute_qrom`
+- `generate_quration_core_test_circuits`
+- `qpe`
+- `shor`
+- `create_trotter`
+- `create_qpe`
+- `create_prepare`
+- `create_select`
+- `create_period_finding`
+- `create_multi_controlled_mod_bi_mul_imm`
