@@ -416,3 +416,58 @@ TEST(TestIRDeserializationValidation, SwitchLegacyValueKeyRejected) {
     ir::IRContext context;
     EXPECT_THROW(ir::LoadJson(module, context), std::runtime_error);
 }
+
+// A switch whose case keys are not a dense 0-based run (keys 1 and 2, no key 0).
+// Non-contiguous keys are valid (control_flow.h Case2 example uses keys 3 and 7).
+struct SparseSwitchGen : public CircuitGenerator {
+    static inline const char* Name = "SparseSwitch";
+    explicit SparseSwitchGen(CircuitBuilder* builder)
+        : CircuitGenerator(builder) {}
+    std::string GetName() const override {
+        return Name;
+    }
+    std::string GetCacheKey() const override {
+        return Name;
+    }
+    void SetArgument(Argument& arg) const override {
+        arg.Add("q", Type::Qubit, 3, Attribute::Operate);
+        arg.Add("v", Type::Register, 2, Attribute::Output);
+    }
+    frontend::Circuit* Generate() const override {
+        BeginCircuitDefinition();
+        const auto qs = GetQubits(0);
+        const auto rs = GetRegisters(1);
+        frontend::gate::Measure(qs[0], rs[0]);
+        frontend::gate::Measure(qs[1], rs[1]);
+        frontend::control_flow::Switch(rs);
+        frontend::control_flow::Case(rs, 1);  // no Case(rs, 0)
+        frontend::gate::X(qs[2]);
+        frontend::control_flow::Case(rs, 2);
+        frontend::gate::X(qs[2]);
+        frontend::control_flow::Default(rs);
+        frontend::control_flow::EndSwitch(rs);
+        return EndCircuitDefinition();
+    }
+};
+
+// Regression: a switch whose case keys are not a dense 0-based run must survive an IR-JSON
+// round-trip. to_json previously used the integer case value as a JSON array index, producing a
+// sparse array with null holes that from_json rejected with type_error.302.
+TEST(TestIRSerialization, SwitchWithNonZeroBasedCaseKeysRoundTrips) {
+    auto ctx1 = ir::IRContext();
+    auto* module = ir::Module::Create("m", ctx1);
+    auto builder = CircuitBuilder(module);
+    SparseSwitchGen(&builder).Generate();
+
+    Json j = *module;
+    auto ctx2 = ir::IRContext();
+    ASSERT_NO_THROW(ir::LoadJson(j, ctx2));
+
+    // The case mapping is preserved as a string-keyed object across the round-trip.
+    Json reserialized = *ctx2.owned_module.back();
+    const auto& switch_json =
+            reserialized["function_list"][0]["basicblock_list"][0]["inst_list"][2];
+    ASSERT_TRUE(switch_json["case"].is_object());
+    EXPECT_EQ("case_1_0", switch_json["case"]["1"]);
+    EXPECT_EQ("case_2_0", switch_json["case"]["2"]);
+}

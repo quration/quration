@@ -23,11 +23,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default",
-                            "case": [
-                                "case_X0",
-                                "case_X1",
-                                "case_X2"
-                            ],
+                            "case": {
+                                "0": "case_X0",
+                                "1": "case_X1",
+                                "2": "case_X2"
+                            },
                             "registers": [
                                 0,
                                 1

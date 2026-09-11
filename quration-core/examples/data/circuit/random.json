@@ -33,11 +33,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_0",
-                            "case": [
-                                "case_0_0",
-                                "case_1_0",
-                                "case_2_0"
-                            ],
+                            "case": {
+                                "0": "case_0_0",
+                                "1": "case_1_0",
+                                "2": "case_2_0"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -74,11 +74,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_1",
-                            "case": [
-                                "case_0_1",
-                                "case_1_1",
-                                "case_2_1"
-                            ],
+                            "case": {
+                                "0": "case_0_1",
+                                "1": "case_1_1",
+                                "2": "case_2_1"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -220,11 +220,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_2",
-                            "case": [
-                                "case_0_2",
-                                "case_1_2",
-                                "case_2_2"
-                            ],
+                            "case": {
+                                "0": "case_0_2",
+                                "1": "case_1_2",
+                                "2": "case_2_2"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -366,11 +366,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_3",
-                            "case": [
-                                "case_0_3",
-                                "case_1_3",
-                                "case_2_3"
-                            ],
+                            "case": {
+                                "0": "case_0_3",
+                                "1": "case_1_3",
+                                "2": "case_2_3"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -512,11 +512,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_4",
-                            "case": [
-                                "case_0_4",
-                                "case_1_4",
-                                "case_2_4"
-                            ],
+                            "case": {
+                                "0": "case_0_4",
+                                "1": "case_1_4",
+                                "2": "case_2_4"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -658,11 +658,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_5",
-                            "case": [
-                                "case_0_5",
-                                "case_1_5",
-                                "case_2_5"
-                            ],
+                            "case": {
+                                "0": "case_0_5",
+                                "1": "case_1_5",
+                                "2": "case_2_5"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -804,11 +804,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_6",
-                            "case": [
-                                "case_0_6",
-                                "case_1_6",
-                                "case_2_6"
-                            ],
+                            "case": {
+                                "0": "case_0_6",
+                                "1": "case_1_6",
+                                "2": "case_2_6"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -950,11 +950,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_7",
-                            "case": [
-                                "case_0_7",
-                                "case_1_7",
-                                "case_2_7"
-                            ],
+                            "case": {
+                                "0": "case_0_7",
+                                "1": "case_1_7",
+                                "2": "case_2_7"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -1096,11 +1096,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_8",
-                            "case": [
-                                "case_0_8",
-                                "case_1_8",
-                                "case_2_8"
-                            ],
+                            "case": {
+                                "0": "case_0_8",
+                                "1": "case_1_8",
+                                "2": "case_2_8"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -1242,11 +1242,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_9",
-                            "case": [
-                                "case_0_9",
-                                "case_1_9",
-                                "case_2_9"
-                            ],
+                            "case": {
+                                "0": "case_0_9",
+                                "1": "case_1_9",
+                                "2": "case_2_9"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -1388,11 +1388,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_10",
-                            "case": [
-                                "case_0_10",
-                                "case_1_10",
-                                "case_2_10"
-                            ],
+                            "case": {
+                                "0": "case_0_10",
+                                "1": "case_1_10",
+                                "2": "case_2_10"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -1534,11 +1534,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_11",
-                            "case": [
-                                "case_0_11",
-                                "case_1_11",
-                                "case_2_11"
-                            ],
+                            "case": {
+                                "0": "case_0_11",
+                                "1": "case_1_11",
+                                "2": "case_2_11"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -1680,11 +1680,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_12",
-                            "case": [
-                                "case_0_12",
-                                "case_1_12",
-                                "case_2_12"
-                            ],
+                            "case": {
+                                "0": "case_0_12",
+                                "1": "case_1_12",
+                                "2": "case_2_12"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -1826,11 +1826,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_13",
-                            "case": [
-                                "case_0_13",
-                                "case_1_13",
-                                "case_2_13"
-                            ],
+                            "case": {
+                                "0": "case_0_13",
+                                "1": "case_1_13",
+                                "2": "case_2_13"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -1972,11 +1972,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_14",
-                            "case": [
-                                "case_0_14",
-                                "case_1_14",
-                                "case_2_14"
-                            ],
+                            "case": {
+                                "0": "case_0_14",
+                                "1": "case_1_14",
+                                "2": "case_2_14"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -2118,11 +2118,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_15",
-                            "case": [
-                                "case_0_15",
-                                "case_1_15",
-                                "case_2_15"
-                            ],
+                            "case": {
+                                "0": "case_0_15",
+                                "1": "case_1_15",
+                                "2": "case_2_15"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -2264,11 +2264,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_16",
-                            "case": [
-                                "case_0_16",
-                                "case_1_16",
-                                "case_2_16"
-                            ],
+                            "case": {
+                                "0": "case_0_16",
+                                "1": "case_1_16",
+                                "2": "case_2_16"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -2410,11 +2410,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_17",
-                            "case": [
-                                "case_0_17",
-                                "case_1_17",
-                                "case_2_17"
-                            ],
+                            "case": {
+                                "0": "case_0_17",
+                                "1": "case_1_17",
+                                "2": "case_2_17"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -2556,11 +2556,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_18",
-                            "case": [
-                                "case_0_18",
-                                "case_1_18",
-                                "case_2_18"
-                            ],
+                            "case": {
+                                "0": "case_0_18",
+                                "1": "case_1_18",
+                                "2": "case_2_18"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -2702,11 +2702,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_19",
-                            "case": [
-                                "case_0_19",
-                                "case_1_19",
-                                "case_2_19"
-                            ],
+                            "case": {
+                                "0": "case_0_19",
+                                "1": "case_1_19",
+                                "2": "case_2_19"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -2848,11 +2848,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_20",
-                            "case": [
-                                "case_0_20",
-                                "case_1_20",
-                                "case_2_20"
-                            ],
+                            "case": {
+                                "0": "case_0_20",
+                                "1": "case_1_20",
+                                "2": "case_2_20"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -2994,11 +2994,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_21",
-                            "case": [
-                                "case_0_21",
-                                "case_1_21",
-                                "case_2_21"
-                            ],
+                            "case": {
+                                "0": "case_0_21",
+                                "1": "case_1_21",
+                                "2": "case_2_21"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -3140,11 +3140,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_22",
-                            "case": [
-                                "case_0_22",
-                                "case_1_22",
-                                "case_2_22"
-                            ],
+                            "case": {
+                                "0": "case_0_22",
+                                "1": "case_1_22",
+                                "2": "case_2_22"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -3286,11 +3286,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_23",
-                            "case": [
-                                "case_0_23",
-                                "case_1_23",
-                                "case_2_23"
-                            ],
+                            "case": {
+                                "0": "case_0_23",
+                                "1": "case_1_23",
+                                "2": "case_2_23"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -3432,11 +3432,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_24",
-                            "case": [
-                                "case_0_24",
-                                "case_1_24",
-                                "case_2_24"
-                            ],
+                            "case": {
+                                "0": "case_0_24",
+                                "1": "case_1_24",
+                                "2": "case_2_24"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -3578,11 +3578,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_25",
-                            "case": [
-                                "case_0_25",
-                                "case_1_25",
-                                "case_2_25"
-                            ],
+                            "case": {
+                                "0": "case_0_25",
+                                "1": "case_1_25",
+                                "2": "case_2_25"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -3724,11 +3724,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_26",
-                            "case": [
-                                "case_0_26",
-                                "case_1_26",
-                                "case_2_26"
-                            ],
+                            "case": {
+                                "0": "case_0_26",
+                                "1": "case_1_26",
+                                "2": "case_2_26"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -3870,11 +3870,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_27",
-                            "case": [
-                                "case_0_27",
-                                "case_1_27",
-                                "case_2_27"
-                            ],
+                            "case": {
+                                "0": "case_0_27",
+                                "1": "case_1_27",
+                                "2": "case_2_27"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -4016,11 +4016,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_28",
-                            "case": [
-                                "case_0_28",
-                                "case_1_28",
-                                "case_2_28"
-                            ],
+                            "case": {
+                                "0": "case_0_28",
+                                "1": "case_1_28",
+                                "2": "case_2_28"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -4162,11 +4162,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_29",
-                            "case": [
-                                "case_0_29",
-                                "case_1_29",
-                                "case_2_29"
-                            ],
+                            "case": {
+                                "0": "case_0_29",
+                                "1": "case_1_29",
+                                "2": "case_2_29"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -4308,11 +4308,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_30",
-                            "case": [
-                                "case_0_30",
-                                "case_1_30",
-                                "case_2_30"
-                            ],
+                            "case": {
+                                "0": "case_0_30",
+                                "1": "case_1_30",
+                                "2": "case_2_30"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -4454,11 +4454,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_31",
-                            "case": [
-                                "case_0_31",
-                                "case_1_31",
-                                "case_2_31"
-                            ],
+                            "case": {
+                                "0": "case_0_31",
+                                "1": "case_1_31",
+                                "2": "case_2_31"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -4600,11 +4600,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_32",
-                            "case": [
-                                "case_0_32",
-                                "case_1_32",
-                                "case_2_32"
-                            ],
+                            "case": {
+                                "0": "case_0_32",
+                                "1": "case_1_32",
+                                "2": "case_2_32"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -4746,11 +4746,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_33",
-                            "case": [
-                                "case_0_33",
-                                "case_1_33",
-                                "case_2_33"
-                            ],
+                            "case": {
+                                "0": "case_0_33",
+                                "1": "case_1_33",
+                                "2": "case_2_33"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -4892,11 +4892,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_34",
-                            "case": [
-                                "case_0_34",
-                                "case_1_34",
-                                "case_2_34"
-                            ],
+                            "case": {
+                                "0": "case_0_34",
+                                "1": "case_1_34",
+                                "2": "case_2_34"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -5038,11 +5038,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_35",
-                            "case": [
-                                "case_0_35",
-                                "case_1_35",
-                                "case_2_35"
-                            ],
+                            "case": {
+                                "0": "case_0_35",
+                                "1": "case_1_35",
+                                "2": "case_2_35"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -5184,11 +5184,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_36",
-                            "case": [
-                                "case_0_36",
-                                "case_1_36",
-                                "case_2_36"
-                            ],
+                            "case": {
+                                "0": "case_0_36",
+                                "1": "case_1_36",
+                                "2": "case_2_36"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -5330,11 +5330,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_37",
-                            "case": [
-                                "case_0_37",
-                                "case_1_37",
-                                "case_2_37"
-                            ],
+                            "case": {
+                                "0": "case_0_37",
+                                "1": "case_1_37",
+                                "2": "case_2_37"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -5476,11 +5476,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_38",
-                            "case": [
-                                "case_0_38",
-                                "case_1_38",
-                                "case_2_38"
-                            ],
+                            "case": {
+                                "0": "case_0_38",
+                                "1": "case_1_38",
+                                "2": "case_2_38"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -5622,11 +5622,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_39",
-                            "case": [
-                                "case_0_39",
-                                "case_1_39",
-                                "case_2_39"
-                            ],
+                            "case": {
+                                "0": "case_0_39",
+                                "1": "case_1_39",
+                                "2": "case_2_39"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -5768,11 +5768,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_40",
-                            "case": [
-                                "case_0_40",
-                                "case_1_40",
-                                "case_2_40"
-                            ],
+                            "case": {
+                                "0": "case_0_40",
+                                "1": "case_1_40",
+                                "2": "case_2_40"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -5914,11 +5914,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_41",
-                            "case": [
-                                "case_0_41",
-                                "case_1_41",
-                                "case_2_41"
-                            ],
+                            "case": {
+                                "0": "case_0_41",
+                                "1": "case_1_41",
+                                "2": "case_2_41"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -6060,11 +6060,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_42",
-                            "case": [
-                                "case_0_42",
-                                "case_1_42",
-                                "case_2_42"
-                            ],
+                            "case": {
+                                "0": "case_0_42",
+                                "1": "case_1_42",
+                                "2": "case_2_42"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -6206,11 +6206,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_43",
-                            "case": [
-                                "case_0_43",
-                                "case_1_43",
-                                "case_2_43"
-                            ],
+                            "case": {
+                                "0": "case_0_43",
+                                "1": "case_1_43",
+                                "2": "case_2_43"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -6352,11 +6352,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_44",
-                            "case": [
-                                "case_0_44",
-                                "case_1_44",
-                                "case_2_44"
-                            ],
+                            "case": {
+                                "0": "case_0_44",
+                                "1": "case_1_44",
+                                "2": "case_2_44"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -6498,11 +6498,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_45",
-                            "case": [
-                                "case_0_45",
-                                "case_1_45",
-                                "case_2_45"
-                            ],
+                            "case": {
+                                "0": "case_0_45",
+                                "1": "case_1_45",
+                                "2": "case_2_45"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -6644,11 +6644,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_46",
-                            "case": [
-                                "case_0_46",
-                                "case_1_46",
-                                "case_2_46"
-                            ],
+                            "case": {
+                                "0": "case_0_46",
+                                "1": "case_1_46",
+                                "2": "case_2_46"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -6790,11 +6790,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_47",
-                            "case": [
-                                "case_0_47",
-                                "case_1_47",
-                                "case_2_47"
-                            ],
+                            "case": {
+                                "0": "case_0_47",
+                                "1": "case_1_47",
+                                "2": "case_2_47"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -6936,11 +6936,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_48",
-                            "case": [
-                                "case_0_48",
-                                "case_1_48",
-                                "case_2_48"
-                            ],
+                            "case": {
+                                "0": "case_0_48",
+                                "1": "case_1_48",
+                                "2": "case_2_48"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -7082,11 +7082,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_49",
-                            "case": [
-                                "case_0_49",
-                                "case_1_49",
-                                "case_2_49"
-                            ],
+                            "case": {
+                                "0": "case_0_49",
+                                "1": "case_1_49",
+                                "2": "case_2_49"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -7228,11 +7228,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_50",
-                            "case": [
-                                "case_0_50",
-                                "case_1_50",
-                                "case_2_50"
-                            ],
+                            "case": {
+                                "0": "case_0_50",
+                                "1": "case_1_50",
+                                "2": "case_2_50"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -7374,11 +7374,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_51",
-                            "case": [
-                                "case_0_51",
-                                "case_1_51",
-                                "case_2_51"
-                            ],
+                            "case": {
+                                "0": "case_0_51",
+                                "1": "case_1_51",
+                                "2": "case_2_51"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -7520,11 +7520,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_52",
-                            "case": [
-                                "case_0_52",
-                                "case_1_52",
-                                "case_2_52"
-                            ],
+                            "case": {
+                                "0": "case_0_52",
+                                "1": "case_1_52",
+                                "2": "case_2_52"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -7666,11 +7666,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_53",
-                            "case": [
-                                "case_0_53",
-                                "case_1_53",
-                                "case_2_53"
-                            ],
+                            "case": {
+                                "0": "case_0_53",
+                                "1": "case_1_53",
+                                "2": "case_2_53"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -7812,11 +7812,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_54",
-                            "case": [
-                                "case_0_54",
-                                "case_1_54",
-                                "case_2_54"
-                            ],
+                            "case": {
+                                "0": "case_0_54",
+                                "1": "case_1_54",
+                                "2": "case_2_54"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -7958,11 +7958,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_55",
-                            "case": [
-                                "case_0_55",
-                                "case_1_55",
-                                "case_2_55"
-                            ],
+                            "case": {
+                                "0": "case_0_55",
+                                "1": "case_1_55",
+                                "2": "case_2_55"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -8104,11 +8104,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_56",
-                            "case": [
-                                "case_0_56",
-                                "case_1_56",
-                                "case_2_56"
-                            ],
+                            "case": {
+                                "0": "case_0_56",
+                                "1": "case_1_56",
+                                "2": "case_2_56"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -8250,11 +8250,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_57",
-                            "case": [
-                                "case_0_57",
-                                "case_1_57",
-                                "case_2_57"
-                            ],
+                            "case": {
+                                "0": "case_0_57",
+                                "1": "case_1_57",
+                                "2": "case_2_57"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -8396,11 +8396,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_58",
-                            "case": [
-                                "case_0_58",
-                                "case_1_58",
-                                "case_2_58"
-                            ],
+                            "case": {
+                                "0": "case_0_58",
+                                "1": "case_1_58",
+                                "2": "case_2_58"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -8542,11 +8542,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_59",
-                            "case": [
-                                "case_0_59",
-                                "case_1_59",
-                                "case_2_59"
-                            ],
+                            "case": {
+                                "0": "case_0_59",
+                                "1": "case_1_59",
+                                "2": "case_2_59"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -8688,11 +8688,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_60",
-                            "case": [
-                                "case_0_60",
-                                "case_1_60",
-                                "case_2_60"
-                            ],
+                            "case": {
+                                "0": "case_0_60",
+                                "1": "case_1_60",
+                                "2": "case_2_60"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -8834,11 +8834,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_61",
-                            "case": [
-                                "case_0_61",
-                                "case_1_61",
-                                "case_2_61"
-                            ],
+                            "case": {
+                                "0": "case_0_61",
+                                "1": "case_1_61",
+                                "2": "case_2_61"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -8980,11 +8980,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_62",
-                            "case": [
-                                "case_0_62",
-                                "case_1_62",
-                                "case_2_62"
-                            ],
+                            "case": {
+                                "0": "case_0_62",
+                                "1": "case_1_62",
+                                "2": "case_2_62"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -9126,11 +9126,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_63",
-                            "case": [
-                                "case_0_63",
-                                "case_1_63",
-                                "case_2_63"
-                            ],
+                            "case": {
+                                "0": "case_0_63",
+                                "1": "case_1_63",
+                                "2": "case_2_63"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -9272,11 +9272,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_64",
-                            "case": [
-                                "case_0_64",
-                                "case_1_64",
-                                "case_2_64"
-                            ],
+                            "case": {
+                                "0": "case_0_64",
+                                "1": "case_1_64",
+                                "2": "case_2_64"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -9418,11 +9418,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_65",
-                            "case": [
-                                "case_0_65",
-                                "case_1_65",
-                                "case_2_65"
-                            ],
+                            "case": {
+                                "0": "case_0_65",
+                                "1": "case_1_65",
+                                "2": "case_2_65"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -9564,11 +9564,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_66",
-                            "case": [
-                                "case_0_66",
-                                "case_1_66",
-                                "case_2_66"
-                            ],
+                            "case": {
+                                "0": "case_0_66",
+                                "1": "case_1_66",
+                                "2": "case_2_66"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -9710,11 +9710,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_67",
-                            "case": [
-                                "case_0_67",
-                                "case_1_67",
-                                "case_2_67"
-                            ],
+                            "case": {
+                                "0": "case_0_67",
+                                "1": "case_1_67",
+                                "2": "case_2_67"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -9856,11 +9856,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_68",
-                            "case": [
-                                "case_0_68",
-                                "case_1_68",
-                                "case_2_68"
-                            ],
+                            "case": {
+                                "0": "case_0_68",
+                                "1": "case_1_68",
+                                "2": "case_2_68"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -10002,11 +10002,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_69",
-                            "case": [
-                                "case_0_69",
-                                "case_1_69",
-                                "case_2_69"
-                            ],
+                            "case": {
+                                "0": "case_0_69",
+                                "1": "case_1_69",
+                                "2": "case_2_69"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -10148,11 +10148,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_70",
-                            "case": [
-                                "case_0_70",
-                                "case_1_70",
-                                "case_2_70"
-                            ],
+                            "case": {
+                                "0": "case_0_70",
+                                "1": "case_1_70",
+                                "2": "case_2_70"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -10294,11 +10294,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_71",
-                            "case": [
-                                "case_0_71",
-                                "case_1_71",
-                                "case_2_71"
-                            ],
+                            "case": {
+                                "0": "case_0_71",
+                                "1": "case_1_71",
+                                "2": "case_2_71"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -10440,11 +10440,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_72",
-                            "case": [
-                                "case_0_72",
-                                "case_1_72",
-                                "case_2_72"
-                            ],
+                            "case": {
+                                "0": "case_0_72",
+                                "1": "case_1_72",
+                                "2": "case_2_72"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -10586,11 +10586,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_73",
-                            "case": [
-                                "case_0_73",
-                                "case_1_73",
-                                "case_2_73"
-                            ],
+                            "case": {
+                                "0": "case_0_73",
+                                "1": "case_1_73",
+                                "2": "case_2_73"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -10732,11 +10732,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_74",
-                            "case": [
-                                "case_0_74",
-                                "case_1_74",
-                                "case_2_74"
-                            ],
+                            "case": {
+                                "0": "case_0_74",
+                                "1": "case_1_74",
+                                "2": "case_2_74"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -10878,11 +10878,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_75",
-                            "case": [
-                                "case_0_75",
-                                "case_1_75",
-                                "case_2_75"
-                            ],
+                            "case": {
+                                "0": "case_0_75",
+                                "1": "case_1_75",
+                                "2": "case_2_75"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -11024,11 +11024,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_76",
-                            "case": [
-                                "case_0_76",
-                                "case_1_76",
-                                "case_2_76"
-                            ],
+                            "case": {
+                                "0": "case_0_76",
+                                "1": "case_1_76",
+                                "2": "case_2_76"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -11170,11 +11170,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_77",
-                            "case": [
-                                "case_0_77",
-                                "case_1_77",
-                                "case_2_77"
-                            ],
+                            "case": {
+                                "0": "case_0_77",
+                                "1": "case_1_77",
+                                "2": "case_2_77"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -11316,11 +11316,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_78",
-                            "case": [
-                                "case_0_78",
-                                "case_1_78",
-                                "case_2_78"
-                            ],
+                            "case": {
+                                "0": "case_0_78",
+                                "1": "case_1_78",
+                                "2": "case_2_78"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -11462,11 +11462,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_79",
-                            "case": [
-                                "case_0_79",
-                                "case_1_79",
-                                "case_2_79"
-                            ],
+                            "case": {
+                                "0": "case_0_79",
+                                "1": "case_1_79",
+                                "2": "case_2_79"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -11608,11 +11608,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_80",
-                            "case": [
-                                "case_0_80",
-                                "case_1_80",
-                                "case_2_80"
-                            ],
+                            "case": {
+                                "0": "case_0_80",
+                                "1": "case_1_80",
+                                "2": "case_2_80"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -11754,11 +11754,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_81",
-                            "case": [
-                                "case_0_81",
-                                "case_1_81",
-                                "case_2_81"
-                            ],
+                            "case": {
+                                "0": "case_0_81",
+                                "1": "case_1_81",
+                                "2": "case_2_81"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -11900,11 +11900,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_82",
-                            "case": [
-                                "case_0_82",
-                                "case_1_82",
-                                "case_2_82"
-                            ],
+                            "case": {
+                                "0": "case_0_82",
+                                "1": "case_1_82",
+                                "2": "case_2_82"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -12046,11 +12046,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_83",
-                            "case": [
-                                "case_0_83",
-                                "case_1_83",
-                                "case_2_83"
-                            ],
+                            "case": {
+                                "0": "case_0_83",
+                                "1": "case_1_83",
+                                "2": "case_2_83"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -12192,11 +12192,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_84",
-                            "case": [
-                                "case_0_84",
-                                "case_1_84",
-                                "case_2_84"
-                            ],
+                            "case": {
+                                "0": "case_0_84",
+                                "1": "case_1_84",
+                                "2": "case_2_84"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -12338,11 +12338,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_85",
-                            "case": [
-                                "case_0_85",
-                                "case_1_85",
-                                "case_2_85"
-                            ],
+                            "case": {
+                                "0": "case_0_85",
+                                "1": "case_1_85",
+                                "2": "case_2_85"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -12484,11 +12484,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_86",
-                            "case": [
-                                "case_0_86",
-                                "case_1_86",
-                                "case_2_86"
-                            ],
+                            "case": {
+                                "0": "case_0_86",
+                                "1": "case_1_86",
+                                "2": "case_2_86"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -12630,11 +12630,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_87",
-                            "case": [
-                                "case_0_87",
-                                "case_1_87",
-                                "case_2_87"
-                            ],
+                            "case": {
+                                "0": "case_0_87",
+                                "1": "case_1_87",
+                                "2": "case_2_87"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -12776,11 +12776,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_88",
-                            "case": [
-                                "case_0_88",
-                                "case_1_88",
-                                "case_2_88"
-                            ],
+                            "case": {
+                                "0": "case_0_88",
+                                "1": "case_1_88",
+                                "2": "case_2_88"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -12922,11 +12922,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_89",
-                            "case": [
-                                "case_0_89",
-                                "case_1_89",
-                                "case_2_89"
-                            ],
+                            "case": {
+                                "0": "case_0_89",
+                                "1": "case_1_89",
+                                "2": "case_2_89"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -13068,11 +13068,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_90",
-                            "case": [
-                                "case_0_90",
-                                "case_1_90",
-                                "case_2_90"
-                            ],
+                            "case": {
+                                "0": "case_0_90",
+                                "1": "case_1_90",
+                                "2": "case_2_90"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -13214,11 +13214,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_91",
-                            "case": [
-                                "case_0_91",
-                                "case_1_91",
-                                "case_2_91"
-                            ],
+                            "case": {
+                                "0": "case_0_91",
+                                "1": "case_1_91",
+                                "2": "case_2_91"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -13360,11 +13360,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_92",
-                            "case": [
-                                "case_0_92",
-                                "case_1_92",
-                                "case_2_92"
-                            ],
+                            "case": {
+                                "0": "case_0_92",
+                                "1": "case_1_92",
+                                "2": "case_2_92"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -13506,11 +13506,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_93",
-                            "case": [
-                                "case_0_93",
-                                "case_1_93",
-                                "case_2_93"
-                            ],
+                            "case": {
+                                "0": "case_0_93",
+                                "1": "case_1_93",
+                                "2": "case_2_93"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -13652,11 +13652,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_94",
-                            "case": [
-                                "case_0_94",
-                                "case_1_94",
-                                "case_2_94"
-                            ],
+                            "case": {
+                                "0": "case_0_94",
+                                "1": "case_1_94",
+                                "2": "case_2_94"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -13798,11 +13798,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_95",
-                            "case": [
-                                "case_0_95",
-                                "case_1_95",
-                                "case_2_95"
-                            ],
+                            "case": {
+                                "0": "case_0_95",
+                                "1": "case_1_95",
+                                "2": "case_2_95"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -13944,11 +13944,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_96",
-                            "case": [
-                                "case_0_96",
-                                "case_1_96",
-                                "case_2_96"
-                            ],
+                            "case": {
+                                "0": "case_0_96",
+                                "1": "case_1_96",
+                                "2": "case_2_96"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -14090,11 +14090,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_97",
-                            "case": [
-                                "case_0_97",
-                                "case_1_97",
-                                "case_2_97"
-                            ],
+                            "case": {
+                                "0": "case_0_97",
+                                "1": "case_1_97",
+                                "2": "case_2_97"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -14236,11 +14236,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_98",
-                            "case": [
-                                "case_0_98",
-                                "case_1_98",
-                                "case_2_98"
-                            ],
+                            "case": {
+                                "0": "case_0_98",
+                                "1": "case_1_98",
+                                "2": "case_2_98"
+                            },
                             "registers": [
                                 0,
                                 1,
@@ -14382,11 +14382,11 @@
                         {
                             "opcode": "Switch",
                             "default": "default_99",
-                            "case": [
-                                "case_0_99",
-                                "case_1_99",
-                                "case_2_99"
-                            ],
+                            "case": {
+                                "0": "case_0_99",
+                                "1": "case_1_99",
+                                "2": "case_2_99"
+                            },
                             "registers": [
                                 0,
                                 1,
