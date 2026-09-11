@@ -201,8 +201,8 @@ std::optional<std::string> RunInst(
         const auto& input = classical_inst->GetInput();
         const auto& output = classical_inst->GetOutput();
         auto in = std::vector<bool>(input.size());
-        std::transform(input.begin(), input.end(), in.begin(), [&rmap](const auto& r) {
-            return rmap[r.id];
+        std::transform(input.begin(), input.end(), in.begin(), [&rmap, state](const auto& r) {
+            return state->ReadRegister(rmap[r.id]);
         });
         auto out = std::vector<bool>(output.size());
         function(in, out);
