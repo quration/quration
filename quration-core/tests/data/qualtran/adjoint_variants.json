@@ -1,0 +1,2975 @@
+{
+  "name": "adjoint_variants_test",
+  "table": [
+    {
+      "decomposition": [
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q_custom",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl_ch",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 3
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "target_ch",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 3
+            },
+            "register": {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl_crz",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 5
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q_crz",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 5
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q_rz_a",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 3,
+              "bloqId": 7
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q_rz_b",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 4,
+              "bloqId": 9
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q_su2",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 5,
+              "bloqId": 11
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q_rz_sign",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 6,
+              "bloqId": 13
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl_even",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 7,
+              "bloqId": 15
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl_even",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 7,
+              "bloqId": 15
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 7,
+              "bloqId": 15
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 8,
+              "bloqId": 18
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 7,
+              "bloqId": 15
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 8,
+              "bloqId": 18
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 7,
+              "bloqId": 15
+            },
+            "register": {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "RIGHT"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 8,
+              "bloqId": 18
+            },
+            "register": {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl_odd",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 9,
+              "bloqId": 17
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl_odd",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 9,
+              "bloqId": 17
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 9,
+              "bloqId": 17
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 10,
+              "bloqId": 19
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 9,
+              "bloqId": 17
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 10,
+              "bloqId": 19
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 9,
+              "bloqId": 17
+            },
+            "register": {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "RIGHT"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 10,
+              "bloqId": 19
+            },
+            "register": {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "x_split",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 11,
+              "bloqId": 20
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "LEFT"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 11,
+              "bloqId": 20
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "RIGHT"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 12,
+              "bloqId": 21
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "LEFT"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 11,
+              "bloqId": 20
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "RIGHT"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 12,
+              "bloqId": 21
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "LEFT"
+            },
+            "index": [
+              1
+            ]
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl_and_gates",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 13,
+              "bloqId": 22
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl_and_gates",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 13,
+              "bloqId": 22
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q_state",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 14,
+              "bloqId": 24
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q_custom",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 3
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl_ch",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 3
+            },
+            "register": {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "target_ch",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 5
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl_crz",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 5
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q_crz",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 3,
+              "bloqId": 7
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q_rz_a",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 4,
+              "bloqId": 9
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q_rz_b",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 5,
+              "bloqId": 11
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q_su2",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 6,
+              "bloqId": 13
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q_rz_sign",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 8,
+              "bloqId": 18
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl_even",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 8,
+              "bloqId": 18
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl_even",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 10,
+              "bloqId": 19
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl_odd",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 10,
+              "bloqId": 19
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl_odd",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 12,
+              "bloqId": 21
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "x_split",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 13,
+              "bloqId": 22
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl_and_gates",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 13,
+              "bloqId": 22
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl_and_gates",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 15,
+              "bloqId": 26
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "RIGHT"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q_effect",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "RIGHT"
+            }
+          }
+        }
+      ],
+      "bloqCounts": {
+        "9": {
+          "intVal": "1"
+        },
+        "21": {
+          "intVal": "1"
+        },
+        "18": {
+          "intVal": "1"
+        },
+        "1": {
+          "intVal": "1"
+        },
+        "15": {
+          "intVal": "1"
+        },
+        "26": {
+          "intVal": "1"
+        },
+        "24": {
+          "intVal": "1"
+        },
+        "5": {
+          "intVal": "1"
+        },
+        "11": {
+          "intVal": "1"
+        },
+        "17": {
+          "intVal": "1"
+        },
+        "7": {
+          "intVal": "1"
+        },
+        "19": {
+          "intVal": "1"
+        },
+        "20": {
+          "intVal": "1"
+        },
+        "13": {
+          "intVal": "1"
+        },
+        "3": {
+          "intVal": "1"
+        },
+        "22": {
+          "intVal": "1"
+        }
+      },
+      "bloq": {
+        "name": "qualtran._infra.composite_bloq.CompositeBloq",
+        "registers": {
+          "registers": [
+            {
+              "name": "q_custom",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "ctrl_ch",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "target_ch",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "ctrl_crz",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "q_crz",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "q_rz_a",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "q_rz_b",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "q_su2",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "q_rz_sign",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "ctrl_even",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            {
+              "name": "ctrl_odd",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            {
+              "name": "x_split",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "ctrl_and_gates",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            {
+              "name": "q_state",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            },
+            {
+              "name": "q_effect",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "RIGHT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 1,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 2
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 2,
+      "decomposition": [
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 28
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 28
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 29
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 29
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        }
+      ],
+      "bloqCounts": {
+        "29": {
+          "intVal": "1"
+        },
+        "28": {
+          "intVal": "1"
+        }
+      },
+      "bloq": {
+        "name": "__main__.MyGate",
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        },
+        "tComplexity": {
+          "clifford": "2"
+        }
+      }
+    },
+    {
+      "bloqId": 3,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 4
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 4,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.hadamard.CHadamard",
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 5,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 6
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 6,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.rotation.CRz",
+        "args": [
+          {
+            "name": "angle",
+            "floatVal": 0.3
+          },
+          {
+            "name": "eps",
+            "floatVal": 1e-08
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 7,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 8
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 8,
+      "decomposition": [
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 30
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 30
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        }
+      ],
+      "bloqCounts": {
+        "30": {
+          "intVal": "1"
+        }
+      },
+      "bloq": {
+        "name": "__main__.MyRzGate",
+        "args": [
+          {
+            "name": "angle",
+            "floatVal": 0.3
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        },
+        "tComplexity": {
+          "rotations": "1"
+        }
+      }
+    },
+    {
+      "bloqId": 9,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 10
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 10,
+      "decomposition": [
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 31
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 31
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        }
+      ],
+      "bloqCounts": {
+        "31": {
+          "intVal": "1"
+        }
+      },
+      "bloq": {
+        "name": "__main__.MyRzGate",
+        "args": [
+          {
+            "name": "angle",
+            "floatVal": 0.7
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        },
+        "tComplexity": {
+          "rotations": "1"
+        }
+      }
+    },
+    {
+      "bloqId": 11,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 12
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 12,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.su2_rotation.SU2RotationGate",
+        "args": [
+          {
+            "name": "theta",
+            "floatVal": 0.1
+          },
+          {
+            "name": "phi",
+            "floatVal": 0.2
+          },
+          {
+            "name": "lambd",
+            "floatVal": 0.3
+          },
+          {
+            "name": "global_shift",
+            "floatVal": 0.4
+          },
+          {
+            "name": "eps",
+            "floatVal": 1e-08
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 13,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 14
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 14,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.rotation.Rz",
+        "args": [
+          {
+            "name": "angle",
+            "floatVal": 0.7853981633974483
+          },
+          {
+            "name": "eps",
+            "floatVal": 1e-08
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 15,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 16
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "RIGHT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 16,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 17
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 17,
+      "bloq": {
+        "name": "qualtran.bloqs.mcmt.and_bloq.And",
+        "args": [
+          {
+            "name": "cv1",
+            "intVal": "1"
+          },
+          {
+            "name": "cv2",
+            "intVal": "1"
+          },
+          {
+            "name": "uncompute",
+            "intVal": "0"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "RIGHT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 18,
+      "bloq": {
+        "name": "qualtran.bloqs.mcmt.and_bloq.And",
+        "args": [
+          {
+            "name": "cv1",
+            "intVal": "1"
+          },
+          {
+            "name": "cv2",
+            "intVal": "1"
+          },
+          {
+            "name": "uncompute",
+            "intVal": "1"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 19,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 15
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 20,
+      "bloq": {
+        "name": "qualtran.bloqs.bookkeeping.split.Split",
+        "args": [
+          {
+            "name": "dtype",
+            "qdataType": {
+              "qany": {
+                "bitsize": {
+                  "intVal": "2"
+                }
+              }
+            }
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "reg",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "LEFT"
+            },
+            {
+              "name": "reg",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "RIGHT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 21,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 20
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "reg",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            },
+            {
+              "name": "reg",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "LEFT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 22,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 23
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 23,
+      "decomposition": [
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 17
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 17
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 17
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 32
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 32
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 18
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 17
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 18
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 17
+            },
+            "register": {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "RIGHT"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 18
+            },
+            "register": {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 18
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              0
+            ]
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 18
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            "index": [
+              1
+            ]
+          }
+        }
+      ],
+      "bloqCounts": {
+        "18": {
+          "intVal": "1"
+        },
+        "17": {
+          "intVal": "1"
+        },
+        "32": {
+          "intVal": "1"
+        }
+      },
+      "bloq": {
+        "name": "__main__.AndWithGatesGate",
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            }
+          ]
+        },
+        "tComplexity": {
+          "clifford": "14",
+          "t": "4"
+        }
+      }
+    },
+    {
+      "bloqId": 24,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 25
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 25,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.z_basis.ZeroState",
+        "args": [
+          {
+            "name": "n",
+            "intVal": "1"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "RIGHT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 26,
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 27
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "RIGHT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 27,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.z_basis.ZeroEffect",
+        "args": [
+          {
+            "name": "n",
+            "intVal": "1"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 28,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.x_basis.XGate",
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 29,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.hadamard.Hadamard",
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 30,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.rotation.Rz",
+        "args": [
+          {
+            "name": "angle",
+            "floatVal": 0.3
+          },
+          {
+            "name": "eps",
+            "floatVal": 1e-08
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 31,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.rotation.Rz",
+        "args": [
+          {
+            "name": "angle",
+            "floatVal": 0.7
+          },
+          {
+            "name": "eps",
+            "floatVal": 1e-08
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 32,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.z_basis.ZGate",
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

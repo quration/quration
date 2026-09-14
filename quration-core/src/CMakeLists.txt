@@ -98,6 +98,7 @@ list(
   qret/frontend/functor.cpp
   qret/frontend/intrinsic.cpp
   qret/frontend/openqasm2.cpp
+  qret/frontend/qualtran.cpp
   # IR
   qret/ir/basic_block.cpp
   qret/ir/function.cpp
@@ -116,6 +117,7 @@ list(
   # Parser
   qret/parser/openqasm2.cpp
   qret/parser/openqasm3.cpp
+  qret/parser/qualtran.cpp
   # Runtime
   qret/runtime/clifford_state.cpp
   qret/runtime/full_quantum_state.cpp
@@ -181,6 +183,49 @@ if(QRET_BUILD_APPLICATION)
     qret/cmd/simulate.cpp)
 endif()
 
+# Generate C++ sources from the Qualtran .proto schema (fetched in deps.cmake).
+# The import root is the Qualtran repository root so that the protos' internal
+# "qualtran/protos/<file>.proto" imports resolve and the generated headers are
+# addressable as "qualtran/protos/<file>.pb.h" via the target's binary-dir
+# include path (the same mechanism that makes qret/version.h includable).
+set(QUALTRAN_PROTO_FILES
+    bloq.proto
+    registers.proto
+    data_types.proto
+    args.proto
+    sympy.proto
+    ctrl_spec.proto
+    annotations.proto
+    ec_point.proto)
+set(QUALTRAN_PROTO_ABS "")
+foreach(_proto ${QUALTRAN_PROTO_FILES})
+  list(APPEND QUALTRAN_PROTO_ABS "${QUALTRAN_PROTO_DIR}/${_proto}")
+endforeach()
+
+protobuf_generate(
+  LANGUAGE cpp
+  OUT_VAR QUALTRAN_PROTO_SRCS
+  IMPORT_DIRS "${QUALTRAN_PROTO_ROOT}"
+  PROTOC_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}"
+  PROTOS ${QUALTRAN_PROTO_ABS})
+
+# Add the generated .cc files to the library. They are referenced by absolute
+# build-dir path and carry the GENERATED property set by protobuf_generate, so
+# the explicit-source-list build works without extra wiring.
+foreach(_gen ${QUALTRAN_PROTO_SRCS})
+  if(_gen MATCHES "\\.cc$")
+    list(APPEND QRET_SOURCE_FILES "${_gen}")
+  endif()
+endforeach()
+
+# The strict warning set (-Wconversion, -Wold-style-cast, ...) fires on
+# generated protobuf code; suppress warnings on those sources only.
+if(MSVC)
+  set_source_files_properties(${QUALTRAN_PROTO_SRCS} PROPERTIES COMPILE_OPTIONS "/W0")
+else()
+  set_source_files_properties(${QUALTRAN_PROTO_SRCS} PROPERTIES COMPILE_OPTIONS "-w")
+endif()
+
 if(QRET_BUILD_PYTHON)
   message(STATUS "Build ${TARGET_NAME} as object library")
   add_library(${TARGET_NAME} OBJECT ${QRET_SOURCE_FILES})
@@ -206,7 +251,7 @@ target_include_directories(
 target_link_libraries(
   ${TARGET_NAME}
   PUBLIC Boost::boost fmt::fmt-header-only nlohmann_json::nlohmann_json
-  PRIVATE Eigen3::Eigen)
+  PRIVATE Eigen3::Eigen protobuf::libprotobuf)
 
 if(QRET_BUILD_APPLICATION)
   target_link_libraries(${TARGET_NAME} PUBLIC Boost::program_options

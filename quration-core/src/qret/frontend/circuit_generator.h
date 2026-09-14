@@ -33,6 +33,7 @@ public:
 
     explicit CircuitGenerator(CircuitBuilder* builder)
         : builder_{builder} {}
+    virtual ~CircuitGenerator() = default;
 
     CircuitBuilder* GetBuilder() const {
         return builder_;

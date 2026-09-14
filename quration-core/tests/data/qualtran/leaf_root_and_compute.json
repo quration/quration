@@ -1,0 +1,51 @@
+{
+  "name": "leaf_root_and_compute_test",
+  "table": [
+    {
+      "bloq": {
+        "name": "qualtran.bloqs.mcmt.and_bloq.And",
+        "args": [
+          {
+            "name": "cv1",
+            "intVal": "1"
+          },
+          {
+            "name": "cv2",
+            "intVal": "1"
+          },
+          {
+            "name": "uncompute",
+            "intVal": "0"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            },
+            {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "RIGHT"
+            }
+          ]
+        },
+        "tComplexity": {
+          "clifford": "9",
+          "t": "4"
+        }
+      }
+    }
+  ]
+}

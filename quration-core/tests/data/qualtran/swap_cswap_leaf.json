@@ -1,0 +1,390 @@
+{
+  "name": "swap_cswap_leaf_test",
+  "table": [
+    {
+      "decomposition": [
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "x",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "x",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "y",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "y",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "x",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "x",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "y",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "y",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "x",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "x",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "y",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "y",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          }
+        }
+      ],
+      "bloqCounts": {
+        "2": {
+          "intVal": "1"
+        },
+        "1": {
+          "intVal": "1"
+        }
+      },
+      "bloq": {
+        "name": "qualtran._infra.composite_bloq.CompositeBloq",
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "x",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "y",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          ]
+        },
+        "tComplexity": {
+          "clifford": "33",
+          "t": "21"
+        }
+      }
+    },
+    {
+      "bloqId": 1,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.swap.Swap",
+        "args": [
+          {
+            "name": "bitsize",
+            "intVal": "3"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "x",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "y",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 2,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.swap.CSwap",
+        "args": [
+          {
+            "name": "bitsize",
+            "intVal": "3"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "x",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "y",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "3"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

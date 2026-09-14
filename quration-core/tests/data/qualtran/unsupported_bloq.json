@@ -1,0 +1,15 @@
+{
+  "name": "unsupported_bloq_test",
+  "table": [
+    {
+      "bloq": {
+        "name": "qualtran.bloqs.some.UnsupportedBloq",
+        "registers": {
+          "registers": [
+            {"name": "q", "dtype": {"qbit": {}}, "side": "THRU"}
+          ]
+        }
+      }
+    }
+  ]
+}

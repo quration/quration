@@ -20,6 +20,10 @@ endif()
 nanobind_add_module(${TARGET_NAME} STABLE_ABI NB_STATIC NB_SUPPRESS_WARNINGS
                     ${PYBIND_SOURCES})
 target_link_libraries(${TARGET_NAME} PRIVATE ${CORE_LIB_NAME})
+# qret-core is an OBJECT library in the python build; its PRIVATE protobuf link
+# (used by the Qualtran frontend/parser) does not propagate to consumers of the
+# object files, so link the runtime explicitly here.
+target_link_libraries(${TARGET_NAME} PRIVATE protobuf::libprotobuf)
 if(QRET_BUILD_ALGORITHM)
   target_link_libraries(${TARGET_NAME} PRIVATE ${ALGORITHM_LIB_NAME})
   target_compile_definitions(${TARGET_NAME} PRIVATE "QRET_BUILD_ALGORITHM")
@@ -51,15 +55,20 @@ function(add_stub stub_name module_name output)
     VERBOSE)
 endfunction()
 
+# RUNTIME_DEPENDENCY_SET lets install() discover the full transitive closure of
+# ${TARGET_NAME}'s runtime DLLs (yaml-cpp, protobuf, ...) automatically,
+# instead of hand-maintaining a list of "known" DLL targets.
+install(
+  TARGETS ${TARGET_NAME}
+  RUNTIME_DEPENDENCY_SET ${PROJECT_NAME}PythonRuntimeDeps
+  LIBRARY DESTINATION ${PY_TARGET_NAME})
 if(WIN32)
-  get_target_property(YAML_CPP_DLL yaml-cpp::yaml-cpp IMPORTED_LOCATION_RELEASE)
-  if(NOT YAML_CPP_DLL)
-    message(
-      FATAL_ERROR
-        "yaml-cpp DLL not found. Ensure yaml-cpp is installed via vcpkg.")
-  endif()
-
-  install(FILES ${YAML_CPP_DLL} DESTINATION ${PY_TARGET_NAME})
+  install(
+    RUNTIME_DEPENDENCY_SET ${PROJECT_NAME}PythonRuntimeDeps
+    DESTINATION ${PY_TARGET_NAME}
+    # python3<minor>[_d].dll is provided by the Python installation that
+    # loads this module at runtime, not by the build tree or vcpkg; it must
+    # not be bundled into the wheel.
+    PRE_EXCLUDE_REGEXES "api-ms-" "ext-ms-" "python3[0-9]*(_d)?\\.dll"
+    POST_EXCLUDE_REGEXES ".*system32.*")
 endif()
-
-install(TARGETS ${TARGET_NAME} LIBRARY DESTINATION ${PY_TARGET_NAME})

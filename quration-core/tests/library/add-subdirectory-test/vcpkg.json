@@ -14,12 +14,17 @@
     "nlohmann-json",
     "pcg",
     "pegtl",
+    "protobuf",
     "yaml-cpp"
   ],
   "overrides": [
     {
       "name": "fmt",
       "version": "12.1.0"
+    },
+    {
+      "name": "protobuf",
+      "version": "6.33.4"
     }
   ]
 }

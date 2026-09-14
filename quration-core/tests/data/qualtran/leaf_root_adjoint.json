@@ -1,0 +1,64 @@
+{
+  "name": "leaf_root_adjoint_test",
+  "table": [
+    {
+      "bloq": {
+        "name": "qualtran._infra.adjoint.Adjoint",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 1
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 1,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.rotation.CZPowGate",
+        "args": [
+          {
+            "name": "exponent",
+            "floatVal": 0.5
+          },
+          {
+            "name": "eps",
+            "floatVal": 1e-08
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "shape": [
+                {
+                  "intVal": "2"
+                }
+              ],
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

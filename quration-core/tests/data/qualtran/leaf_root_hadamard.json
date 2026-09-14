@@ -1,0 +1,24 @@
+{
+  "name": "leaf_root_hadamard_test",
+  "table": [
+    {
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.hadamard.Hadamard",
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        },
+        "tComplexity": {
+          "clifford": "1"
+        }
+      }
+    }
+  ]
+}
