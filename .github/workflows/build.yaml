@@ -11,6 +11,13 @@ env:
   # CMake version the pinned vcpkg 2026.03.18 registry expects
   SKBUILD_MINIMUM_VERSION: "0.8"
   SKBUILD_CMAKE_VERSION: ">=3.31.10"
+  # Oldest macOS the published wheels are built to run on. scikit-build-core picks
+  # the wheel's platform tag from this, and CMake initialises
+  # CMAKE_OSX_DEPLOYMENT_TARGET from it, so the tag and the compiled extension
+  # agree. Without it both follow the runner's own macOS version, so a wheel built
+  # on macos-latest is tagged macosx_15_0 and pip refuses to install it on macOS 13
+  # or 14. Set at workflow level so vcpkg and every other sub-build see it too.
+  MACOSX_DEPLOYMENT_TARGET: "13.0"
 
 jobs:
   newsynth:
@@ -196,6 +203,13 @@ jobs:
         env:
           SKBUILD_CMAKE_DEFINE: "CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON"
         run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            # CMake already defaults this to $MACOSX_DEPLOYMENT_TARGET, but pass it
+            # explicitly so recent scikit-build-core, which prefers an explicit
+            # CMAKE_OSX_DEPLOYMENT_TARGET over the environment when it computes the
+            # platform tag, stamps the same version it compiles against.
+            export SKBUILD_CMAKE_DEFINE="${SKBUILD_CMAKE_DEFINE};CMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET}"
+          fi
           python -m pip install --upgrade pip build pytest coverage wheel numpy
           python -m build --wheel -Cwheel.py-api=${{ matrix.build-target == 'cp312-abi3' && 'cp312' || '' }}
         shell: bash
@@ -248,6 +262,16 @@ jobs:
             echo "Actual filename: $wheel_name"
             echo "Expected filename to contain: $expected_tag"
             exit 1
+          fi
+
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            expected_platform="macosx_${MACOSX_DEPLOYMENT_TARGET//./_}_"
+            if [[ "$wheel_name" != *"$expected_platform"* ]]; then
+              echo "Wheel platform tag does not match MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET}."
+              echo "Actual filename: $wheel_name"
+              echo "Expected filename to contain: $expected_platform"
+              exit 1
+            fi
           fi
 
           check_dir="dist/wheel-check"
