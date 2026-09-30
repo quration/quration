@@ -42,9 +42,71 @@ See `./quration-docs/tutorial/` for tutorials of these programs.
 - `quration-visualizer`: Visualize execution traces and compare resource estimation profiles on browers
 
 
-## Install Quration-Core and Quration-Algorithm
+## Install prebuilt binaries
 
-Currently we only support build from source. Pre-build executables, python libraries, and C++ shared library will be distributed soon.
+Each GitHub Release carries an archive per platform:
+
+| Platform | Asset |
+| --- | --- |
+| Linux (x86_64) | `qret-ubuntu-latest.tar.gz` |
+| macOS (Apple Silicon) | `qret-macos-latest.tar.gz` |
+| Windows (x64) | `qret-windows-latest.zip` |
+
+Download from the command line.
+
+```sh
+gh release download <tag> -R quration/quration -p 'qret-ubuntu-latest.tar.gz'
+# or
+curl -LO https://github.com/quration/quration/releases/download/<tag>/qret-ubuntu-latest.tar.gz
+```
+
+Extract it:
+
+```sh
+tar xzf qret-ubuntu-latest.tar.gz        # tar -xf qret-windows-latest.zip on Windows
+cd qret-ubuntu-latest
+```
+
+On Linux and macOS the binaries carry no embedded library path, so point the
+dynamic linker at the bundled `lib/` before running them. Windows needs no
+library setup -- the DLLs are installed next to the executables in `bin/`.
+
+```sh
+export LD_LIBRARY_PATH="$PWD/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"        # Linux
+export DYLD_LIBRARY_PATH="$PWD/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"  # macOS
+```
+
+`qret` shells out to `gridsynth` to decompose rotation gates, and looks it up
+through `GRIDSYNTH_PATH`, the cabal install directories, the working directory
+and `PATH` -- never `bin/`. Point it at the bundled copy, giving the full path
+to the binary rather than the directory holding it:
+
+```sh
+export GRIDSYNTH_PATH="$PWD/bin/gridsynth"   # Linux, macOS
+```
+
+```bat
+set GRIDSYNTH_PATH=%CD%\bin\gridsynth.exe
+```
+
+Without it, any pass that decomposes a rotation fails with
+`cannot run gridsynth for this path: gridsynth`.
+
+`qret` and the generators take every path as an argument, so they run from
+anywhere. Three examples -- `compile_adder_to_distributed_chip`,
+`external_mapping_pass` and `external_decompose_pass` -- instead read their
+input through paths hard-coded relative to the working directory, so run those
+**from the extracted root**.
+
+```sh
+./bin/qret --help
+./bin/create_qpe \
+  --input quration-algorithm/benchmark_generators/data/sample_qpe.json \
+  --output qpe.json
+```
+
+
+## Build Quration-Core and Quration-Algorithm from source
 
 ### Environment
 

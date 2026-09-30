@@ -1,0 +1,325 @@
+name: qret-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/release.yml
+      - CMakeLists.txt
+      - CMakePresets.json
+      - cmake/**
+      - quration-core/**
+      - quration-algorithm/**
+      - externals/**
+      - vcpkg.json
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - CMakeLists.txt
+      - CMakePresets.json
+      - cmake/**
+      - quration-core/**
+      - quration-algorithm/**
+      - externals/**
+      - vcpkg.json
+  release:
+    types: [published]
+
+env:
+  # Oldest macOS the released binaries are built to run on. Without this the
+  # deployment target follows the runner SDK, and dyld warns (or the binary crashes)
+  # on anything older than the runner. Set at workflow level so vcpkg and every other
+  # sub-build see it too, not just the CMake configure below.
+  MACOSX_DEPLOYMENT_TARGET: "13.0"
+
+jobs:
+  build-qret:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            asset_suffix: macos-latest
+            archive_ext: tar.gz
+          - os: ubuntu-latest
+            asset_suffix: ubuntu-latest
+            archive_ext: tar.gz
+          - os: windows-latest
+            asset_suffix: windows-latest
+            archive_ext: zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Restore vcpkg cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.vcpkg
+            ~/.cache/vcpkg
+            build/vcpkg_installed
+          key: vcpkg-${{ matrix.os }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-${{ matrix.os }}-
+
+      - name: Restore ccache (Unix)
+        if: runner.os != 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ccache-${{ matrix.os }}-${{ hashFiles('CMakeLists.txt', 'quration-core/src/**', 'quration-algorithm/src/**', 'quration-core/examples/**', 'quration-algorithm/examples/**') }}
+          restore-keys: |
+            ccache-${{ matrix.os }}-
+
+      - name: Stage the bundled gridsynth
+        shell: bash
+        run: |
+          # externals/bin/ carries a prebuilt gridsynth per platform; see
+          # externals/bin/README.md for provenance and license. qret looks the
+          # binary up under the name `gridsynth` / `gridsynth.exe`, so the macOS
+          # build is renamed on the way in.
+          mkdir -p "$PWD/.gridsynth/bin"
+          case "$RUNNER_OS" in
+            Windows) cp "$PWD/externals/bin/gridsynth.exe"   "$PWD/.gridsynth/bin/gridsynth.exe" ;;
+            macOS)   cp "$PWD/externals/bin/gridsynth_macos" "$PWD/.gridsynth/bin/gridsynth" ;;
+            *)       cp "$PWD/externals/bin/gridsynth"       "$PWD/.gridsynth/bin/gridsynth" ;;
+          esac
+          gridsynth="$PWD/.gridsynth/bin/gridsynth"
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            gridsynth="$gridsynth.exe"
+          else
+            chmod +x "$gridsynth"
+          fi
+          # Fail here rather than ship an archive whose gridsynth cannot run on
+          # the platform it is packaged for.
+          "$gridsynth" --help >/dev/null
+          # tr strips the CR that the Windows build's output carries.
+          [ "$("$gridsynth" pi/4 -p | tr -d '\r\n')" = "T" ]
+          ls -la "$PWD/.gridsynth/bin"
+
+      - name: Setup MSVC (Windows)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Configure vcpkg toolchain
+        shell: bash
+        run: |
+          mkdir -p "${{ github.workspace }}/.vcpkg"
+          echo "VCPKG_ROOT=${{ github.workspace }}/.vcpkg" >> "$GITHUB_ENV"
+          if [ ! -d "${{ github.workspace }}/.vcpkg/.git" ]; then
+            git clone https://github.com/microsoft/vcpkg.git "${{ github.workspace }}/.vcpkg"
+          fi
+
+      - name: Install libyaml-cpp (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc g++ libyaml-cpp0.8 libyaml-cpp-dev ccache
+
+      - name: Set compiler env (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
+
+      - name: Install libyaml-cpp (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew install yaml-cpp ccache
+
+      - name: Configure Homebrew lib path (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew_prefix=$(brew --prefix yaml-cpp)
+          if [ -n "$brew_prefix" ]; then
+            echo "DYLD_LIBRARY_PATH=$brew_prefix/lib:$DYLD_LIBRARY_PATH" >> "$GITHUB_ENV"
+          fi
+
+      - name: Set compiler env (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          echo "CC=clang" >> "$GITHUB_ENV"
+          echo "CXX=clang++" >> "$GITHUB_ENV"
+
+      - name: Configure
+        shell: bash
+        run: |
+          launcher_args=""
+          if [ "${{ runner.os }}" != "Windows" ]; then
+            launcher_args="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            ccache -s || true
+          fi
+          osx_args=""
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            osx_args="-DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET}"
+          fi
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DQRET_BUILD_ALGORITHM=ON \
+            -DQRET_BUILD_EXAMPLE=ON \
+            $launcher_args \
+            $osx_args \
+            -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build qret and examples
+        shell: bash
+        run: |
+          cmake --build build --config Release
+
+      - name: Show ccache stats (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ccache -s || true
+
+      - name: Install Python deps for example smoke tests
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ortools
+
+      - name: Install to stage
+        run: cmake --install build --config Release --prefix stage
+
+      - name: Package artifact
+        shell: bash
+        run: |
+          mkdir -p dist package
+          root="qret-${{ matrix.asset_suffix }}"
+          package_root="package/$root"
+          mkdir -p "$package_root"
+          cp -R stage/. "$package_root/"
+          rm -rf "$package_root/include"
+          rm -rf "$package_root/lib/cmake"
+
+          # Copy runtime resources used by installed example binaries.
+          mkdir -p "$package_root/quration-core/examples"
+          mkdir -p "$package_root/quration-algorithm/benchmark_generators"
+          cp -R "$PWD/quration-core/examples/data" "$package_root/quration-core/examples/"
+          cp -R "$PWD/quration-core/examples/external-pass" "$package_root/quration-core/examples/"
+          cp -R "$PWD/quration-algorithm/benchmark_generators/data" "$package_root/quration-algorithm/benchmark_generators/"
+
+          mkdir -p "$package_root/licenses/qret"
+          mkdir -p "$package_root/licenses/examples"
+          mkdir -p "$package_root/licenses/newsynth"
+          cp "$PWD/LICENSE" "$package_root/licenses/qret/LICENSE"
+          cp "$PWD/quration-algorithm/examples/LICENSE" "$package_root/licenses/examples/LICENSE"
+
+          mkdir -p "$package_root/bin"
+          cp "$PWD"/.gridsynth/bin/* "$package_root/bin/"
+          cp "$PWD/externals/bin/README.md" "$package_root/licenses/newsynth/README.md"
+
+          # Smoke-test every installed qret binary from inside the packaged tree.
+          pushd "$package_root" >/dev/null
+          if [ ! -d "quration-core" ]; then
+            echo "quration-core/ is required in the current working directory for example binaries."
+            exit 1
+          fi
+          bin_ext=""
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            bin_ext=".exe"
+            export PATH="$PWD/bin:$PWD/lib:$PWD/lib64:$PATH"
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            export DYLD_LIBRARY_PATH="$PWD/lib:$PWD/lib64:${DYLD_LIBRARY_PATH:-}"
+          else
+            export LD_LIBRARY_PATH="$PWD/lib:$PWD/lib64:${LD_LIBRARY_PATH:-}"
+          fi
+          mkdir -p _smoke_outputs
+
+          run_bin() {
+            local name="$1"
+            shift
+            echo ">>> Running ${name}${bin_ext} $*"
+            "./bin/${name}${bin_ext}" "$@"
+          }
+
+          run_bin qret --help
+          run_bin create_random
+          run_bin external_decompose_pass
+          QRET_EXAMPLE_SMOKE=1 run_bin external_mapping_pass
+          run_bin grover
+          run_bin portable_function
+          run_bin trotter \
+            --file quration-core/examples/data/trotter/1d_ising_hamiltonian.json \
+            --time 0.1 \
+            --num_trotter_steps 1 \
+            --out _smoke_outputs/core_trotter.json
+
+          QRET_EXAMPLE_SMOKE=1 run_bin compile_adder_to_distributed_chip
+          run_bin create_add_craig \
+            --input quration-algorithm/benchmark_generators/data/sample_add.json \
+            --output _smoke_outputs/create_add_craig.json
+          run_bin create_add_cuccaro \
+            --input quration-algorithm/benchmark_generators/data/sample_add.json \
+            --output _smoke_outputs/create_add_cuccaro.json
+          run_bin create_multi_controlled_mod_bi_mul_imm \
+            --input quration-algorithm/benchmark_generators/data/sample_modular_bimultiply.json \
+            --output _smoke_outputs/create_multi_controlled_mod_bi_mul_imm.json
+          run_bin create_period_finding \
+            --input quration-algorithm/benchmark_generators/data/sample_period_finding.json \
+            --output _smoke_outputs/create_period_finding.json
+          run_bin create_qrom \
+            --input quration-algorithm/benchmark_generators/data/sample_qrom.json \
+            --output _smoke_outputs/create_qrom.json
+          # sample_qpe.json carries every field create_qpe, create_prepare and
+          # create_select read, so all three run from the one fixture.
+          run_bin create_prepare \
+            --input quration-algorithm/benchmark_generators/data/sample_qpe.json \
+            --output _smoke_outputs/create_prepare.json
+          run_bin create_qpe \
+            --input quration-algorithm/benchmark_generators/data/sample_qpe.json \
+            --output _smoke_outputs/create_qpe.json
+          run_bin create_select \
+            --input quration-algorithm/benchmark_generators/data/sample_qpe.json \
+            --output _smoke_outputs/create_select.json
+          run_bin create_trotter \
+            --input quration-algorithm/benchmark_generators/data/sample_trotter.json \
+            --output _smoke_outputs/create_trotter.json
+          run_bin create_uncompute_qrom \
+            --input quration-algorithm/benchmark_generators/data/sample_qrom.json \
+            --output _smoke_outputs/create_uncompute_qrom.json
+          run_bin generate_quration_core_test_circuits _smoke_outputs/generated_circuits
+          run_bin qpe
+          run_bin shor
+          popd >/dev/null
+
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            python -c 'import shutil; from pathlib import Path; root = Path("package") / "qret-${{ matrix.asset_suffix }}"; out_base = Path("dist") / "qret-${{ matrix.asset_suffix }}"; shutil.make_archive(str(out_base), "zip", root_dir=root.parent, base_dir=root.name)'
+          else
+            tar -C package -czf "dist/$root.${{ matrix.archive_ext }}" "$root"
+          fi
+
+      - name: Upload qret artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qret-${{ matrix.asset_suffix }}
+          path: dist/qret-${{ matrix.asset_suffix }}.${{ matrix.archive_ext }}
+
+  release:
+    if: github.event_name == 'release'
+    needs: [build-qret]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all qret artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: qret-*
+          merge-multiple: true
+
+      - name: Upload artifacts to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*

@@ -13,70 +13,7 @@ env:
   SKBUILD_CMAKE_VERSION: ">=3.31.10"
 
 jobs:
-  newsynth:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - macos-latest
-          - windows-latest
-          - ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Restore newsynth cache
-        id: newsynth-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            externals/bin
-            externals/newsynth-license
-          key: newsynth-${{ matrix.os }}-v1
-
-      - name: Setup Haskell (GHC/Cabal)
-        if: steps.newsynth-cache.outputs.cache-hit != 'true'
-        uses: haskell-actions/setup@v2
-        with:
-          ghc-version: "9.6.6"
-          cabal-version: "3.12.1.0"
-
-      - name: Build newsynth binaries from Hackage
-        if: steps.newsynth-cache.outputs.cache-hit != 'true'
-        run: |
-          cabal update
-          cabal install newsynth --installdir "$PWD/externals/bin" --install-method=copy --overwrite-policy=always
-          if [ "$RUNNER_OS" != "Windows" ]; then
-            chmod +x "$PWD/externals/bin/gridsynth"
-          fi
-          ls -la "$PWD/externals/bin"
-        shell: bash
-
-      - name: Download newsynth LICENSE files
-        if: steps.newsynth-cache.outputs.cache-hit != 'true'
-        run: |
-          rm -rf "$PWD/externals/newsynth-src"
-          rm -rf "$PWD/externals/newsynth-license"
-          mkdir -p "$PWD/externals/newsynth-src"
-          mkdir -p "$PWD/externals/newsynth-license"
-          cabal get newsynth --destdir "$PWD/externals/newsynth-src" --pristine
-          newsynth_src_dir=$(find "$PWD/externals/newsynth-src" -maxdepth 1 -type d -name "newsynth-*" | head -n 1)
-          if [ -n "$newsynth_src_dir" ]; then
-            find "$newsynth_src_dir" -maxdepth 2 -type f \
-              \( -iname "LICENSE*" -o -iname "COPYING*" -o -iname "README*" -o -iname "GPL*" \) \
-              -exec cp {} "$PWD/externals/newsynth-license/" \;
-          fi
-          echo "---"
-          ls -la "$PWD/externals/newsynth-src"
-          echo "---"
-          ls -la "$PWD/externals/newsynth-license"
-        shell: bash
-
   wheel:
-    needs: [newsynth]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -158,20 +95,6 @@ jobs:
           echo "CC=clang" >> "$GITHUB_ENV"
           echo "CXX=clang++" >> "$GITHUB_ENV"
 
-      - name: Restore newsynth cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            externals/bin
-            externals/newsynth-license
-          key: newsynth-${{ matrix.os }}-v1
-          fail-on-cache-miss: true
-
-      - name: Fix newsynth permissions (Unix)
-        if: runner.os != 'Windows'
-        run: chmod +x "$PWD/externals/bin/gridsynth"
-        shell: bash
-
       - name: Build wheel with cibuildwheel (Linux)
         if: runner.os == 'Linux'
         uses: pypa/cibuildwheel@v2.23.0
@@ -210,7 +133,7 @@ jobs:
           cp dist_repaired/*.whl dist/
         shell: bash
 
-      - name: Embed newsynth binary and LICENSE files into wheel
+      - name: Embed the bundled gridsynth and its notice into the wheel
         run: |
           wheel_file=$(ls dist/*.whl)
           python -m pip install --upgrade wheel
@@ -219,13 +142,22 @@ jobs:
           pkg_dir="$wheel_dir/pyqret/externals/newsynth"
           mkdir -p "$pkg_dir"
 
-          # Copy built binaries into pyqret/externals/newsynth.
-          for file in "$PWD"/externals/bin/*; do
-            cp "$file" "$pkg_dir/"
-          done
+          # Embed the gridsynth bundled in externals/bin/ for this platform.
+          # pyqret resolves it by the name `gridsynth` / `gridsynth.exe`
+          # (_set_gridsynth_env_from_package in pyqret/__init__.py), so the macOS
+          # build is renamed on the way in, and it must be executable or that
+          # lookup skips it.
+          case "$RUNNER_OS" in
+            Windows) cp "$PWD/externals/bin/gridsynth.exe"   "$pkg_dir/gridsynth.exe" ;;
+            macOS)   cp "$PWD/externals/bin/gridsynth_macos" "$pkg_dir/gridsynth" ;;
+            *)       cp "$PWD/externals/bin/gridsynth"       "$pkg_dir/gridsynth" ;;
+          esac
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            chmod +x "$pkg_dir/gridsynth"
+          fi
 
-          # Copy downloaded license files.
-          find "$PWD/externals/newsynth-license" -mindepth 1 -maxdepth 1 -type f -exec cp {} "$pkg_dir/" \;
+          # Provenance and license notice for the bundled binary.
+          cp "$PWD/externals/bin/README.md" "$pkg_dir/README.md"
 
           # Remove unexpected top-level lib64 directory from the wheel payload.
           rm -rf "$wheel_dir/lib64"
@@ -297,7 +229,6 @@ jobs:
             dist/*.whl
 
   sdist:
-    needs: [newsynth]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -328,21 +259,6 @@ jobs:
         run: |
           echo "CC=gcc" >> "$GITHUB_ENV"
           echo "CXX=g++" >> "$GITHUB_ENV"
-
-      - name: Restore newsynth cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            externals/bin
-            externals/newsynth-license
-          key: newsynth-ubuntu-latest-v1
-          fail-on-cache-miss: true
-
-      - name: Set newsynth permissions
-        run: |
-          chmod +x "$PWD/externals/bin/gridsynth"
-          ls -la "$PWD/externals/bin"
-        shell: bash
 
       - name: Build sdist
         run: |
