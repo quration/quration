@@ -9,7 +9,7 @@ The development of Quration is in progress, and their backward compatibility mig
 
 - External libraries (`./externals/`) are re-distributed under each library's license.
 - Application generators (`./quration-algorithm/`) are distributed only for research purpose.
-- The other quration libraries (`./quration-core/`, `./quration-visualize/`, `./quration-docs/`) are distributed under MIT-license.
+- The other Quration libraries (`./quration-core/`, `./quration-visualize/`, `./quration-docs/`) are distributed under MIT-license.
 
 ## Features
 
@@ -62,7 +62,7 @@ We expect our library will work on Windows, MacOS, and Linux with compilers GCC,
 
 - Install cmake:
   - Windows: Install cmake from official web sites
-  - Ubuntu: Instlal with `apt install cmake`
+  - Ubuntu: Install with `apt install cmake`
 
 - Optional
   - Python: required if you want to build python binding
