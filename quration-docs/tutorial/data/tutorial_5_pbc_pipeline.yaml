@@ -1,9 +1,9 @@
 source: OpenQASM2
-input: data/tutorial_5_pbc.qasm
+input: ../../data/tutorial_5_pbc.qasm
 function: main
 target: SC_LS_FIXED_V0
-output: tutorial_5_pbc.json
-sc_ls_fixed_v0_topology: data/tutorial_5_dim2_topology.yaml
+output: ../../tutorial-output/tutorial_5_pbc.json
+sc_ls_fixed_v0_topology: ../../data/tutorial_5_dim2_topology.yaml
 sc_ls_fixed_v0_topology_type: Dim2
 sc_ls_fixed_v0_enable_pbc_mode: true
 sc_ls_fixed_v0_magic_generation_period: 15

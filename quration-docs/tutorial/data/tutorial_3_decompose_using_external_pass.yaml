@@ -1,9 +1,9 @@
-input: data/tutorial_3.json
+input: ../../data/tutorial_3.json
 function: Tutorial3Function
-output: tutorial_3_decomposed.json
+output: ../../tutorial-output/tutorial_3_decomposed.json
 pass:
   - ir::inliner
   - name: DecomposeInst
-    cmd: python data/tutorial_3_decompose.py tutorial_3_external_in.json tutorial_3_external_out.json Tutorial3Function
-    input: tutorial_3_external_in.json
-    output: tutorial_3_external_out.json
+    cmd: python3 ../../data/tutorial_3_decompose.py ../../tutorial-output/tutorial_3_external_in.json ../../tutorial-output/tutorial_3_external_out.json Tutorial3Function
+    input: ../../tutorial-output/tutorial_3_external_in.json
+    output: ../../tutorial-output/tutorial_3_external_out.json
