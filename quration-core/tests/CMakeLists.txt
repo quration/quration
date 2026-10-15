@@ -66,6 +66,7 @@ add_qret_test(frontend builder)
 add_qret_test(frontend functor)
 add_qret_test(frontend openqasm2)
 add_qret_test(frontend openqasm3)
+add_qret_test(frontend qir)
 
 # ir
 add_qret_test(ir circuit)
@@ -81,6 +82,10 @@ add_qret_test(math pauli)
 # parser
 add_qret_test(parser openqasm2)
 add_qret_test(parser openqasm3)
+add_qret_test(parser qir)
+
+# exporter
+add_qret_test(exporter qir)
 
 # runtime
 add_qret_test(runtime call_stack)

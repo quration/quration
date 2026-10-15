@@ -6,16 +6,17 @@
 
 Use the `--help` option to check how to use the binary.
 Run a command after the binary, such as `./qret compile ...` or `./qret simulate ...`, followed by the options for that command.
-Currently, the following eight commands are implemented.
+Currently, the following nine commands are implemented.
 
 1. `asm` : outputs assembly from a target JSON file (pipeline state)
 2. `compile` : compiles an input file for a target quantum computer
 3. `diagram` : visualizes the intermediate representation
-4. `opt` : optimizes the intermediate representation
-5. `parse` : parses files in various formats and creates the intermediate representation
-6. `print` : prints the instruction sequence of the intermediate representation in a human-readable form
-7. `profile` : outputs statistics from a target JSON file (pipeline state)
-8. `simulate` : runs the intermediate representation with a simulator
+4. `export` : exports the intermediate representation to files in other formats
+5. `opt` : optimizes the intermediate representation
+6. `parse` : parses files in various formats and creates the intermediate representation
+7. `print` : prints the instruction sequence of the intermediate representation in a human-readable form
+8. `profile` : outputs statistics from a target JSON file (pipeline state)
+9. `simulate` : runs the intermediate representation with a simulator
 
 ```sh
 $ qret --help
@@ -30,7 +31,7 @@ Example usage:
   qret compile -h
   qret simulate -h
 Available commands:
-  help version asm compile diagram opt parse print profile simulate
+  help version asm compile diagram export opt parse print profile simulate
 ```
 
 ## Command: asm
@@ -321,6 +322,37 @@ qret diagram -i quration-core/examples/data/circuit/add_craig_5.json --function 
 
 ![](data/latex.png)
 
+## Command: export
+
+The `export` command exports the intermediate representation defined in a JSON file to a file in another format.
+Currently, only QIR (`.ll`) is supported.
+Use the `--help` option to check how to use the `export` command.
+
+```sh
+$ qret export --help
+qret 'export' options:
+  -h [ --help ]                 Show this help and exit.
+  --quiet                       Suppress non-error output.
+  --verbose                     Enable verbose logging (more detail than 
+                                default).
+  --debug                       Enable debug logging (most detailed; implies 
+                                --verbose).
+  --color                       Enable colored output.
+  -i [ --input ] arg            Input IR json file
+  -o [ --output ] arg (=out.ll) Output file
+  -f [ --format ] arg (=qir)    Format of output file ('qir').
+  --entry arg                   Name of the entry function within the input IR 
+                                module. If empty, uses the input JSON's own 
+                                'entry_function' field, falling back to the 
+                                module's first function if that's absent too.
+  --inline                      Inline all sub-circuit calls into the entry 
+                                function and drop the now-unused functions, 
+                                producing single-entry-point QIR (more 
+                                compatible with QIR consumers; may enlarge the 
+                                output for circuits that reuse sub-circuits 
+                                heavily).
+```
+
 ## Command: opt
 
 The `opt` command optimizes the intermediate representation.
@@ -363,8 +395,16 @@ qret 'parse' options:
   --color                          Enable colored output.
   -i [ --input ] arg               Input file
   -o [ --output ] arg (=ir.json)   Output file
-  -f [ --format ] arg (=OpenQASM2) Format of input file ('OpenQASM2' or 
-                                   'OpenQASM3')
+  -f [ --format ] arg (=OpenQASM2) Format of input file ('OpenQASM2', 
+                                   'OpenQASM3', or 'qir'). OpenQASM3 is a 
+                                   compatibility subset.
+
+QIR import (--format qir) limitations:
+  Subroutines whose parameters are qubits/results are imported as sub-circuits.
+  A subroutine that takes a classical scalar parameter (e.g. a rotation angle) is
+  rejected: Quration-IR circuits cannot carry scalar arguments. Inline such
+  subroutines before importing (for example, with LLVM: `opt -passes=inline`,
+  then `globaldce`).
 ```
 
 ## Command: print

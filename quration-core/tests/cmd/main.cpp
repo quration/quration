@@ -109,6 +109,24 @@ TEST(QretMainSimulate, BBHelp) {
     auto argv = std::vector<const char*>{BinName, "simulate", "--help"};
     EXPECT_EQ(0, qret::cmd::QretMain(argv.size(), argv.data()));
 }
+TEST(QretMainExport, BBHelp) {
+    auto argv = std::vector<const char*>{BinName, "export", "--help"};
+    EXPECT_EQ(0, qret::cmd::QretMain(argv.size(), argv.data()));
+}
+// Fixture's "entry_function" ("main") isn't function_list's first entry ("sub" is); without
+// --entry, export must read "entry_function" itself rather than defaulting to the first function.
+TEST(QretMainExport, DefaultsEntryToJsonEntryFunctionField) {
+    const auto input_file = std::string("quration-core/tests/data/qir/entry_function_not_first.json");
+    const auto output_file = MakeTempPath(".out.ll");
+
+    const auto output = output_file.string();
+    auto argv = std::vector<const char*>{
+            BinName, "export", "-i", input_file.c_str(), "-o", output.c_str()};
+    EXPECT_EQ(0, qret::cmd::QretMain(argv.size(), argv.data()));
+    const auto qir_text = ReadFile(output_file);
+    EXPECT_NE(std::string::npos, qir_text.find("define i64 @main() #0"));
+    EXPECT_NE(std::string::npos, qir_text.find("define void @sub("));
+}
 TEST(QretMainAsm, FromScLsFixedV0PipelineState) {
     const auto pipeline_state_file = MakeTempPath(".pipeline_state.json");
     const auto asm_file = MakeTempPath(".out.asm");

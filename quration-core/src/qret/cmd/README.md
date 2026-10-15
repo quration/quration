@@ -8,6 +8,7 @@ Implements command-line tools.
 * `qret/cmd/asm.h`
 * `qret/cmd/compile.h`
 * `qret/cmd/diagram.h`
+* `qret/cmd/export.h`
 * `qret/cmd/main.h`
 * `qret/cmd/opt.h`
 * `qret/cmd/parse.h`

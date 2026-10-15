@@ -44,6 +44,8 @@ For details, see "Defining Quantum Circuits".
 * `qret/frontend/openqasm2.h` : OpenQASM2 parser
   * Parses OpenQASM2 files and creates circuits.
   * `qret/frontend/qelib1.inc` is the OpenQASM2 standard library written in the OpenQASM2 language.
+* `qret/frontend/qir.h` : QIR (`.ll`) parser
+  * Parses QIR text and creates circuits.
 
 ## Other
 

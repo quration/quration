@@ -23,6 +23,7 @@ public:
 };
 ReturnStatus ParseOpenQASM2(const std::string& input, const std::string& output);
 ReturnStatus ParseOpenQASM3(const std::string& input, const std::string& output);
+ReturnStatus ParseQIR(const std::string& input, const std::string& output);
 ReturnStatus Parse(const std::string& input, const std::string& output, const std::string& format);
 }  // namespace qret::cmd
 

@@ -1,0 +1,46 @@
+{
+    "metadata": {
+        "format": "IR",
+        "schema_version": "0.2",
+        "qret_version": "1.1.0",
+        "created_at": "2026-01-01T00:00:00"
+    },
+    "name": "test",
+    "entry_function": "main",
+    "function_list": [
+        {
+            "name": "sub",
+            "entry_point": "entry",
+            "basicblock_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {"opcode": "H", "q": 0},
+                        {"opcode": "Return"}
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {"num_qubits": 1, "qubits": {"q": 1}, "num_registers": 0},
+            "num_tmp_registers": 0
+        },
+        {
+            "name": "main",
+            "entry_point": "entry",
+            "basicblock_list": [
+                {
+                    "name": "entry",
+                    "inst_list": [
+                        {"opcode": "Call", "callee": "sub", "operate": [0], "input": [], "output": []},
+                        {"opcode": "Return"}
+                    ],
+                    "predecessors": [],
+                    "successors": []
+                }
+            ],
+            "argument": {"num_qubits": 1, "qubits": {"q": 1}, "num_registers": 0},
+            "num_tmp_registers": 0
+        }
+    ]
+}

@@ -19,6 +19,7 @@
 #include "qret/cmd/common.h"
 #include "qret/cmd/compile.h"
 #include "qret/cmd/diagram.h"
+#include "qret/cmd/export.h"
 #include "qret/cmd/opt.h"
 #include "qret/cmd/parse.h"
 #include "qret/cmd/print.h"
@@ -32,6 +33,7 @@ std::vector<std::unique_ptr<SubCommand>> GetSubCommands() {
     ret.emplace_back(std::unique_ptr<CommandAsm>(new CommandAsm()));
     ret.emplace_back(std::unique_ptr<CommandCompile>(new CommandCompile()));
     ret.emplace_back(std::unique_ptr<CommandDiagram>(new CommandDiagram()));
+    ret.emplace_back(std::unique_ptr<CommandExport>(new CommandExport()));
     ret.emplace_back(std::unique_ptr<CommandOpt>(new CommandOpt()));
     ret.emplace_back(std::unique_ptr<CommandParse>(new CommandParse()));
     ret.emplace_back(std::unique_ptr<CommandPrint>(new CommandPrint()));

@@ -15,6 +15,8 @@ Documentation for each module is located in the corresponding directory's `READM
 * `codegen/`
   * Defines classes shared by target quantum computers.
   * Target-specific implementations are placed under `target/`.
+* `exporter/`
+  * Exports the intermediate representation to external file formats (e.g. QIR).
 * `frontend/`
   * Provides an intuitive way to define quantum circuits in C++.
 * `gate/`
@@ -44,6 +46,7 @@ digraph G {
   MA [label="math"];
   IR [label="ir"];
   PA [label="parser"];
+  EX [label="exporter"];
   FR [label="frontend"];
   GA [label="gate"];
   RU [label="runtime"];
@@ -58,6 +61,8 @@ digraph G {
   BA -> PA;
   IR -> FR;
   PA -> FR;
+  IR -> EX;
+  PA -> EX;
   FR -> GA;
   MA -> GA;
   IR -> RU;

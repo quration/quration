@@ -15,6 +15,7 @@
 #include "qret/cmd/common.h"
 #include "qret/frontend/builder.h"
 #include "qret/frontend/openqasm2.h"
+#include "qret/frontend/qir.h"
 #include "qret/ir/context.h"
 #include "qret/ir/function.h"
 #include "qret/ir/json.h"  // DO NOT DELETE
@@ -71,13 +72,37 @@ ReturnStatus ParseOpenQASM3(const std::string& input, const std::string& output)
 
     return ReturnStatus::Success;
 }
+ReturnStatus ParseQIR(const std::string& input, const std::string& output) {
+    LOG_INFO("Build IR from QIR.");
+    qret::ir::IRContext context;
+    auto* module = qret::ir::Module::Create("QIR", context);
+    auto builder = qret::frontend::CircuitBuilder(module);
+    qret::frontend::BuildCircuitFromQIRFile(input, builder);
+
+    LOG_INFO("Save IR.");
+    auto ofs = std::ofstream(output);
+    if (!ofs.good()) {
+        std::cerr << "failed to open: " << output << std::endl;
+        return ReturnStatus::Failure;
+    }
+
+    auto j = qret::Json();
+    j = *module;
+    ofs << j << std::endl;
+    ofs.close();
+
+    return ReturnStatus::Success;
+}
 ReturnStatus Parse(const std::string& input, const std::string& output, const std::string& format) {
     if (format == "OpenQASM2") {
         return ParseOpenQASM2(input, output);
     } else if (format == "OpenQASM3") {
         return ParseOpenQASM3(input, output);
+    } else if (format == "qir") {
+        return ParseQIR(input, output);
     }
-    std::cerr << "unknown format: " << format << ". expected OpenQASM2 or OpenQASM3" << std::endl;
+    std::cerr << "unknown format: " << format << ". expected OpenQASM2, OpenQASM3, or qir"
+              << std::endl;
     return ReturnStatus::Failure;
 }
 ReturnStatus CommandParse::Main(int argc, const char** argv) {
@@ -94,7 +119,7 @@ ReturnStatus CommandParse::Main(int argc, const char** argv) {
         ("color", "Enable colored output.")
         ("input,i", po::value<std::string>(), "Input file")
         ("output,o", po::value<std::string>()->default_value("ir.json"), "Output file")
-        ("format,f", po::value<std::string>()->default_value("OpenQASM2"), "Format of input file ('OpenQASM2' or 'OpenQASM3'). OpenQASM3 is a compatibility subset.")
+        ("format,f", po::value<std::string>()->default_value("OpenQASM2"), "Format of input file ('OpenQASM2', 'OpenQASM3', or 'qir'). OpenQASM3 is a compatibility subset.")
     ; // NOLINT
     // clang-format on
 
@@ -110,6 +135,14 @@ ReturnStatus CommandParse::Main(int argc, const char** argv) {
 
     if (vm.count("help") > 0) {
         std::cout << description;
+        std::cout << R"(
+QIR import (--format qir) limitations:
+  Subroutines whose parameters are qubits/results are imported as sub-circuits.
+  A subroutine that takes a classical scalar parameter (e.g. a rotation angle) is
+  rejected: Quration-IR circuits cannot carry scalar arguments. Inline such
+  subroutines before importing (for example, with LLVM: `opt -passes=inline`,
+  then `globaldce`).
+)";
         return ReturnStatus::Success;
     }
     if (vm.count("quiet") > 0) {
