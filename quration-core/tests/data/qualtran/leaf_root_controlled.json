@@ -1,0 +1,72 @@
+{
+  "name": "leaf_root_controlled_test",
+  "table": [
+    {
+      "bloq": {
+        "name": "qualtran._infra.controlled.Controlled",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 1
+          },
+          {
+            "name": "ctrl_spec",
+            "ctrlSpec": {
+              "qdtypes": [
+                {
+                  "qbit": {}
+                }
+              ],
+              "cvs": [
+                {
+                  "ndarray": "k05VTVBZAQB2AHsnZGVzY3InOiAnPGk4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBlJzogKCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoBAAAAAAAAAA=="
+                }
+              ]
+            }
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 1,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.t_gate.TGate",
+        "args": [
+          {
+            "name": "is_adjoint",
+            "intVal": "0"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

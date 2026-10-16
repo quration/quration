@@ -1,0 +1,300 @@
+{
+  "name": "bloq_counts_variants_test",
+  "table": [
+    {
+      "decomposition": [
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 1
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 1
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 5,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 5,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        }
+      ],
+      "bloqCounts": {
+        "2": {
+          "intVal": "1"
+        },
+        "4": {
+          "intVal": "2"
+        },
+        "1": {
+          "intVal": "2"
+        },
+        "5": {
+          "intVal": "1"
+        }
+      },
+      "bloq": {
+        "name": "qualtran._infra.composite_bloq.CompositeBloq",
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        },
+        "tComplexity": {
+          "clifford": "3"
+        }
+      }
+    },
+    {
+      "bloqId": 1,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.x_basis.XGate",
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        },
+        "tComplexity": {
+          "clifford": "1"
+        }
+      }
+    },
+    {
+      "bloqId": 2,
+      "decomposition": [
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        }
+      ],
+      "bloqCounts": {
+        "3": {
+          "intVal": "1"
+        }
+      },
+      "bloq": {
+        "name": "__main__.ArbitraryCliffordSource",
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        },
+        "tComplexity": {
+          "clifford": "1"
+        }
+      }
+    },
+    {
+      "bloqId": 3,
+      "bloq": {
+        "name": "qualtran.bloqs.bookkeeping.arbitrary_clifford.ArbitraryClifford",
+        "args": [
+          {
+            "name": "n",
+            "intVal": "1"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "x",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "1"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 4,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.global_phase.GlobalPhase",
+        "args": [
+          {
+            "name": "exponent",
+            "floatVal": 0.5
+          },
+          {
+            "name": "eps",
+            "floatVal": 1e-08
+          }
+        ],
+        "registers": {}
+      }
+    },
+    {
+      "bloqId": 5,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.global_phase.GlobalPhase",
+        "args": [
+          {
+            "name": "exponent",
+            "floatVal": 0.25
+          },
+          {
+            "name": "eps",
+            "floatVal": 1e-08
+          }
+        ],
+        "registers": {}
+      }
+    }
+  ]
+}

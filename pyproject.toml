@@ -69,6 +69,11 @@ wheel.py-api = "cp312"
 # Include Python package from the non-root location.
 wheel.packages = ["quration-core/python/pyqret"]
 wheel.exclude = ["include/**", "lib/**", "lib64/**"]
+wheel.license-files = [
+  "LICENSE",
+  "externals/nanobind/LICENSE",
+  "externals/qualtran/LICENSE",
+]
 sdist.include = ["externals/**", "quration-core/src/**"]
 
 [tool.scikit-build.cmake.define]

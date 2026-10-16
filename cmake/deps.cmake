@@ -20,6 +20,28 @@ find_path(PCG_INCLUDE_DIRS "pcg_extras.hpp")
 # yaml-cpp
 find_package(yaml-cpp CONFIG REQUIRED)
 
+# Protobuf (used by the Qualtran interop). CONFIG mode is required so that the
+# abseil link interface that modern protobuf depends on is propagated; the
+# legacy FindProtobuf module does not do this and breaks under
+# -Wl,--no-undefined on UNIX shared builds.
+find_package(Protobuf CONFIG REQUIRED)
+
+# Qualtran .proto definitions.
+#
+# The .proto files are vendored under externals/qualtran/protos/ (pinned to
+# v0.7.0) and compiled with protoc at build time (see
+# quration-core/src/CMakeLists.txt).
+#
+# externals/qualtran/ must contain:
+#   LICENSE          - Apache 2.0 license (required by Qualtran's license)
+#   protos/*.proto   - schema files copied from Qualtran v0.7.0
+#
+# The import root is the externals/qualtran directory so that the protos'
+# internal "qualtran/protos/<file>.proto" imports resolve and the generated
+# headers are addressable as "qualtran/protos/<file>.pb.h".
+set(QUALTRAN_PROTO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/externals/qualtran")
+set(QUALTRAN_PROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals/qualtran/qualtran/protos")
+
 # PEGTL
 if(QRET_USE_PEGTL)
   find_package(pegtl QUIET)

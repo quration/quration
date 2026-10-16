@@ -1,0 +1,32 @@
+{
+  "name": "leaf_root_preset_test",
+  "table": [
+    {
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.hadamard.CHadamard",
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "target",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        },
+        "tComplexity": {
+          "clifford": "4",
+          "rotations": "2"
+        }
+      }
+    }
+  ]
+}

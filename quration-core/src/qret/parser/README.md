@@ -6,3 +6,4 @@ Implements parsers.
 
 * `qret/parser/openqasm2.h`
 * `qret/parser/openqasm3.h`
+* `qret/parser/qualtran.h` : Qualtran BloqLibrary protobuf JSON parser

@@ -8,13 +8,16 @@
 #include <boost/program_options.hpp>
 #include <fmt/format.h>
 
+#include <fstream>
 #include <iostream>
+#include <iterator>
 
 #include "qret/base/json.h"
 #include "qret/base/log.h"
 #include "qret/cmd/common.h"
 #include "qret/frontend/builder.h"
 #include "qret/frontend/openqasm2.h"
+#include "qret/frontend/qualtran.h"
 #include "qret/ir/context.h"
 #include "qret/ir/function.h"
 #include "qret/ir/json.h"  // DO NOT DELETE
@@ -71,13 +74,45 @@ ReturnStatus ParseOpenQASM3(const std::string& input, const std::string& output)
 
     return ReturnStatus::Success;
 }
+ReturnStatus ParseQualtran(const std::string& input, const std::string& output) {
+    LOG_INFO("Read Qualtran BloqLibrary JSON.");
+    auto ifs = std::ifstream(input);
+    if (!ifs.good()) {
+        std::cerr << "failed to open: " << input << std::endl;
+        return ReturnStatus::Failure;
+    }
+    std::string json_text((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+
+    LOG_INFO("Build IR from Qualtran BloqLibrary.");
+    qret::ir::IRContext context;
+    auto* module = qret::ir::Module::Create("Qualtran", context);
+    auto builder = qret::frontend::CircuitBuilder(module);
+    qret::frontend::BuildCircuitFromQualtranJson(json_text, builder);
+
+    LOG_INFO("Save IR.");
+    auto ofs = std::ofstream(output);
+    if (!ofs.good()) {
+        std::cerr << "failed to open: " << output << std::endl;
+        return ReturnStatus::Failure;
+    }
+
+    auto j = qret::Json();
+    j = *module;
+    ofs << j << std::endl;
+    ofs.close();
+
+    return ReturnStatus::Success;
+}
 ReturnStatus Parse(const std::string& input, const std::string& output, const std::string& format) {
     if (format == "OpenQASM2") {
         return ParseOpenQASM2(input, output);
     } else if (format == "OpenQASM3") {
         return ParseOpenQASM3(input, output);
+    } else if (format == "qualtran") {
+        return ParseQualtran(input, output);
     }
-    std::cerr << "unknown format: " << format << ". expected OpenQASM2 or OpenQASM3" << std::endl;
+    std::cerr << "unknown format: " << format << ". expected OpenQASM2, OpenQASM3, or qualtran"
+              << std::endl;
     return ReturnStatus::Failure;
 }
 ReturnStatus CommandParse::Main(int argc, const char** argv) {
@@ -94,7 +129,7 @@ ReturnStatus CommandParse::Main(int argc, const char** argv) {
         ("color", "Enable colored output.")
         ("input,i", po::value<std::string>(), "Input file")
         ("output,o", po::value<std::string>()->default_value("ir.json"), "Output file")
-        ("format,f", po::value<std::string>()->default_value("OpenQASM2"), "Format of input file ('OpenQASM2' or 'OpenQASM3'). OpenQASM3 is a compatibility subset.")
+        ("format,f", po::value<std::string>()->default_value("OpenQASM2"), "Format of input file ('OpenQASM2', 'OpenQASM3', or 'qualtran'). OpenQASM3 is a compatibility subset.")
     ; // NOLINT
     // clang-format on
 

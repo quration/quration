@@ -66,6 +66,7 @@ add_qret_test(frontend builder)
 add_qret_test(frontend functor)
 add_qret_test(frontend openqasm2)
 add_qret_test(frontend openqasm3)
+add_qret_test(frontend qualtran)
 
 # ir
 add_qret_test(ir circuit)

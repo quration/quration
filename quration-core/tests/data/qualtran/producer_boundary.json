@@ -1,0 +1,533 @@
+{
+  "name": "producer_boundary_test",
+  "table": [
+    {
+      "decomposition": [
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "1"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 1,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 2,
+              "bloqId": 3
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 3,
+              "bloqId": 4
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "1"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 4,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 4,
+              "bloqId": 2
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "instanceId": 5,
+              "bloqId": 5
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "x_thru",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "x_thru",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 6,
+              "bloqId": 6
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "anc_escape",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "instanceId": 7,
+              "bloqId": 7
+            },
+            "register": {
+              "name": "anc",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "sub_escape",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          }
+        }
+      ],
+      "bloqCounts": {
+        "6": {
+          "intVal": "1"
+        },
+        "1": {
+          "intVal": "1"
+        },
+        "7": {
+          "intVal": "1"
+        },
+        "4": {
+          "intVal": "1"
+        },
+        "2": {
+          "intVal": "2"
+        },
+        "3": {
+          "intVal": "1"
+        },
+        "5": {
+          "intVal": "1"
+        }
+      },
+      "bloq": {
+        "name": "qualtran._infra.composite_bloq.CompositeBloq",
+        "registers": {
+          "registers": [
+            {
+              "name": "x_thru",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "anc_escape",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            },
+            {
+              "name": "sub_escape",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          ]
+        },
+        "tComplexity": {
+          "clifford": "2"
+        }
+      }
+    },
+    {
+      "bloqId": 1,
+      "bloq": {
+        "name": "qualtran.bloqs.bookkeeping.allocate.Allocate",
+        "args": [
+          {
+            "name": "dtype",
+            "qdataType": {
+              "qany": {
+                "bitsize": {
+                  "intVal": "1"
+                }
+              }
+            }
+          },
+          {
+            "name": "dirty",
+            "intVal": "0"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "reg",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "1"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          ]
+        },
+        "tComplexity": {}
+      }
+    },
+    {
+      "bloqId": 2,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.x_basis.XGate",
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        },
+        "tComplexity": {
+          "clifford": "1"
+        }
+      }
+    },
+    {
+      "bloqId": 3,
+      "bloq": {
+        "name": "qualtran.bloqs.bookkeeping.free.Free",
+        "args": [
+          {
+            "name": "dtype",
+            "qdataType": {
+              "qbit": {}
+            }
+          },
+          {
+            "name": "dirty",
+            "intVal": "0"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "reg",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          ]
+        },
+        "tComplexity": {}
+      }
+    },
+    {
+      "bloqId": 4,
+      "bloq": {
+        "name": "qualtran.bloqs.bookkeeping.allocate.Allocate",
+        "args": [
+          {
+            "name": "dtype",
+            "qdataType": {
+              "qany": {
+                "bitsize": {
+                  "intVal": "1"
+                }
+              }
+            }
+          },
+          {
+            "name": "dirty",
+            "intVal": "1"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "reg",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "1"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          ]
+        },
+        "tComplexity": {}
+      }
+    },
+    {
+      "bloqId": 5,
+      "bloq": {
+        "name": "qualtran.bloqs.bookkeeping.free.Free",
+        "args": [
+          {
+            "name": "dtype",
+            "qdataType": {
+              "qbit": {}
+            }
+          },
+          {
+            "name": "dirty",
+            "intVal": "1"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "reg",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "LEFT"
+            }
+          ]
+        },
+        "tComplexity": {}
+      }
+    },
+    {
+      "bloqId": 6,
+      "bloq": {
+        "name": "qualtran.bloqs.bookkeeping.allocate.Allocate",
+        "args": [
+          {
+            "name": "dtype",
+            "qdataType": {
+              "qany": {
+                "bitsize": {
+                  "intVal": "2"
+                }
+              }
+            }
+          },
+          {
+            "name": "dirty",
+            "intVal": "0"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "reg",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          ]
+        },
+        "tComplexity": {}
+      }
+    },
+    {
+      "bloqId": 7,
+      "decomposition": [
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 6
+            },
+            "register": {
+              "name": "reg",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "anc",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          }
+        }
+      ],
+      "bloqCounts": {
+        "6": {
+          "intVal": "1"
+        }
+      },
+      "bloq": {
+        "name": "__main__.AllocatingSubBloq",
+        "registers": {
+          "registers": [
+            {
+              "name": "anc",
+              "dtype": {
+                "qany": {
+                  "bitsize": {
+                    "intVal": "2"
+                  }
+                }
+              },
+              "side": "RIGHT"
+            }
+          ]
+        },
+        "tComplexity": {}
+      }
+    }
+  ]
+}

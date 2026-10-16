@@ -1,0 +1,227 @@
+{
+  "name": "controlled_unsupported_int_test",
+  "table": [
+    {
+      "decomposition": [
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "4"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "4"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "danglingT": "LeftDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "4"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "ctrl",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "4"
+                  }
+                }
+              },
+              "side": "THRU"
+            }
+          }
+        },
+        {
+          "left": {
+            "bloqInstance": {
+              "bloqId": 1
+            },
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          },
+          "right": {
+            "danglingT": "RightDangle",
+            "register": {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          }
+        }
+      ],
+      "bloqCounts": {
+        "1": {
+          "intVal": "1"
+        }
+      },
+      "bloq": {
+        "name": "qualtran._infra.composite_bloq.CompositeBloq",
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "4"
+                  }
+                }
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 1,
+      "bloq": {
+        "name": "qualtran._infra.controlled.Controlled",
+        "args": [
+          {
+            "name": "subbloq",
+            "subbloq": 2
+          },
+          {
+            "name": "ctrl_spec",
+            "ctrlSpec": {
+              "qdtypes": [
+                {
+                  "quint": {
+                    "bitsize": {
+                      "intVal": "4"
+                    }
+                  }
+                }
+              ],
+              "cvs": [
+                {
+                  "ndarray": "k05VTVBZAQB2AHsnZGVzY3InOiAnPGk4JywgJ2ZvcnRyYW5fb3JkZXInOiBGYWxzZSwgJ3NoYXBlJzogKCksIH0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoGAAAAAAAAAA=="
+                }
+              ]
+            }
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "ctrl",
+              "dtype": {
+                "quint": {
+                  "bitsize": {
+                    "intVal": "4"
+                  }
+                }
+              },
+              "side": "THRU"
+            },
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "bloqId": 2,
+      "bloq": {
+        "name": "qualtran.bloqs.basic_gates.t_gate.TGate",
+        "args": [
+          {
+            "name": "is_adjoint",
+            "intVal": "0"
+          }
+        ],
+        "registers": {
+          "registers": [
+            {
+              "name": "q",
+              "dtype": {
+                "qbit": {}
+              },
+              "side": "THRU"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
