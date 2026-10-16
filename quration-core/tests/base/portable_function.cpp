@@ -88,6 +88,90 @@ TEST(PortableFunction, Initialize) {
     );
 }
 
+TEST(PortableFunction, IsValidAsRegisterFunction) {
+    using RT = PortableFunction::RegisterType;
+
+    // valid
+    ASSERT_NO_THROW(PortableAnnotatedFunction(
+            PortableFunction("f", {{"input", RT::BoolArray(4)}}, {{"output", RT::BoolArray(4)}}, {})
+    ));
+
+    // not valid input count
+    ASSERT_THROW(
+            PortableAnnotatedFunction(PortableFunction("f", {}, {{"output", RT::BoolArray(4)}}, {})
+            ),
+            std::runtime_error
+    );
+    ASSERT_THROW(
+            PortableAnnotatedFunction(PortableFunction(
+                    "f",
+                    {{"input", RT::BoolArray(4)}, {"input2", RT::BoolArray(4)}},
+                    {{"output", RT::BoolArray(4)}},
+                    {}
+            )),
+            std::runtime_error
+    );
+
+    // not valid input name
+    ASSERT_THROW(
+            PortableAnnotatedFunction(PortableFunction(
+                    "f",
+                    {{"wrong", RT::BoolArray(4)}},
+                    {{"output", RT::BoolArray(4)}},
+                    {}
+            )),
+            std::runtime_error
+    );
+
+    // not valid input type
+    ASSERT_THROW(
+            PortableAnnotatedFunction(PortableFunction(
+                    "f",
+                    {{"input", RT::Bool()}},
+                    {{"output", RT::BoolArray(4)}},
+                    {}
+            )),
+            std::runtime_error
+    );
+
+    // not valid output count
+    ASSERT_THROW(
+            PortableAnnotatedFunction(PortableFunction("f", {{"input", RT::BoolArray(4)}}, {}, {})),
+            std::runtime_error
+    );
+    ASSERT_THROW(
+            PortableAnnotatedFunction(PortableFunction(
+                    "f",
+                    {{"input", RT::BoolArray(4)}},
+                    {{"output", RT::BoolArray(4)}, {"output2", RT::BoolArray(4)}},
+                    {}
+            )),
+            std::runtime_error
+    );
+
+    // not valid output name
+    ASSERT_THROW(
+            PortableAnnotatedFunction(PortableFunction(
+                    "f",
+                    {{"input", RT::BoolArray(4)}},
+                    {{"wrong", RT::BoolArray(4)}},
+                    {}
+            )),
+            std::runtime_error
+    );
+
+    // not valid output type
+    ASSERT_THROW(
+            PortableAnnotatedFunction(PortableFunction(
+                    "f",
+                    {{"input", RT::BoolArray(4)}},
+                    {{"output", RT::Int()}},
+                    {}
+            )),
+            std::runtime_error
+    );
+}
+
 TEST(PortableFunction, AddInstruction) {
     auto function = PortableFunction(
             "function",
