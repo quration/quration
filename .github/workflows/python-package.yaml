@@ -11,6 +11,10 @@ env:
   # CMake version the pinned vcpkg 2026.03.18 registry expects
   SKBUILD_MINIMUM_VERSION: "0.8"
   SKBUILD_CMAKE_VERSION: ">=3.31.10"
+  # Oldest macOS the wheels support. Sets both the wheel's platform tag and the
+  # compile target; without it they follow the runner's macOS and pip rejects
+  # the wheel on older versions.
+  MACOSX_DEPLOYMENT_TARGET: "13.0"
 
 jobs:
   wheel:
@@ -119,6 +123,10 @@ jobs:
         env:
           SKBUILD_CMAKE_DEFINE: "CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake;QRET_BUILD_PYTHON=ON"
         run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            # Some scikit-build-core versions take the tag from this define, not the env.
+            export SKBUILD_CMAKE_DEFINE="${SKBUILD_CMAKE_DEFINE};CMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET}"
+          fi
           python -m pip install --upgrade pip build pytest coverage wheel numpy
           python -m build --wheel -Cwheel.py-api=${{ matrix.build-target == 'cp312-abi3' && 'cp312' || '' }}
         shell: bash
@@ -177,6 +185,16 @@ jobs:
             echo "Actual filename: $wheel_name"
             echo "Expected filename to contain: $expected_tag"
             exit 1
+          fi
+
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            expected_platform="macosx_${MACOSX_DEPLOYMENT_TARGET//./_}_"
+            if [[ "$wheel_name" != *"$expected_platform"* ]]; then
+              echo "Wheel platform tag does not match MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET}."
+              echo "Actual filename: $wheel_name"
+              echo "Expected filename to contain: $expected_platform"
+              exit 1
+            fi
           fi
 
           check_dir="dist/wheel-check"
