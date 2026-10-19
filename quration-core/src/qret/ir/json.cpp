@@ -257,9 +257,11 @@ void to_json(Json& j, const SwitchInst& inst) {
         j["registers"].emplace_back(r.id);
     }
     j["default"] = inst.GetDefaultBB()->GetName();
-    j["case"] = Json();
+    // Use string keys (object), not the integer case value as an array index: non-0-based or
+    // non-contiguous keys would otherwise leave null holes that from_json cannot read.
+    j["case"] = Json::object();
     for (const auto& [key, case_bb] : inst.GetCaseBB()) {
-        j["case"][key] = case_bb->GetName();
+        j["case"][std::to_string(key)] = case_bb->GetName();
     }
 }
 void to_json(Json& j, const ReturnInst& inst) {

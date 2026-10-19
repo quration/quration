@@ -249,24 +249,18 @@ public:
     Div(const RegisterAccessor& dst, const RegisterAccessor& src1, const RegisterAccessor& src2);
     void
     Mod(const RegisterAccessor& dst, const RegisterAccessor& src1, const RegisterAccessor& src2);
-    void Eq(const RegisterAccessor& dst,
-            const RegisterAccessor& src1,
-            const RegisterAccessor& src2);
-    void Ne(const RegisterAccessor& dst,
-            const RegisterAccessor& src1,
-            const RegisterAccessor& src2);
-    void Lt(const RegisterAccessor& dst,
-            const RegisterAccessor& src1,
-            const RegisterAccessor& src2);
-    void Le(const RegisterAccessor& dst,
-            const RegisterAccessor& src1,
-            const RegisterAccessor& src2);
-    void Gt(const RegisterAccessor& dst,
-            const RegisterAccessor& src1,
-            const RegisterAccessor& src2);
-    void Ge(const RegisterAccessor& dst,
-            const RegisterAccessor& src1,
-            const RegisterAccessor& src2);
+    void Eq(const RegisterAccessor& dst, const RegisterAccessor& src1, const RegisterAccessor& src2
+    );
+    void Ne(const RegisterAccessor& dst, const RegisterAccessor& src1, const RegisterAccessor& src2
+    );
+    void Lt(const RegisterAccessor& dst, const RegisterAccessor& src1, const RegisterAccessor& src2
+    );
+    void Le(const RegisterAccessor& dst, const RegisterAccessor& src1, const RegisterAccessor& src2
+    );
+    void Gt(const RegisterAccessor& dst, const RegisterAccessor& src1, const RegisterAccessor& src2
+    );
+    void Ge(const RegisterAccessor& dst, const RegisterAccessor& src1, const RegisterAccessor& src2
+    );
 
     [[nodiscard]] const std::string& Name() const {
         return name_;
@@ -1308,7 +1302,6 @@ private:
             if (!it->second.IsBoolArray()) {
                 return false;
             }
-            return true;
         }
         {
             if (output_.size() != 1) {
@@ -1321,8 +1314,8 @@ private:
             if (!it->second.IsBoolArray()) {
                 return false;
             }
-            return true;
         }
+        return true;
     }
 };
 }  // namespace qret

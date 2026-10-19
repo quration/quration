@@ -83,7 +83,9 @@ Registers CircuitGenerator::GetTemporalRegisters(std::size_t size) const {
     for (auto i = std::size_t{0}; i < size; ++i) {
         GetCircuit()->GetIR()->IncNumTmpRegisters();
     }
-    return GetBuilder()->GetRegisters(temporal_register_id_++, size);
+    const auto offset = temporal_register_id_;
+    temporal_register_id_ += size;
+    return GetBuilder()->GetRegisters(offset, size);
 }
 void CircuitGenerator::BeginCircuitDefinition() const {
     const auto cache_key = GetCacheKey();
