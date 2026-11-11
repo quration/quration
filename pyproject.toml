@@ -2,7 +2,7 @@
 name = "pyqret"
 description = "Python wrapper of QRET"
 readme = "README.md"
-required-python = ">=3.10"
+requires-python = ">=3.10"
 
 # authors =
 # license =
